@@ -1,5 +1,4 @@
 package com.telran.store.dto;
 
-public class productCreateDto {
-
+public class FavoriteCreateDto {
 }
