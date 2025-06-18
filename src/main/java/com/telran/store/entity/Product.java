@@ -35,8 +35,4 @@ public class Product {
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
-    private List<Favorite> favorites;
 }

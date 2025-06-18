@@ -16,7 +16,7 @@ public class Favorite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long favoriteId;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
-    private List<Product> products;
+    private Product products;
 }
