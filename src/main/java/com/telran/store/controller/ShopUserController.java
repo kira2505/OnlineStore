@@ -23,7 +23,6 @@ public class ShopUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto create(@RequestBody ShopUserCreateDto shopUserCreateDto){
-        System.out.println(shopUserCreateDto.toString());
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
     }
 
