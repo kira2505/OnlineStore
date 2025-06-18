@@ -8,14 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "favorites")
-public class Favorites {
+public class Favorite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long favoriteId;
-
-    private Long UserId;
-
-    private Long productId;
-
 }
