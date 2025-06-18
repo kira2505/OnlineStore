@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +16,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ProductID;
+    private Long productID;
 
     private String name;
 
@@ -24,7 +25,7 @@ public class Product {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal price;
 
-    private String imageURL;
+    private String imageUrl;
 
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal discountPrice;
@@ -32,5 +33,10 @@ public class Product {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedAt;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id")
+    private List<Favorite> favorites;
 }
