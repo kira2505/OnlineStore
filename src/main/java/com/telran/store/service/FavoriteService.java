@@ -8,5 +8,4 @@ public interface FavoriteService {
 
     List<Favorite> getAll();
 
-    Favorite get(long product_id);
 }
