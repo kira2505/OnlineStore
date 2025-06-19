@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",  uses = {FavoriteMapper.class})
 public interface ShopUserMapper {
 
     ShopUser toEntity(ShopUserCreateDto shopUserCreateDto);
