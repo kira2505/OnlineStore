@@ -8,4 +8,6 @@ import java.util.Set;
 public interface FavoriteService {
 
     Set<Favorite> getAll();
+
+    Favorite save(Favorite favorite);
 }

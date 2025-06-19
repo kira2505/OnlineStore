@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -18,5 +17,10 @@ public class FavoriteServiceImpl implements FavoriteService{
     @Override
     public Set<Favorite> getAll() {
         return new HashSet<>(favoriteRepository.findAll());
+    }
+
+    @Override
+    public Favorite save(Favorite favorite) {
+        return favoriteRepository.save(favorite);
     }
 }
