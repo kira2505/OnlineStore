@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/favorites")
@@ -19,7 +20,7 @@ public class FavoriteController {
     private FavoriteMapper favoriteMapper;
 
     @GetMapping
-    public List<FavoriteResponseDto> getAll () {
-        return favoriteMapper.toDtoList(favoriteService.getAll());
+    public Set<FavoriteResponseDto> getAll () {
+        return favoriteMapper.toDtoSet(favoriteService.getAll());
     }
 }

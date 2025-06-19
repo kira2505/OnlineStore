@@ -5,7 +5,9 @@ import com.telran.store.repository.FavoriteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FavoriteServiceImpl implements FavoriteService{
@@ -14,8 +16,7 @@ public class FavoriteServiceImpl implements FavoriteService{
     private FavoriteRepository favoriteRepository;
 
     @Override
-    public List<Favorite> getAll() {
-        return favoriteRepository.findAll();
+    public Set<Favorite> getAll() {
+        return new HashSet<>(favoriteRepository.findAll());
     }
-
 }
