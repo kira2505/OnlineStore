@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ShopUserResponseDto {
 
-    private Long userId;
+    private Long id;
 
     private String name;
 
