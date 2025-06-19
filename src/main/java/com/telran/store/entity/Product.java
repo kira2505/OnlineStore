@@ -3,6 +3,8 @@ package com.telran.store.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,7 +18,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productID;
+    private Long id;
 
     private String name;
 
@@ -31,8 +33,10 @@ public class Product {
     private BigDecimal discountPrice;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt = LocalDateTime.now();
 }

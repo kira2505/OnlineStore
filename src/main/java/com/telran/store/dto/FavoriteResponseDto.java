@@ -7,5 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FavoriteResponseDto {
 
-    private Long favoriteId;
+    private Long id;
+
+    private ProductResponseDto products;
 }

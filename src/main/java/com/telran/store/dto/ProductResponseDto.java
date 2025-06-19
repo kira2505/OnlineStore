@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ProductResponseDto {
 
-    private Long ProductID;
+    private Long id;
 
     private String name;
 
@@ -17,7 +17,7 @@ public class ProductResponseDto {
 
     private BigDecimal price;
 
-    private String imageURL;
+    private String imageUrl;
 
     private BigDecimal discountPrice;
 }
