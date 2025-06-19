@@ -56,7 +56,6 @@ class CategoryControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        assertTrue(true);
     }
 
     @Test

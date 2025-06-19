@@ -58,7 +58,6 @@ class ShopUserControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        assertTrue(true);
     }
 
     @Test
