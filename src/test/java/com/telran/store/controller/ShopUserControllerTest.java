@@ -2,7 +2,6 @@ package com.telran.store.controller;
 
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
-import com.telran.store.mapper.FavoriteMapper;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import org.junit.jupiter.api.Test;
