@@ -2,6 +2,7 @@ package com.telran.store.controller;
 
 import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserResponseDto;
+import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,9 @@ public class ShopUserController {
 
     @GetMapping("{id}")
     public ShopUserResponseDto getById(@PathVariable long id){
-        return shopUserMapper.toDto(shopUserService.getById(id));
+        ShopUser byId = shopUserService.getById(id);
+        ShopUserResponseDto dto = shopUserMapper.toDto(byId);
+        return dto;
     }
 
     @DeleteMapping("{id}")
