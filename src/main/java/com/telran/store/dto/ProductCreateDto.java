@@ -15,7 +15,7 @@ public class ProductCreateDto {
 
     private BigDecimal price;
 
-    private String imageURL;
+    private String imageUrl;
 
     private BigDecimal discountPrice;
 }

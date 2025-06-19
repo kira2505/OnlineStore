@@ -6,9 +6,9 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {/*UserMapper.class,*/ ProductMapper.class})
-public interface FavoriteMapper {
 
+@Mapper(componentModel = "spring", uses = {ProductMapper.class})
+public interface FavoriteMapper {
 
     FavoriteResponseDto toDto(Favorite favorite);
 
