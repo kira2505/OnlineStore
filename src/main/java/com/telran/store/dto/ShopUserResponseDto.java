@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -15,5 +15,5 @@ public class ShopUserResponseDto {
 
     private String name;
 
-    private List<FavoriteResponseDto> favorites;
+    private Set<FavoriteResponseDto> favorites;
 }

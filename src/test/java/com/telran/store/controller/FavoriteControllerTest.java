@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,22 +43,22 @@ class FavoriteControllerTest {
 
     @Test
     void testGetProductAll() throws Exception {
-        List<Favorite> favorites = Arrays.asList(
+        Set<Favorite> favorites = Set.of(
                 Favorite.builder()
                         .id(1L).products(new Product()).build(),
                 Favorite.builder()
                         .id(2L).products(new Product()).build());
-        List<FavoriteResponseDto> favoriteResponseDtos = favorites.stream()
+        Set<FavoriteResponseDto> favoriteResponseDtos = favorites.stream()
                 .map(favorite -> new FavoriteResponseDto(favorite.getId(),
                         new ProductResponseDto(favorite.getProducts().getId(),
                                 favorite.getProducts().getName(),
                                 favorite.getProducts().getDescription(),
                                 favorite.getProducts().getPrice(),
                                 favorite.getProducts().getImageUrl(),
-                                favorite.getProducts().getDiscountPrice()))).toList();
+                                favorite.getProducts().getDiscountPrice()))).collect(Collectors.toSet());
 
         when(favoriteService.getAll()).thenReturn(favorites);
-        when(favoriteMapper.toDtoList(any())).thenReturn(favoriteResponseDtos);
+        when(favoriteMapper.toDtoSet(any())).thenReturn(favoriteResponseDtos);
 
         String contentAsString = mockMvc.perform(get("/favorites"))
                 .andExpect(status().isOk())

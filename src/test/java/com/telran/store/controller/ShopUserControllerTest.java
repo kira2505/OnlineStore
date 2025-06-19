@@ -16,6 +16,7 @@ import static org.mockito.Mockito.doNothing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +47,7 @@ class ShopUserControllerTest {
                         .id(2L).name("Max").build());
         List<ShopUserResponseDto> shopUserResponseDtos = shopUsers.stream()
                 .map(shopUser -> new ShopUserResponseDto(shopUser.getId(),
-                        shopUser.getName(), new ArrayList<>())).toList();
+                        shopUser.getName(), new HashSet<>())).toList();
 
         when(shopUserService.getAll()).thenReturn(shopUsers);
         when(shopUserMapper.toDtoList(any())).thenReturn(shopUserResponseDtos);
@@ -63,7 +64,7 @@ class ShopUserControllerTest {
     void testGetUserById() throws Exception {
         ShopUser shopUser = ShopUser.builder().id(1L).name("Alex").build();
         ShopUserResponseDto shopUserDto = new ShopUserResponseDto(1L, "Alex",
-                new ArrayList<>());
+                new HashSet<>());
 
         when(shopUserService.getById(shopUser.getId())).thenReturn(shopUser);
         when(shopUserMapper.toDto(any())).thenReturn(shopUserDto);
@@ -93,7 +94,7 @@ class ShopUserControllerTest {
     void testCreateUser() throws Exception {
         ShopUser user = ShopUser.builder().id(1L).name("Max").build();
         ShopUserResponseDto userResponseDto =
-                new ShopUserResponseDto(1L, "Max", new ArrayList<>());
+                new ShopUserResponseDto(1L, "Max", new HashSet<>());
 
         when(shopUserService.create(any())).thenReturn(user);
         when(shopUserMapper.toDto(any())).thenReturn(userResponseDto);
