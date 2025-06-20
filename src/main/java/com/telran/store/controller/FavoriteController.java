@@ -28,6 +28,6 @@ public class FavoriteController {
 
     @PostMapping
     public FavoriteResponseDto addToFavorite(@RequestBody FavoriteCreateDto favorite) {
-        return favoriteMapper.toDto(favoriteService.save(favoriteMapper.toEntity(favorite)));
+        return favoriteMapper.toDto(favoriteService.save(favorite));
     }
 }

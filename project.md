@@ -10,3 +10,11 @@
 6. Добавить файлы schema.sql и data.sql (в ресурсы) (можно в data.sql указать запрос для очистки данных и не добавлять schema.sql)
 7. Написать unit тесты на слой сервисов 
 8. Разобрать и использовать библиотеку mockito со Spring Boot тестами 
+
+Спринт 2:
+1. Поменять порт на стандартный 5432
+2. Добавить для Product метод edit(), delete(); для Category edit(), delete(); 
+для Shop User edit(), delete()
+3. Метод фильтрации для продуктов(category, minPrice, maxPrice, discount, sort)
+4. Избавится от авто генерации таблиц и подключить liquibase
+5. Перехватить исключения Handler Exception 

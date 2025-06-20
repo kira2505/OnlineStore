@@ -1,5 +1,6 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.FavoriteCreateDto;
 import com.telran.store.entity.Favorite;
 
 import java.util.List;
@@ -9,5 +10,5 @@ public interface FavoriteService {
 
     Set<Favorite> getAll();
 
-    Favorite save(Favorite favorite);
+    Favorite save(FavoriteCreateDto favorite);
 }

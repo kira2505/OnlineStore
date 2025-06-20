@@ -33,8 +33,7 @@ public class ShopUser {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "shopUser")
     @JsonManagedReference
     private Set<Favorite> favorites;
 }
