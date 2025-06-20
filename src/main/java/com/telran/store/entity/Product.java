@@ -1,5 +1,6 @@
 package com.telran.store.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,4 +43,12 @@ public class Product {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP")
     @UpdateTimestamp
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @OneToMany
+    @JsonManagedReference
+    @JoinColumn(name = "product_id")
+    private List<Favorite> favorites;
+
+    @ManyToOne
+    private Category category;
 }

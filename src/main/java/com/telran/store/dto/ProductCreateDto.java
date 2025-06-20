@@ -20,4 +20,6 @@ public class ProductCreateDto {
     private String imageUrl;
 
     private BigDecimal discountPrice;
+
+    private CategoryDto category;
 }

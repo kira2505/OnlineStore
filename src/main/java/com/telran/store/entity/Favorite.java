@@ -1,6 +1,7 @@
 package com.telran.store.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,11 +19,17 @@ public class Favorite {
     @EqualsAndHashCode.Exclude
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
+    @JsonManagedReference
     private Product products;
 
     @ManyToOne
     @JsonBackReference
     private ShopUser shopUser;
+
+    public Favorite(Product products, ShopUser shopUser) {
+        this.products = products;
+        this.shopUser = shopUser;
+    }
 }
