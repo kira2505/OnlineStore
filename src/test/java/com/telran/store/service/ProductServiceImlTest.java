@@ -22,7 +22,7 @@ class ProductServiceImlTest {
     private ProductRepository productRepository;
 
     @InjectMocks
-    private ProductServiceIml productServiceIml;
+    private ProductServiceImpl productServiceIml;
 
     @Test
     void testGetAllProduct() {

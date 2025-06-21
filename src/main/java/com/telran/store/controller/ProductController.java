@@ -28,7 +28,6 @@ public class ProductController {
     }
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
     public List<ProductResponseDto> getAll(){
         return productMapper.toDtoList(productService.getAll());
     }
@@ -43,5 +42,9 @@ public class ProductController {
         productService.deleteById(product_id);
     }
 
-
+    @PutMapping("/{product_id}")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @RequestBody ProductCreateDto dto) {
+        return productMapper.toDto(productService.edit(id, dto));
+    }
 }
