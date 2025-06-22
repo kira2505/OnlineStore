@@ -23,7 +23,7 @@ public class CategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryResponseDto create(@RequestBody CategoryCreateDto categoryCreateDto){
-        return categoryMapper.toDto(categoryService.create(categoryMapper.toEntity(categoryCreateDto)));
+        return categoryMapper.toDto(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
     }
 
     @GetMapping
@@ -39,5 +39,11 @@ public class CategoryController {
     @DeleteMapping("{id}")
     public void deleteById(@PathVariable long id){
         categoryService.deleteById(id);
+    }
+
+    @PatchMapping("{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CategoryResponseDto edit(@PathVariable long id, @RequestBody CategoryCreateDto category){
+        return categoryMapper.toDto(categoryService.edit(id, category));
     }
 }

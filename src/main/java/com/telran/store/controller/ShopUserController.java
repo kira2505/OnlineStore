@@ -43,4 +43,10 @@ public class ShopUserController {
     public void deleteById(@PathVariable long id){
         shopUserService.deleteById(id);
     }
+
+    @PatchMapping("{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ShopUserResponseDto edit(@PathVariable long id, @RequestBody ShopUserCreateDto shopUserCreateDto){
+        return shopUserMapper.toDto(shopUserService.edit(id, shopUserCreateDto));
+    }
 }

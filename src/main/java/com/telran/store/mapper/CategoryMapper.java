@@ -4,8 +4,7 @@ import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.CategoryResponseDto;
 import com.telran.store.entity.Category;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -13,6 +12,9 @@ import java.util.List;
 public interface CategoryMapper {
 
     Category toEntity(CategoryCreateDto categoryCreateDto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void toUpdateEntity(@MappingTarget Category category, CategoryCreateDto dto);
 
     CategoryResponseDto toDto(Category category);
 
