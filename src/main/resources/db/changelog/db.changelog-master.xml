@@ -1,0 +1,97 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="202308111253456" author="Kyra Subotovska">
+        <comment>Add categories table</comment>
+        <createTable tableName="categories">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="categories_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202308111273456" author="Kyra Subotovska">
+        <comment>Add favorites table</comment>
+        <createTable tableName="favorites">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="favorites_pkey"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shop_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202308911273456" author="Kyra Subotovska">
+        <comment>Add products table</comment>
+        <createTable tableName="products">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="products_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="price" type="DECIMAL"/>
+            <column name="image_url" type="VARCHAR(255)"/>
+            <column name="discount_price" type="DECIMAL"/>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="category_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202308919873456" author="Kyra Subotovska">
+        <comment>Add shop_users table</comment>
+        <createTable tableName="shop_users">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="shop_users_pkey"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="password_hash" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202306519873456" author="Kyra Subotovska">
+        <comment>Add foreign keys constraint</comment>
+        <addForeignKeyConstraint
+                baseTableName="favorites"
+                baseColumnNames="product_id"
+                referencedTableName="products"
+                referencedColumnNames="id"
+                constraintName="fk_favorites_product"/>
+    </changeSet>
+
+    <changeSet id="202458919873456" author="Kyra Subotovska">
+        <comment>Add foreign keys constraint</comment>
+        <addForeignKeyConstraint
+                baseTableName="favorites"
+                baseColumnNames="shop_user_id"
+                referencedTableName="shop_users"
+                referencedColumnNames="id"
+                constraintName="fk_favorites_shop_user"/>
+    </changeSet>
+
+    <changeSet id="202306919873456" author="Kyra Subotovska">
+        <comment>Add foreign keys constraint</comment>
+        <addForeignKeyConstraint
+                baseTableName="products"
+                baseColumnNames="category_id"
+                referencedTableName="categories"
+                referencedColumnNames="id"
+                constraintName="fk_products_category"/>
+    </changeSet>
+
+</databaseChangeLog>
