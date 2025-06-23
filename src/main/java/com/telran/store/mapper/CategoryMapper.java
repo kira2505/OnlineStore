@@ -13,7 +13,6 @@ public interface CategoryMapper {
 
     Category toEntity(CategoryCreateDto categoryCreateDto);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void toUpdateEntity(@MappingTarget Category category, CategoryCreateDto dto);
 
     CategoryResponseDto toDto(Category category);

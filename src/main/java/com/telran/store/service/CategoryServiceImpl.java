@@ -42,8 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category edit(long id, CategoryCreateDto category) {
-        Category categoryById = categoryRepository.findById(id).orElseThrow(()
-                -> new NoSuchCategoryException("Category with ID " + id + " not found."));
+        Category categoryById = getById(id);
 
         categoryMapper.toUpdateEntity(categoryById, category);
         return categoryRepository.save(categoryById);

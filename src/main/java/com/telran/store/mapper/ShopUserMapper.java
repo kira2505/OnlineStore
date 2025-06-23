@@ -19,6 +19,5 @@ public interface ShopUserMapper {
 
     List<ShopUserResponseDto> toDtoList(List<ShopUser> shopUsers);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void toUpdateEntity(@MappingTarget ShopUser shopUser, ShopUserCreateDto dto);
 }

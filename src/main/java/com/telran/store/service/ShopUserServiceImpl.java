@@ -43,8 +43,7 @@ public class ShopUserServiceImpl implements ShopUserService {
 
     @Override
     public ShopUser edit(long id, ShopUserCreateDto shopUser) {
-        ShopUser user = shopUserRepository.findById(id).orElseThrow(()
-                -> new UserNotFoundException("User with ID " + id + " not found."));
+        ShopUser user = getById(id);
 
         shopUserMapper.toUpdateEntity(user, shopUser);
         return shopUserRepository.save(user);

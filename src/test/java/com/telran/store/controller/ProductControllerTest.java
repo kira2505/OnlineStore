@@ -54,11 +54,11 @@ class ProductControllerTest {
                         product.getName(), product.getDescription(), product.getPrice(),
                         product.getImageUrl(), product.getDiscountPrice())).toList();
 
-        when(productService.getAll()).thenReturn(productList);
+        when(productService.getAll(any(), any(), any(), any(), any())).thenReturn(productList);
         when(productMapper.toDtoList(any())).thenReturn(productResponseDtos);
 
         String contentAsString = mockMvc.perform(get("/products"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andReturn()
                 .getResponse()

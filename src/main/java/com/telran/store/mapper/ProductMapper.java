@@ -13,7 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class})
 public interface ProductMapper {
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateProductFromDto(ProductCreateDto dto, @MappingTarget Product product);
 
     Product toEntity(ProductCreateDto productCreateDto);

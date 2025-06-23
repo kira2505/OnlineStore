@@ -30,7 +30,6 @@ public class ProductController {
     }
 
     @GetMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
     public List<ProductResponseDto> getAll(@RequestParam(name = "category", required = false) String category,
                                            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
                                            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
@@ -49,5 +48,9 @@ public class ProductController {
         productService.deleteById(product_id);
     }
 
-
+    @PatchMapping("/{product_id}")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @RequestBody ProductCreateDto dto) {
+        return productMapper.toDto(productService.edit(id, dto));
+    }
 }
