@@ -62,6 +62,6 @@ class CategoryServiceImplTest {
 
         when(categoryRepository.save(category)).thenReturn(category);
 
-        assertEquals(category, categoryService.create(category));
+        assertEquals(category, categoryService.save(category));
     }
 }
