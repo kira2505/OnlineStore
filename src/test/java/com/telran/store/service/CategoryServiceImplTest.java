@@ -1,6 +1,8 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.entity.Category;
+import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,9 @@ class CategoryServiceImplTest {
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
+
+    @Mock
+    private CategoryMapper categoryMapper;
 
     @Test
     void testGetAllCategories() {
@@ -63,5 +68,23 @@ class CategoryServiceImplTest {
         when(categoryRepository.save(category)).thenReturn(category);
 
         assertEquals(category, categoryService.save(category));
+    }
+
+    @Test
+    void testEditCategory() {
+        Category existing = Category.builder().id(1L).name("phones").build();
+
+        CategoryCreateDto dto = new CategoryCreateDto();
+        dto.setName("headphones");
+
+        when(categoryRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+
+        when(categoryRepository.save(existing)).thenReturn(existing);
+
+        assertSame(existing, categoryService.edit(existing.getId(), dto));
+
+        verify(categoryMapper).toUpdateEntity(existing, dto);
+
+        verify(categoryRepository).save(existing);
     }
 }
