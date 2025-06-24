@@ -1,6 +1,10 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.CategoryDto;
+import com.telran.store.dto.ProductCreateDto;
+import com.telran.store.entity.Category;
 import com.telran.store.entity.Product;
+import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +27,12 @@ class ProductServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private CategoryService categoryService;
+
+    @Mock
+    private ProductMapper productMapper;
 
     @InjectMocks
     private ProductServiceImpl productServiceIml;
@@ -84,6 +94,37 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).deleteById(productOne.getId());
     }
 
+    @Test
+    void testUpdateProduct() {
+        Product product = new Product().builder().id(1L).name("Flowerpot").build();
 
+        Category category = new Category().builder().id(1L).name("Phones").build();
+
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setCategoryId(1L);
+
+        ProductCreateDto productCreateDto = new ProductCreateDto();
+        productCreateDto.setName("Lopata");
+        productCreateDto.setCategory(categoryDto);
+
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(categoryService.getById(category.getId())).thenReturn(category);
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        doAnswer(invocation -> {
+            ProductCreateDto source = invocation.getArgument(0);
+            Product target = invocation.getArgument(1);
+            target.setName(source.getName());
+            return null;
+        }).when(productMapper).updateProductFromDto(any(), any());
+
+        Product result = productServiceIml.edit(product.getId(), productCreateDto);
+
+        verify(productMapper).updateProductFromDto(productCreateDto, product);
+        verify(categoryService).getById(category.getId());
+        verify(productRepository).save(product);
+
+        assertEquals("Lopata", result.getName());
+    }
 
 }

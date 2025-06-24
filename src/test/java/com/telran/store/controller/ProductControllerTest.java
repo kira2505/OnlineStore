@@ -21,8 +21,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -114,5 +114,26 @@ class ProductControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
+
+    @Test
+    void testUpdateProduct() throws Exception {
+        Product product = Product.builder().id(1L).name("Flowerpot").build();
+
+        ProductCreateDto productCreateDto = new ProductCreateDto();
+        productCreateDto.setName("Lopata");
+
+        when(productService.edit(eq(1L), any(ProductCreateDto.class))).thenReturn(product);
+        when(productMapper.toDto(product)).thenReturn(new ProductResponseDto());
+
+        mockMvc.perform(patch("/products/" + product.getId()).contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(productCreateDto)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(productService).edit(eq(1L), any(ProductCreateDto.class));
+        verify(productMapper).toDto(product);
     }
 }
