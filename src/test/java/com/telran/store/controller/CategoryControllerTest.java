@@ -95,7 +95,7 @@ class CategoryControllerTest {
         CategoryResponseDto categoryResponseDto =
                 new CategoryResponseDto(1L, "phones", new ArrayList<>());
 
-        when(categoryService.create(any())).thenReturn(category);
+        when(categoryService.save(any())).thenReturn(category);
         when(categoryMapper.toDto(any())).thenReturn(categoryResponseDto);
 
         mockMvc.perform(post("/categories")
