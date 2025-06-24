@@ -3,6 +3,7 @@ package com.telran.store.handler;
 import com.telran.store.exception.FavoriteNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.exception.UserNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
