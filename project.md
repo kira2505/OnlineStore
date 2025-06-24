@@ -24,6 +24,11 @@
 2. CartItem -> товар, который находится в корзине, должны быть id, product_id, quantity, card_id(внешний ключ)
 3. Order -> заказ, должен быть status, created, etc;
 OrderItem
-4. User -> Cart -> CartItem -> User -> Order(товары из таблицы CartItem, должны перетекать в таблицу OrderItem)
-5. Payment - сущность, должны быть user_id, amount, date, order_id;
+4. Добавить в Cart и Order методы: getById(), create(создается только первый раз при попытке добавить товар в корзину
+реализация только в сервисе), add(), clear(один товар удаляет), edit(), delete(удаляет корзину); 
+Для Order create(передаем корзину, сверяем, удаляем товары из CartItem и добавляем в OrderItem), 
+get(показывает статус заказа)
+5. User -> Cart -> CartItem -> User -> Order(товары из таблицы CartItem, должны перетекать в таблицу OrderItem)
+6. Payment - сущность, должны быть user_id, amount, date, order_id;
 Payment - controller, service etc
+7. Добавить JACOCO - плагин
