@@ -28,12 +28,10 @@ public class Product {
 
     private String description;
 
-    @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal price;
 
     private String imageUrl;
 
-    @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal discountPrice;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")

@@ -7,7 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceImlTest {
+class ProductServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
@@ -26,17 +29,29 @@ class ProductServiceImlTest {
 
     @Test
     void testGetAllProduct() {
+        String category = "Phones";
+        BigDecimal minPrice = new BigDecimal("100.00");
+        BigDecimal maxPrice = new BigDecimal("200.00");
+        Boolean discount = true;
+        String sortBy = "price";
         List<Product> products = Arrays.asList(
                 Product.builder()
                         .id(1L).name("Flowerpot").build(),
                 Product.builder()
                         .id(2L).name("Lopata").build());
 
-        when(productRepository.findAll()).thenReturn(products);
+        when(productRepository.findAll(any(Specification.class), any(Sort.class)))
+                .thenReturn(products);
 
-        List<Product> productList = productServiceIml.getAll();
+        List<Product> productList = productServiceIml.getAll(category, minPrice,
+                maxPrice, discount, sortBy);
+
         assertEquals(2, productList.size());
+
+        verify(productRepository, times(1)).findAll(any(Specification.class),
+                any(Sort.class));
     }
+
 
     @Test
     void testCreateProduct() {
