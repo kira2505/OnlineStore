@@ -1,5 +1,6 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
@@ -11,15 +12,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -104,5 +104,24 @@ class ShopUserControllerTest {
                         .content("{\"name\": \"Max\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void testEditUser() throws Exception {
+        ShopUser existing = ShopUser.builder().id(1L).name("Max").build();
+
+        ShopUserCreateDto dto = new ShopUserCreateDto();
+        dto.setName("Max");
+
+        ShopUserResponseDto responseDto = new ShopUserResponseDto(existing.getId(), "Max", new HashSet<>());
+        when(shopUserService.edit(eq(existing.getId()),any(ShopUserCreateDto.class))).thenReturn(existing);
+
+        when(shopUserMapper.toDto(any())).thenReturn(responseDto);
+        mockMvc.perform(patch("/users/{id}", existing.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Max\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Max"))
+                .andExpect(jsonPath("$.id").value(existing.getId()));
     }
 }

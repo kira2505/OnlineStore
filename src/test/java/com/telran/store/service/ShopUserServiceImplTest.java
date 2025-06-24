@@ -1,6 +1,8 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,9 @@ class ShopUserServiceImplTest {
 
     @InjectMocks
     private ShopUserServiceImpl shopUserService;
+
+    @Mock
+    private ShopUserMapper shopUserMapper;
 
     @Test
     void testGetAllUsers() {
@@ -67,4 +72,21 @@ class ShopUserServiceImplTest {
         assertEquals(user, shopUserService.create(user));
     }
 
+    @Test
+    void testEditUser() {
+        ShopUser existing = ShopUser.builder().id(1L).name("Alex").build();
+
+        ShopUserCreateDto dto = new ShopUserCreateDto();
+        dto.setName("Max");
+
+        when(shopUserRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+
+        when(shopUserRepository.save(existing)).thenReturn(existing);
+
+        assertSame(existing, shopUserService.edit(existing.getId(), dto));
+
+        verify(shopUserMapper).toUpdateEntity(existing, dto);
+
+        verify(shopUserRepository).save(existing);
+    }
 }

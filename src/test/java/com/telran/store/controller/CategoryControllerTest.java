@@ -1,5 +1,6 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.dto.CategoryResponseDto;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -103,6 +104,25 @@ class CategoryControllerTest {
                         .content("{\"name\": \"phones\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void testEditCategory() throws Exception {
+        Category existing = Category.builder().id(1L).name("headphones").build();
+
+        CategoryCreateDto dto = new CategoryCreateDto();
+        dto.setName("headphones");
+
+        CategoryResponseDto responseDto = new CategoryResponseDto(existing.getId(), "headphones", new ArrayList<>());
+        when(categoryService.edit(eq(existing.getId()),any(CategoryCreateDto.class))).thenReturn(existing);
+
+        when(categoryMapper.toDto(any())).thenReturn(responseDto);
+        mockMvc.perform(patch("/categories/{id}", existing.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"headphones\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("headphones"))
+                .andExpect(jsonPath("$.id").value(existing.getId()));
     }
 
 }
