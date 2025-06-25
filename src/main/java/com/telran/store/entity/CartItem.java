@@ -21,12 +21,12 @@ public class CartItem {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
     @JsonBackReference
     private Cart cart;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
-    @JsonBackReference
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     private Integer quantity;

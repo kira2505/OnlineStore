@@ -1,6 +1,7 @@
 package com.telran.store.controller;
 
 import com.telran.store.dto.AddToCartRequest;
+import com.telran.store.dto.CartItemResponseDto;
 import com.telran.store.dto.CartResponseDto;
 import com.telran.store.entity.Cart;
 import com.telran.store.entity.CartItem;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/carts")
@@ -22,16 +22,13 @@ public class CartController {
     @Autowired
     private CartMapper cartMapper;
 
-    @GetMapping
-    public List<Cart> getAll() {
-        return List.of();
-    }
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public CartResponseDto add(@RequestHeader("userId") Long userId,
-                               @RequestBody AddToCartRequest request) {
-        return cartMapper.toDto(cartService.add(userId, request));
+    public CartItemResponseDto add(@RequestHeader("userId") Long userId,
+                                   @RequestBody AddToCartRequest request) {
+        CartItem cartItem = cartService.add(userId, request);
+        return cartMapper.toCartItemDto(cartItem);
     }
 
 
@@ -39,9 +36,9 @@ public class CartController {
         return null;
     }
 
-    @GetMapping("/{cart_id}")
-    public List<CartItem> getById(Long id) {
-        return List.of();
+    @GetMapping("/{user_id}")
+    public CartResponseDto getById(@RequestHeader("userId") Long userId) {
+        return cartMapper.toDto(cartService.getById(userId));
     }
 
 

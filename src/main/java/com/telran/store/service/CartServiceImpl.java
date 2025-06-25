@@ -35,8 +35,6 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private CartItemRepository cartItemRepository;
 
-
-
     @Override
     public Cart create(ShopUser user) {
         Cart cart = cartRepository.findByUserId(user.getId());
@@ -50,7 +48,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public Cart add(Long userId, AddToCartRequest cartRequest) {
+    public CartItem add(Long userId, AddToCartRequest cartRequest) {
         ShopUser shopUser = shopUserRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
@@ -63,18 +61,20 @@ public class CartServiceImpl implements CartService{
                 .filter(cartItem -> cartItem.getProduct().getId().equals(product.getId()))
                 .findFirst();
 
+        CartItem cartItem;
         if (existingCartItemOpt.isPresent()) {
-            CartItem cartItem = existingCartItemOpt.get();
+            cartItem = existingCartItemOpt.get();
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
         } else {
-            CartItem newCartItem = new CartItem();
-            newCartItem.setCart(cart);
-            newCartItem.setProduct(product);
-            newCartItem.setQuantity(cartRequest.getQuantity());
-            newCartItem.setPrice(product.getPrice());
-            cart.getCartItems().add(newCartItem);
+            cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(cartRequest.getQuantity());
+            cartItem.setPrice(product.getPrice());
+            cart.getCartItems().add(cartItem);
         }
-        return cartRepository.save(cart);
+        cartItemRepository.save(cartItem);
+        return cartItem;
     }
 
 
@@ -84,8 +84,8 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public List<CartItem> getById(Long id) {
-        return List.of();
+    public Cart getById(Long userId) {
+        return cartRepository.findByUserId(userId);
     }
 
     @Override
