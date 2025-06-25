@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/carts")
@@ -27,27 +29,29 @@ public class CartController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public CartItemResponseDto add(@RequestHeader("userId") Long userId,
                                    @RequestBody AddToCartRequest request) {
-        CartItem cartItem = cartService.add(userId, request);
-        return cartMapper.toCartItemDto(cartItem);
+        return cartMapper.toCartItemDto(cartService.add(userId, request));
     }
 
-
-    public Cart edit(Cart cart) {
-        return null;
+    @PatchMapping("/{user_id}")
+    public CartResponseDto edit(@PathVariable("user_id") Long userId,
+                                @RequestBody AddToCartRequest cartRequest) {
+        return cartMapper.toDto(cartService.edit(userId, cartRequest));
     }
 
     @GetMapping("/{user_id}")
-    public CartResponseDto getById(@RequestHeader("userId") Long userId) {
+    public CartResponseDto getById(@PathVariable("user_id") Long userId) {
         return cartMapper.toDto(cartService.getById(userId));
     }
 
-
-    public void clearCart(Long id) {
-
+    @PutMapping("/clear/{user_id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void clearCart(@PathVariable("user_id") Long userId) {
+        cartService.clearCart(userId);
     }
 
-    @DeleteMapping("/{cart_id}")
-    public void deleteById(Long id) {
-        cartService.deleteById(id);
+    @DeleteMapping("/{user_id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable("user_id") Long userId) {
+        cartService.deleteById(userId);
     }
 }

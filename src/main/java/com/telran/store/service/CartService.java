@@ -14,11 +14,11 @@ public interface CartService {
 
     CartItem add(Long userId, AddToCartRequest cartRequest);
 
-    Cart edit(Cart cart);
+    Cart edit(Long userId, AddToCartRequest cartRequest);
 
     Cart getById(Long userId);
 
-    void clearCart(Long id);
+    void clearCart(Long userId);
 
-    void deleteById(Long id);
+    void deleteById(Long userId);
 }

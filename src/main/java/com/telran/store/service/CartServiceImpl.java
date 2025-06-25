@@ -6,6 +6,8 @@ import com.telran.store.entity.Cart;
 import com.telran.store.entity.CartItem;
 import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.exception.CartItemNotFoundException;
+import com.telran.store.exception.CartNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.CartMapper;
@@ -13,6 +15,7 @@ import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
 import com.telran.store.repository.ProductRepository;
 import com.telran.store.repository.ShopUserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -79,8 +82,20 @@ public class CartServiceImpl implements CartService{
 
 
     @Override
-    public Cart edit(Cart cart) {
-        return null;
+    public Cart edit(Long userId, AddToCartRequest request) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            throw new CartNotFoundException("Cart by user id " + userId + " not found");
+        }
+
+        CartItem cartItem = cart.getCartItems().stream()
+                .filter(cartItems -> cartItems.getProduct().getId().equals(request.getProductId()))
+                .findFirst()
+                .orElseThrow(() -> new ProductNotFoundException("Product not found in cart"));
+
+        cartItem.setQuantity(request.getQuantity());
+        cartItemRepository.save(cartItem);
+        return cart;
     }
 
     @Override
@@ -89,12 +104,22 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public void clearCart(Long id) {
-
+    public void clearCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            throw new CartNotFoundException("Cart by user id " + userId + "not found");
+        }
+        cart.getCartItems().clear();
+        cartRepository.save(cart);
     }
 
     @Override
-    public void deleteById(Long id) {
-        cartRepository.deleteById(id);
+    @Transactional
+    public void deleteById(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart == null) {
+            throw new CartNotFoundException("Cart by user id " + userId + "not found");
+        }
+        cartRepository.delete(cart);
     }
 }
