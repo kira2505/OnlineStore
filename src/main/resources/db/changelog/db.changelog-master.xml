@@ -86,7 +86,12 @@
                 <constraints nullable="false"/>
             </column>
             <column name="product_id" type="BIGINT"/>
-            <column name="quantity" type="NUMERIC"/>
+            <column name="quantity" type="NUMERIC">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 

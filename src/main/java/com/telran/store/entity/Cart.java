@@ -20,11 +20,9 @@ public class Cart {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "shop_user_id")
     private ShopUser user;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_items")
-    @JsonManagedReference
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems;
 }

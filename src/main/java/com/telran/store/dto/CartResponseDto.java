@@ -1,6 +1,5 @@
 package com.telran.store.dto;
 
-import com.telran.store.entity.CartItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 public class CartResponseDto {
 
-    private List<CartResponseDto> cartItems;
+    private Long cartId;
+
+    private List<CartItemResponseDto> cartItems;
 
     private BigDecimal totalPrice;
 }

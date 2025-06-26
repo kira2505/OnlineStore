@@ -37,6 +37,6 @@ public class ShopUser {
     @JsonManagedReference
     private Set<Favorite> favorites;
 
-    @OneToOne
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 }
