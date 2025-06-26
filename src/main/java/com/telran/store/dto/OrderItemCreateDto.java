@@ -1,5 +1,6 @@
 package com.telran.store.dto;
 
+import com.telran.store.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryCreateDto {
+public class OrderItemCreateDto {
 
-    private String name;
+    private int quantity;
+
+    private Long productId;
 }

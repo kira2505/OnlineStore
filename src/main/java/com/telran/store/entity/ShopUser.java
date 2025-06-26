@@ -5,6 +5,7 @@ import com.telran.store.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -37,6 +38,10 @@ public class ShopUser {
     @JsonManagedReference
     private Set<Favorite> favorites;
 
-    @OneToOne
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "shopUser")
+    @JsonManagedReference
+    private List<Order> orders;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 }
