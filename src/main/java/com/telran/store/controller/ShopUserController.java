@@ -1,6 +1,7 @@
 package com.telran.store.controller;
 
 import com.telran.store.dto.ShopUserCreateDto;
+import com.telran.store.dto.ShopUserDto;
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
@@ -48,5 +49,10 @@ public class ShopUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto edit(@PathVariable long id, @RequestBody ShopUserCreateDto shopUserCreateDto){
         return shopUserMapper.toDto(shopUserService.edit(id, shopUserCreateDto));
+    }
+
+    @GetMapping("/favorites/{shopUserId}")
+    public ShopUserDto getFavorites(@PathVariable long shopUserId){
+        return shopUserMapper.toDtoUser(shopUserService.getAllFavoritesByShopId(shopUserId));
     }
 }

@@ -2,10 +2,10 @@ package com.telran.store.controller;
 
 import com.telran.store.dto.OrderCreateDto;
 import com.telran.store.dto.OrderResponseDto;
-import com.telran.store.entity.Order;
 import com.telran.store.mapper.OrderMapper;
 import com.telran.store.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +20,12 @@ public class OrderController {
     @Autowired
     private OrderMapper orderMapper;
 
-    @PostMapping("{cardId}")
+    @PostMapping("{userId}")
+    @ResponseStatus(value = HttpStatus.CREATED)
     public OrderResponseDto createOrder(
-            @PathVariable Long cardId,
-            @RequestBody OrderCreateDto orderCreateDto){
-        return orderMapper.toDto(orderService.createOrder(cardId, orderMapper.toEntity(orderCreateDto)));
+            @PathVariable Long userId,
+            @RequestBody OrderCreateDto orderCreateDto) {
+        return orderMapper.toDto(orderService.createOrder(userId, orderCreateDto));
     }
 
     @GetMapping("{orderId}")
@@ -32,13 +33,8 @@ public class OrderController {
         return orderMapper.toDto(orderService.getById(orderId));
     }
 
-    @GetMapping
-    public List<OrderResponseDto> getAllOrders(){
-        return orderMapper.toDtoList(orderService.getAllOrders());
-    }
-
-    @PatchMapping
-    public OrderResponseDto edit(Long orderId, OrderCreateDto orderCreateDto){
-        return null;
+    @GetMapping("/history/{userId}")
+    public List<OrderResponseDto> getAllOrders(@PathVariable Long userId) {
+        return orderMapper.toDtoList(orderService.getAllOrders(userId));
     }
 }

@@ -13,7 +13,9 @@ public class CommonExceptionHandler {
     @ExceptionHandler({NoSuchMethodError.class, ProductNotFoundException.class,
             UserNotFoundException.class, FavoriteNotFoundException.class,
             CartItemNotFoundException.class, CartNotFoundException.class,
-            CartBadRequest.class})
+            CartBadRequest.class, EmptyCartException.class,
+            InsufficientProductQuantityException.class, NoSuchCategoryException.class,
+            OrderNotFoundException.class})
     public ResponseEntity<Object> handleNotFoundException(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
