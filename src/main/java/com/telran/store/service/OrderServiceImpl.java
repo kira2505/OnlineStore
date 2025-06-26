@@ -57,10 +57,11 @@ public class OrderServiceImpl implements OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(orderItemCreateDto.getQuantity());
-            if(cartItem.getProduct().getDiscountPrice().compareTo(BigDecimal.ZERO) <= 0) {
-                orderItem.setPriceAtPurchase(cartItem.getPrice());
+            BigDecimal discount = cartItem.getProduct().getDiscountPrice();
+            if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+                orderItem.setPriceAtPurchase(discount);
             } else {
-                orderItem.setPriceAtPurchase(cartItem.getProduct().getDiscountPrice());
+                orderItem.setPriceAtPurchase(cartItem.getPrice());
             }
             orderItem.setOrder(order);
             orderItems.add(orderItem);
