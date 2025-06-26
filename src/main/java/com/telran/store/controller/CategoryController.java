@@ -1,7 +1,9 @@
 package com.telran.store.controller;
 
 import com.telran.store.dto.CategoryCreateDto;
+import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.CategoryResponseDto;
+import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,8 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponseDto create(@RequestBody CategoryCreateDto categoryCreateDto){
-        return categoryMapper.toDto(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
+    public CategoryDto create(@RequestBody CategoryCreateDto categoryCreateDto){
+        return categoryMapper.toDtoToCategory(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
     }
 
     @GetMapping
