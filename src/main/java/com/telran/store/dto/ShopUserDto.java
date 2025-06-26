@@ -4,17 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShopUserResponseDto {
-
-    private Long id;
+public class ShopUserDto {
 
     private String name;
 
-    private String email;
-
-    private String phoneNumber;
+    private Set<FavoriteResponseDto> favorites;
 
 }

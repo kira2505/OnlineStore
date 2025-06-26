@@ -16,4 +16,6 @@ public interface ShopUserService {
     void deleteById(long id);
 
     ShopUser edit(long id, ShopUserCreateDto shopUser);
+
+    ShopUser getAllFavoritesByShopId(long shopId);
 }

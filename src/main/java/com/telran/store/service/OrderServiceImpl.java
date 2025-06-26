@@ -1,10 +1,10 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.OrderCreateDto;
+import com.telran.store.dto.OrderItemCreateDto;
 import com.telran.store.entity.*;
 import com.telran.store.enums.Status;
 import com.telran.store.exception.*;
-import com.telran.store.repository.CartRepository;
 import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,52 +24,59 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ShopUserRepository userRepository;
 
-    @Autowired
-    private CartRepository cartRepository;
-
     @Override
-    public Order createOrder(Long userId, Order orderDto) {
-        ShopUser user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+    public Order createOrder(Long userId, OrderCreateDto orderCreateDto) {
+        ShopUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Order order = new Order();
         order.setShopUser(user);
         order.setCreatedAt(LocalDateTime.now());
+        order.setDeliveryAddress(orderCreateDto.getDeliveryAddress());
         order.setContactPhone(user.getPhoneNumber());
+        order.setDeliveryMethod(orderCreateDto.getDeliveryMethod());
         order.setStatus(Status.NEW);
 
         List<OrderItem> orderItems = new ArrayList<>();
-        for (CartItem cartItem : user.getCart().getCartItems()) {
-            OrderItem item = new OrderItem();
-            item.setProduct(cartItem.getProduct());
-            item.setQuantity(cartItem.getQuantity());
-            item.setOrder(order);
-            BigDecimal price = cartItem.getProduct().getPrice();
-            item.setPriceAtPurchase(price);
-            orderItems.add(item);
+
+        List<CartItem> cartItems = user.getCart().getCartItems();
+        if (cartItems.isEmpty()) {
+            throw new EmptyCartException("No cart items found");
         }
 
-        for (OrderItem orderItem : orderItems) {
-            CartItem cItem = user.getCart().getCartItems().stream()
-                    .filter(cartItem -> cartItem.getProduct().getId().equals(orderItem.getProduct().getId()))
+        for (OrderItemCreateDto orderItemCreateDto : orderCreateDto.getOrderItems()) {
+            CartItem cartItem = cartItems.stream()
+                    .filter(cItem -> cItem.getProduct().getId().equals(orderItemCreateDto.getProductId()))
                     .findFirst()
-                    .orElseThrow(() -> new CartItemNotFoundException("Cart item not found"));
+                    .orElseThrow(() -> new CartItemNotFoundException("Product not found"));
 
-            if(cItem.getQuantity() < orderItem.getQuantity()) {
-                throw new InsufficientProductQuantityException("Insufficient product quantity");
+            if (cartItem.getQuantity() < orderItemCreateDto.getQuantity()) {
+                throw new InsufficientProductQuantityException("Not enough quantity for product ");
             }
 
-            cItem.setQuantity(cItem.getQuantity() - orderItem.getQuantity());
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(orderItemCreateDto.getQuantity());
+            if(cartItem.getProduct().getDiscountPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                orderItem.setPriceAtPurchase(cartItem.getPrice());
+            } else {
+                orderItem.setPriceAtPurchase(cartItem.getProduct().getDiscountPrice());
+            }
+            orderItem.setOrder(order);
+            orderItems.add(orderItem);
 
+            if(cartItem.getQuantity() - orderItemCreateDto.getQuantity() == 0) {
+                user.getCart().getCartItems().remove(cartItem);
+            } else {
+                cartItem.setQuantity(cartItem.getQuantity() - orderItemCreateDto.getQuantity());
+                user.getCart().getCartItems().add(cartItem);
+            }
         }
 
-
         order.setOrderItems(orderItems);
-
-        Order save = orderRepository.save(order);
-
-
-        return save;
+        return orderRepository.save(order);
     }
+
 
     @Override
     public Order getById(Long orderId) {
@@ -78,12 +85,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
-    }
+    public List<Order> getAllOrders(Long userId) {
+        ShopUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-    @Override
-    public Order edit(Long orderId, OrderCreateDto orderCreateDto) {
-        return null;
+        return orderRepository.findAllByShopUserId(user.getId());
     }
 }

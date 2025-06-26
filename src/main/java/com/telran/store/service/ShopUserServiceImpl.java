@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ShopUserServiceImpl implements ShopUserService {
@@ -47,5 +46,10 @@ public class ShopUserServiceImpl implements ShopUserService {
 
         shopUserMapper.toUpdateEntity(user, shopUser);
         return shopUserRepository.save(user);
+    }
+
+    @Override
+    public ShopUser getAllFavoritesByShopId(long shopId) {
+        return getById(shopId);
     }
 }
