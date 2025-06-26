@@ -1,6 +1,7 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.AddToCartRequest;
+import com.telran.store.dto.CartResponseDto;
 import com.telran.store.entity.Cart;
 import com.telran.store.entity.CartItem;
 import com.telran.store.entity.ShopUser;
@@ -11,13 +12,13 @@ public interface CartService {
 
     Cart create(ShopUser user);
 
-    Cart add(Long userId, AddToCartRequest cartRequest);
+    CartItem add(Long userId, AddToCartRequest cartRequest);
 
-    Cart edit(Cart cart);
+    Cart edit(Long userId, AddToCartRequest cartRequest);
 
-    List<CartItem> getById(Long id);
+    Cart getById(Long userId);
 
-    void clearCart(Long id);
+    void clearCart(Long userId);
 
-    void deleteById(Long id);
+    void deleteById(Long userId);
 }
