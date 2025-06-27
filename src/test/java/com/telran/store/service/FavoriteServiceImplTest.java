@@ -9,10 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -36,8 +33,8 @@ class FavoriteServiceImplTest {
 
         when(favoriteRepository.findAll()).thenReturn(favorites);
 
-        Set<Favorite> all = favoriteService.getAll();
-        List<Favorite> result = new ArrayList<>(all);
-        assertEquals(result, favorites);
+        Set<Favorite> result = favoriteService.getAll();
+        HashSet<Favorite> all = new HashSet<>(favorites);
+        assertEquals(result, all);
     }
 }
