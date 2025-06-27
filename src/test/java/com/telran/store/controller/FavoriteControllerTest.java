@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -45,9 +46,9 @@ class FavoriteControllerTest {
     void testGetProductAll() throws Exception {
         Set<Favorite> favorites = Set.of(
                 Favorite.builder()
-                        .id(1L).products(new Product()).build(),
+                        .id(1L).products(Product.builder().id(10L).name("P1").build()).build(),
                 Favorite.builder()
-                        .id(2L).products(new Product()).build());
+                        .id(2L).products(Product.builder().id(20L).name("P2").build()).build());
         Set<FavoriteResponseDto> favoriteResponseDtos = favorites.stream()
                 .map(favorite -> new FavoriteResponseDto(favorite.getId(),
                         new ProductResponseDto(favorite.getProducts().getId(),
@@ -62,7 +63,7 @@ class FavoriteControllerTest {
 
         String contentAsString = mockMvc.perform(get("/favorites"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[*].id").value(containsInAnyOrder(1, 2)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
