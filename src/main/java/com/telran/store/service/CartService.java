@@ -1,12 +1,9 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.AddToCartRequest;
-import com.telran.store.dto.CartResponseDto;
 import com.telran.store.entity.Cart;
 import com.telran.store.entity.CartItem;
 import com.telran.store.entity.ShopUser;
-
-import java.util.List;
 
 public interface CartService {
 
@@ -21,4 +18,6 @@ public interface CartService {
     void clearCart(Long userId);
 
     void deleteById(Long userId);
+
+    Cart save(Cart cart);
 }

@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +81,7 @@ class CartControllerTest {
 
         CartResponseDto responseDto = new CartResponseDto();
         responseDto.setCartId(1L);
-        responseDto.setCartItems(List.of(cartItemResponseDto));
+        responseDto.setCartItems(Set.of(cartItemResponseDto));
         responseDto.setTotalPrice(new BigDecimal("75.00"));
 
         when(cartService.edit(eq(1L), any(AddToCartRequest.class))).thenReturn(new Cart());
@@ -102,7 +103,7 @@ class CartControllerTest {
 
         CartResponseDto responseDto = new CartResponseDto();
         responseDto.setCartId(1L);
-        responseDto.setCartItems(List.of(cartItemResponseDto));
+        responseDto.setCartItems(Set.of(cartItemResponseDto));
         responseDto.setTotalPrice(new BigDecimal("50.00"));
 
         when(cartService.getById(1L)).thenReturn(new Cart());

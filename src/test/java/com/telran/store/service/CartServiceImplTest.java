@@ -56,7 +56,7 @@ class CartServiceImplTest {
             Cart existCart = new Cart();
             existCart.setUser(user);
 
-            when(cartRepository.findByUserId(user.getId())).thenReturn(existCart);
+            when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(existCart));
 
             Cart cart = cartServiceImpl.create(user);
 
