@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper {
@@ -25,7 +26,7 @@ public interface CartMapper {
     @Mapping(target = "totalPrice", expression = "java(calculateTotal(cart))")
     CartResponseDto toDto(Cart cart);
 
-    List<CartItemResponseDto> toCartItemDtoList(List<CartItem> cartItems);
+    Set<CartItemResponseDto> toCartItemDtoSet(Set<CartItem> cartItems);
 
 
     @AfterMapping
