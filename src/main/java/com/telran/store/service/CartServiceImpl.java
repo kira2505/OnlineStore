@@ -31,45 +31,45 @@ public class CartServiceImpl implements CartService{
     private CartRepository cartRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Autowired
-    private ShopUserRepository shopUserRepository;
+    private ShopUserService shopUserService;
 
     @Autowired
     private CartItemRepository cartItemRepository;
 
+    @Autowired
+    private CartService cartService;
+
     @Override
     public Cart create(ShopUser user) {
-        Cart cart = cartRepository.findByUserId(user.getId());
-        if (cart == null) {
-            cart = new Cart();
-            cart.setUser(user);
-            cart.setCartItems(new HashSet<>());
-            cartRepository.save(cart);
+        Cart cart = cartRepository
+                .findByUserId(user.getId())
+                .orElse(new Cart(user));
+        if (cart.getId() != null) {
+            return cart;
         }
-        return cart;
+        return cartRepository.save(cart);
     }
 
     @Override
     public CartItem add(Long userId, AddToCartRequest cartRequest) {
-        ShopUser shopUser = shopUserRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        ShopUser shopUser = shopUserService.getById(userId);
 
-        Product product = productRepository.findById(cartRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        Product product = productService.getById(cartRequest.getProductId());
 
         Cart cart = create(shopUser);
 
-        Optional<CartItem> existingCartItemOpt = cart.getCartItems().stream()
-                .filter(cartItem -> cartItem.getProduct().getId().equals(product.getId()))
-                .findFirst();
+        CartItem cartItem = null;
+        for (CartItem cartItemEntity : cart.getCartItems() ) {
+            if (cartItemEntity.getProduct().getId().equals(product.getId())) {
+                cartItem = cartItemEntity;
+                break;
+            }
+        }
 
-        CartItem cartItem;
-        if (existingCartItemOpt.isPresent()) {
-            cartItem = existingCartItemOpt.get();
-            cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
-        } else {
+        if (cartItem == null) {
             cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setProduct(product);
@@ -77,17 +77,16 @@ public class CartServiceImpl implements CartService{
             cartItem.setPrice(product.getPrice());
             cart.getCartItems().add(cartItem);
         }
-        cartItemRepository.save(cartItem);
+        cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
+        cart.getCartItems().add(cartItem);
+        cartService.save(cart);
         return cartItem;
     }
 
 
     @Override
     public Cart edit(Long userId, AddToCartRequest request) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new CartNotFoundException("Cart by user id " + userId + " not found");
-        }
+        Cart cart = getById(userId);
 
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(cartItems -> cartItems.getProduct().getId().equals(request.getProductId()))
@@ -101,15 +100,13 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Cart getById(Long userId) {
-        return cartRepository.findByUserId(userId);
+        return cartRepository.findByUserId(userId).orElseThrow(() ->
+                new CartNotFoundException("Cart by user id " + userId + "not found"));
     }
 
     @Override
     public void clearCart(Long userId) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new CartNotFoundException("Cart by user id " + userId + "not found");
-        }
+        Cart cart = getById(userId);
         cart.getCartItems().clear();
         cartRepository.save(cart);
     }
@@ -117,10 +114,12 @@ public class CartServiceImpl implements CartService{
     @Override
     @Transactional
     public void deleteById(Long userId) {
-        Cart cart = cartRepository.findByUserId(userId);
-        if (cart == null) {
-            throw new CartNotFoundException("Cart by user id " + userId + "not found");
-        }
+        Cart cart = getById(userId);
         cartRepository.delete(cart);
+    }
+
+    @Override
+    public Cart save(Cart cart) {
+        return cartRepository.save(cart);
     }
 }
