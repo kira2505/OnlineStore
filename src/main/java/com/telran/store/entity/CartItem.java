@@ -22,13 +22,20 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
+    @EqualsAndHashCode.Include
     private Cart cart;
 
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @EqualsAndHashCode.Include
     private Product product;
 
     private Integer quantity;
 
     private BigDecimal price;
+
+    public CartItem(Cart cart, Product product) {
+        this.cart = cart;
+        this.product = product;
+    }
 }

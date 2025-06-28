@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class CartServiceImpl implements CartService{
         if (cart == null) {
             cart = new Cart();
             cart.setUser(user);
-            cart.setCartItems(new ArrayList<>());
+            cart.setCartItems(new HashSet<>());
             cartRepository.save(cart);
         }
         return cart;
