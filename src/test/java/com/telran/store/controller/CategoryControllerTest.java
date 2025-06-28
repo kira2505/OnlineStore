@@ -1,5 +1,7 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.CategoryCreateDto;
+import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.CategoryResponseDto;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
@@ -15,11 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -91,18 +93,25 @@ class CategoryControllerTest {
 
     @Test
     void testCreateCategory() throws Exception {
-        Category category = Category.builder().id(1L).name("phones").build();
-        CategoryResponseDto categoryResponseDto =
-                new CategoryResponseDto(1L, "phones", new ArrayList<>());
+        CategoryCreateDto createDto = new CategoryCreateDto("phones");
 
+        Category category = Category.builder()
+                .id(1L)
+                .name("phones")
+                .build();
+
+        CategoryDto categoryDto = new CategoryDto(1L, "phones");
+
+        when(categoryMapper.toEntity(any())).thenReturn(category);
         when(categoryService.save(any())).thenReturn(category);
-        when(categoryMapper.toDto(any())).thenReturn(categoryResponseDto);
+        when(categoryMapper.toDtoToCategory(any())).thenReturn(categoryDto);
 
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"phones\"}"))
+                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.categoryId").value(1))
+                .andExpect(jsonPath("$.name").value("phones"));
     }
-
 }

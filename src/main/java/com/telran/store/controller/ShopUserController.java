@@ -50,9 +50,4 @@ public class ShopUserController {
     public ShopUserResponseDto edit(@PathVariable long id, @RequestBody ShopUserCreateDto shopUserCreateDto){
         return shopUserMapper.toDto(shopUserService.edit(id, shopUserCreateDto));
     }
-
-    @GetMapping("/favorites/{shopUserId}")
-    public ShopUserDto getFavorites(@PathVariable long shopUserId){
-        return shopUserMapper.toDtoUser(shopUserService.getAllFavoritesByShopId(shopUserId));
-    }
 }

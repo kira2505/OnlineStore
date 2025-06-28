@@ -47,9 +47,4 @@ public class ShopUserServiceImpl implements ShopUserService {
         shopUserMapper.toUpdateEntity(user, shopUser);
         return shopUserRepository.save(user);
     }
-
-    @Override
-    public ShopUser getAllFavoritesByShopId(long shopId) {
-        return getById(shopId);
-    }
 }
