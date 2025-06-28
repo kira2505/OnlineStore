@@ -89,7 +89,6 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
-
     @Override
     public Order getById(Long orderId) {
         return orderRepository.findById(orderId).orElseThrow(()
@@ -102,5 +101,17 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return orderRepository.findAllByShopUserId(user.getId());
+    }
+
+    @Override
+    public List<Order> getAllByState(Status status) {
+        return orderRepository.findAllByStatus(status);
+    }
+
+    @Override
+    public Order updateOrderStatus(Long orderId, Status status) {
+        Order order = getById(orderId);
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 }
