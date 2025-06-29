@@ -24,12 +24,6 @@ public interface OrderMapper {
 
     @AfterMapping
     default void calculateTotalPrice(Order order, @MappingTarget OrderResponseDto orderResponseDto) {
-        if (order.getOrderItems() == null) {
-            orderResponseDto.setTotalPrice(BigDecimal.ZERO);
-        }
-        BigDecimal totalSum = order.getOrderItems().stream()
-                .map(orderItem -> orderItem.getPriceAtPurchase().multiply(BigDecimal.valueOf(orderItem.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        orderResponseDto.setTotalPrice(totalSum);
+        orderResponseDto.setTotalPrice(order.getTotalPrice());
     }
 }
