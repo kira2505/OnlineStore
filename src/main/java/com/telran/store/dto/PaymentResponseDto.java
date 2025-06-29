@@ -16,11 +16,9 @@ public class PaymentResponseDto {
 
     private Long userId;
 
+    private Long orderId;
+
     private BigDecimal amount;
 
     private LocalDateTime paymentDate;
-
-    private Long orderId;;
-
-    private OrderResponseDto order;
 }

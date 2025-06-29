@@ -1,10 +1,14 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.PaymentCreateDto;
+import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Payment;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 public interface PaymentService {
 
-    void pay(BigDecimal totalPrice, Long orderId);
+    Payment pay(PaymentCreateDto paymentCreateDto);
+
+    List<PaymentResponseDto> getAll();
 }
