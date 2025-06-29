@@ -6,8 +6,8 @@ import com.telran.store.entity.*;
 import com.telran.store.enums.Status;
 import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
-import com.telran.store.repository.ProductRepository;
 import com.telran.store.repository.ShopUserRepository;
+import jakarta.persistence.Transient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +23,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ShopUserRepository userRepository;
-
-    @Autowired
-    private ProductService productService;
 
     @Override
     public Order createOrder(Long userId, OrderCreateDto orderCreateDto) {
