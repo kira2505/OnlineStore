@@ -1,7 +1,7 @@
 package com.telran.store.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.telran.store.dto.AddToCartRequest;
+import com.telran.store.dto.AddToCartRequestDto;
 import com.telran.store.dto.CartItemResponseDto;
 import com.telran.store.dto.CartResponseDto;
 import com.telran.store.entity.Cart;
@@ -16,11 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -48,7 +45,7 @@ class CartControllerTest {
     @Test
     void testAddProductToCart() throws Exception {
 
-        AddToCartRequest request = new AddToCartRequest();
+        AddToCartRequestDto request = new AddToCartRequestDto();
         request.setProductId(10L);
         request.setQuantity(2);
 
@@ -56,7 +53,7 @@ class CartControllerTest {
         cartItemResponseDto.setProductId(10L);
         cartItemResponseDto.setQuantity(2);
 
-        when(cartService.add(eq(1L), any(AddToCartRequest.class))).thenReturn(new CartItem());
+        when(cartService.add(eq(1L), any(AddToCartRequestDto.class))).thenReturn(new CartItem());
         when(cartMapper.toCartItemDto(any(CartItem.class))).thenReturn(cartItemResponseDto);
 
         mockMvc.perform(post("/carts")
@@ -70,7 +67,7 @@ class CartControllerTest {
 
     @Test
     void testEditProductToCart() throws Exception {
-        AddToCartRequest request = new AddToCartRequest();
+        AddToCartRequestDto request = new AddToCartRequestDto();
         request.setProductId(5L);
         request.setQuantity(3);
 
@@ -84,7 +81,7 @@ class CartControllerTest {
         responseDto.setCartItems(Set.of(cartItemResponseDto));
         responseDto.setTotalPrice(new BigDecimal("75.00"));
 
-        when(cartService.edit(eq(1L), any(AddToCartRequest.class))).thenReturn(new Cart());
+        when(cartService.edit(eq(1L), any(AddToCartRequestDto.class))).thenReturn(new Cart());
         when(cartMapper.toDto(any(Cart.class))).thenReturn(responseDto);
 
         mockMvc.perform(patch("/carts/{user_id}", 1L)
@@ -132,5 +129,13 @@ class CartControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(cartService).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteCartItemFromCart() throws Exception {
+        mockMvc.perform(delete("/carts/{user_id}/products/{product_id}", 1L, 1L))
+                .andExpect(status().isNoContent());
+
+        verify(cartService).deleteCartItem(1L, 1L);
     }
 }

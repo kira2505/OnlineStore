@@ -1,7 +1,6 @@
 package com.telran.store.service;
 
-import com.telran.store.dto.AddToCartRequest;
-import com.telran.store.dto.CartResponseDto;
+import com.telran.store.dto.AddToCartRequestDto;
 import com.telran.store.entity.Cart;
 import com.telran.store.entity.CartItem;
 import com.telran.store.entity.Product;
@@ -9,20 +8,14 @@ import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.CartItemNotFoundException;
 import com.telran.store.exception.CartNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
-import com.telran.store.exception.UserNotFoundException;
-import com.telran.store.mapper.CartMapper;
 import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
-import com.telran.store.repository.ProductRepository;
-import com.telran.store.repository.ShopUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 public class CartServiceImpl implements CartService{
@@ -39,9 +32,6 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private CartItemRepository cartItemRepository;
 
-    @Autowired
-    private CartService cartService;
-
     @Override
     public Cart create(ShopUser user) {
         Cart cart = cartRepository
@@ -54,7 +44,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public CartItem add(Long userId, AddToCartRequest cartRequest) {
+    public CartItem add(Long userId, AddToCartRequestDto cartRequest) {
         ShopUser shopUser = shopUserService.getById(userId);
 
         Product product = productService.getById(cartRequest.getProductId());
@@ -74,18 +64,24 @@ public class CartServiceImpl implements CartService{
             cartItem.setCart(cart);
             cartItem.setProduct(product);
             cartItem.setQuantity(cartRequest.getQuantity());
-            cartItem.setPrice(product.getPrice());
+            BigDecimal discount = cartItem.getProduct().getDiscountPrice();
+            if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+                cartItem.setPrice(discount);
+            } else {
+                cartItem.setPrice(product.getPrice());
+            }
             cart.getCartItems().add(cartItem);
+        } else {
+            cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
         }
-        cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
-        cart.getCartItems().add(cartItem);
-        cartService.save(cart);
+        cartItemRepository.save(cartItem);
+        this.save(cart);
         return cartItem;
     }
 
 
     @Override
-    public Cart edit(Long userId, AddToCartRequest request) {
+    public Cart edit(Long userId, AddToCartRequestDto request) {
         Cart cart = getById(userId);
 
         CartItem cartItem = cart.getCartItems().stream()
@@ -100,8 +96,8 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Cart getById(Long userId) {
-        return cartRepository.findByUserId(userId).orElseThrow(() ->
-                new CartNotFoundException("Cart by user id " + userId + "not found"));
+        return cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new CartNotFoundException("Cart by user id " + userId + " not found"));
     }
 
     @Override
@@ -116,6 +112,25 @@ public class CartServiceImpl implements CartService{
     public void deleteById(Long userId) {
         Cart cart = getById(userId);
         cartRepository.delete(cart);
+    }
+
+    @Transactional
+    @Override
+    public void deleteCartItem(Long userId, Long productId) {
+        Cart cart = getById(userId);
+        Set<CartItem> cartItems = cart.getCartItems();
+
+        CartItem cartItem = null;
+        for (CartItem item : cartItems) {
+            if (item.getProduct().getId().equals(productId)) {
+                cartItem = item;
+                break;
+            }
+        }
+        if (cartItem == null) {
+            throw new CartItemNotFoundException("Cart item not found in cart");
+        }
+        cartItems.remove(cartItem);
     }
 
     @Override

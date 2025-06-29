@@ -1,6 +1,6 @@
 package com.telran.store.controller;
 
-import com.telran.store.dto.AddToCartRequest;
+import com.telran.store.dto.AddToCartRequestDto;
 import com.telran.store.dto.CartItemResponseDto;
 import com.telran.store.dto.CartResponseDto;
 import com.telran.store.mapper.CartMapper;
@@ -24,13 +24,13 @@ public class CartController {
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     public CartItemResponseDto add(@RequestHeader("userId") Long userId,
-                                   @RequestBody AddToCartRequest request) {
+                                   @RequestBody AddToCartRequestDto request) {
         return cartMapper.toCartItemDto(cartService.add(userId, request));
     }
 
     @PatchMapping("/{user_id}")
     public CartResponseDto edit(@PathVariable("user_id") Long userId,
-                                @RequestBody AddToCartRequest cartRequest) {
+                                @RequestBody AddToCartRequestDto cartRequest) {
         return cartMapper.toDto(cartService.edit(userId, cartRequest));
     }
 
@@ -49,5 +49,12 @@ public class CartController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable("user_id") Long userId) {
         cartService.deleteById(userId);
+    }
+
+    @DeleteMapping("/{user_id}/products/{product_id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteByUserId(@PathVariable("user_id") Long userId,
+                               @PathVariable("product_id") Long productId) {
+        cartService.deleteCartItem(userId, productId);
     }
 }
