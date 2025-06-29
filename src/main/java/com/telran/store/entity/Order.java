@@ -46,4 +46,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<Payment> payments;
 }

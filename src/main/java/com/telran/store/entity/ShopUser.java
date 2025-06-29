@@ -44,4 +44,7 @@ public class ShopUser {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Payment> payments;
 }

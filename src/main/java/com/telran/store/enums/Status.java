@@ -7,5 +7,8 @@ public enum Status {
     SHIPPED,
     DELIVERED,
     CANCELED,
-    COMPLETED
+    COMPLETED,
+    PENDING_PAID,
+    PAID,
+    PARTIALLY_PAID
 }
