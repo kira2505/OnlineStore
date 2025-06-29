@@ -61,14 +61,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 orderItem.setProduct(cartItem.getProduct());
 
-                BigDecimal discount = cartItem.getProduct().getDiscountPrice();
-
-                if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
-                    orderItem.setPriceAtPurchase(discount);
-                } else {
-                    orderItem.setPriceAtPurchase(cartItem.getPrice());
-                }
-
                 if (cartItem.getQuantity() < orderItemCreateDto.getQuantity()) {
                     throw new InsufficientProductQuantityException("Not enough quantity for product ");
                 }
