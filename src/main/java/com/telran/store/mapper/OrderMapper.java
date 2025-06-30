@@ -17,13 +17,8 @@ public interface OrderMapper {
     Order toEntity(OrderCreateDto orderCreateDto);
 
     @Mapping(target = "orderItems", source = "orderItems")
-    @Mapping(target = "totalPrice", ignore = true)
+    @Mapping(target = "totalPrice", source = "totalAmount")
     OrderResponseDto toDto(Order order);
 
     List<OrderResponseDto> toDtoList(List<Order> orders);
-
-    @AfterMapping
-    default void calculateTotalPrice(Order order, @MappingTarget OrderResponseDto orderResponseDto) {
-        orderResponseDto.setTotalPrice(order.getTotalPrice());
-    }
 }

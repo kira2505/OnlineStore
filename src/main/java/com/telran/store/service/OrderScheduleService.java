@@ -14,9 +14,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Slf4j //simple logger for java
+@Slf4j
 @Service
 public class OrderScheduleService {
+
+    private static final int NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE = 2;
 
     @Autowired
     private OrderService orderService;
@@ -33,31 +35,11 @@ public class OrderScheduleService {
         }
     }
 
-    /*
-    NEW,
-    PROCESSING,
-    SHIPPED,
-    DELIVERED,
-    CANCELED,
-    COMPLETED
-     */
-
-    /*
-    NEW <-когда-> PENDING_PAID, PARTIALLY_PAID
-PROCESSING когда PAID
-SHIPPED
-DELIVERED
-CANCELED and PARTIALLY_PAID -> REFUND
-CANCELED and PAID -> REFUND
-CANCELED and PENDING_PAID -> CANCELED
-COMPLETED -> (PAID -> COMPLETED)
-     */
-
     @Scheduled(fixedRate = 60000)
     @Async
     public void setProcessingIfPaid() {
         for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(2)) && order.getPaymentStatus() == PaymentStatus.PAID) {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE)) && order.getPaymentStatus() == PaymentStatus.PAID) {
                 orderService.updateOrderStatus(order.getId(), Status.PROCESSING);
                 log.info("Order with id " + order.getId() + " in processing");
             }
@@ -67,32 +49,26 @@ COMPLETED -> (PAID -> COMPLETED)
     @Scheduled(fixedRate = 60000)
     @Async
     public void markAsShipped() {
-        for (Order order : orderService.getAllByState(Status.PROCESSING)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(2))) {
-                orderService.updateOrderStatus(order.getId(), Status.SHIPPED);
-                log.info("New order with id " + order.getId() + " send");
-            }
-        }
+        setOrdersStatus(Status.PROCESSING,  Status.SHIPPED);
     }
 
     @Scheduled(fixedRate = 60000)
     @Async
     public void markAsDelivered() {
-        for (Order order : orderService.getAllByState(Status.SHIPPED)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(2))) {
-                orderService.updateOrderStatus(order.getId(), Status.DELIVERED);
-                log.info("New order with id " + order.getId() + " delivered");
-            }
-        }
+        setOrdersStatus(Status.SHIPPED, Status.DELIVERED);
     }
 
     @Scheduled(fixedRate = 60000)
     @Async
     public void refundPartialAndCancelOrder() {
-        for (Order order : orderService.getAllByState(Status.DELIVERED)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(2))) {
-                orderService.updateOrderStatus(order.getId(), Status.COMPLETED);
-                log.info("New order with id " + order.getId() + " completed");
+        setOrdersStatus(Status.DELIVERED, Status.COMPLETED);
+    }
+
+    private void setOrdersStatus(Status oldStatus, Status newStatus) {
+        for (Order order : orderService.getAllByState(oldStatus)) {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE))) {
+                orderService.updateOrderStatus(order.getId(), newStatus);
+                log.info("New order with id {} {}", order.getId(), order.getStatus());
             }
         }
     }

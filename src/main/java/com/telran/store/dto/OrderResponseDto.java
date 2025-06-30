@@ -33,5 +33,7 @@ public class OrderResponseDto {
 
     private BigDecimal totalPrice;
 
+    private BigDecimal paymentAmount;
+
     private PaymentStatus paymentStatus;
 }

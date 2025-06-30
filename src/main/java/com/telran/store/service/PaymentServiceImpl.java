@@ -29,19 +29,17 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Payment pay(PaymentCreateDto paymentCreateDto) {
         Order order = orderService.getById(paymentCreateDto.getOrderId());
-        BigDecimal totalPrice = order.getTotalPrice();
+        BigDecimal totalPrice = orderService.getTotalAmount(order);
 
-        if (order.getPaymentStatus() == PaymentStatus.PAID){
+        if (order.getPaymentStatus() == PaymentStatus.PAID) {
             throw new RuntimeException("Order has already been paid");
         }
 
-        BigDecimal alreadyPaid = order.getPayments().stream()
-                .map(Payment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add).add(paymentCreateDto.getAmount());
-
-        if (alreadyPaid.compareTo(totalPrice) > 0) {
+        if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
             throw new RuntimeException("The amount of payment exceeds the total amount of the order");
         }
+
+        order.setPaymentAmount(order.getPaymentAmount().add(paymentCreateDto.getAmount()));
 
         Payment payment = new Payment();
         payment.setUser(order.getShopUser());
@@ -49,15 +47,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmount(paymentCreateDto.getAmount());
         payment.setDateTime(LocalDateTime.now());
 
-        if (alreadyPaid.compareTo(totalPrice) == 0){
-            order.setPaymentStatus(PaymentStatus.PAID);
-            payment.setStatus(order.getPaymentStatus());
-        } else {
-            order.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
-            payment.setStatus(order.getPaymentStatus());
-        }
-        paymentRepository.save(payment);
-        return payment;
+        order.getPayments().add(payment);
+        order.setPaymentStatus(order.getPaymentAmount().compareTo(totalPrice) == 0 ? PaymentStatus.PAID
+                : PaymentStatus.PARTIALLY_PAID);
+
+        Order orderEntity = orderService.saveOrder(order);
+        return orderEntity.getPayments().get(orderEntity.getPayments().size()-1);
     }
 
     @Override
@@ -70,7 +65,6 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment updatePaymentStatus(Long paymentId, PaymentStatus paymentStatus) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
-        payment.setStatus(paymentStatus);
         return paymentRepository.save(payment);
     }
 }

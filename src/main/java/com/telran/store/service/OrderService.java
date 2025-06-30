@@ -6,6 +6,7 @@ import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import org.aspectj.weaver.ast.Or;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface OrderService {
@@ -25,4 +26,8 @@ public interface OrderService {
     Order updateOrderPaymentStatus(Long orderId, PaymentStatus paymentStatus);
 
     Order cancelOrder(Long orderId);
+
+    Order saveOrder(Order order);
+
+    BigDecimal getTotalAmount(Order order);
 }

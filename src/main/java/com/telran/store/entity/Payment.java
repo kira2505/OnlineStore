@@ -2,10 +2,7 @@ package com.telran.store.entity;
 
 import com.telran.store.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -35,8 +32,6 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @ToString.Exclude
     private Order order;
-
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
 }

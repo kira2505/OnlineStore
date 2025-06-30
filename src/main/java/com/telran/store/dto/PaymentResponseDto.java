@@ -22,6 +22,4 @@ public class PaymentResponseDto {
     private BigDecimal amount;
 
     private LocalDateTime paymentDate;
-
-    private PaymentStatus paymentStatus;
 }
