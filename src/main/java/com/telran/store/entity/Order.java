@@ -1,6 +1,7 @@
 package com.telran.store.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -60,4 +61,8 @@ public class Order {
                 .map(item -> item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status")
+    private PaymentStatus paymentStatus;
 }
