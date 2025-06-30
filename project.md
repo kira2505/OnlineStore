@@ -44,28 +44,16 @@ Payment - controller, service etc
 Service, dto, mapper, controller, repository, enum
 4. Сделать шедулеры которые меняют статус заказа(K)
 5. Написать тесты(K),(E)
+6. Написать метод getAllById(Long orderId) для Payment
 
-
-Спринт 3 шедулеры:
-NEW,
-PROCESSING,
-SHIPPED,
-DELIVERED,
-CANCELED,
-COMPLETED
-
-
-PENDING_PAID,
-PAID,
-PARTIALLY_PAID,
-REFUND
-
-
-NEW <-когда-> PENDING_PAID, PARTIALLY_PAID
-PROCESSING когда PAID
-SHIPPED
-DELIVERED
-CANCELED and PARTIALLY_PAID -> REFUND
-CANCELED and PAID -> REFUND
-CANCELED and PENDING_PAID -> CANCELED
-COMPLETED -> (PAID -> COMPLETED)
+Спринт 4:
+1. Добавить метод getDailyProduct() в продукты выбирает товар с мин скидкой если несколько выводить рандомный
+2. Отчетность:
+2.1 Создать ReportController (у него будет также ReportService и все), контроллер обращается к Order или OrderItem
+выбирает все заказы со статусом завершенные, берет их количество и выводит топ 10 самых часто покупаемых, так же с самыми 
+часто отменяемыми
+2.2 Для Payment метод getWaiting(принимает н количество дней) возвращает товары которые в статусе ожидают оплаты н дней
+2.3 Метод, который дает прибыль за н количество дней или месяцев(параметр 1: число; параметр 2: день, мес и тд) берем текущую
+дату и откатываем от нее количество времени переданное в метод и считаем прибыль по полученным заказам
+3. Подкорректировать ошибки согласно рест апи
+4. Пересмотреть все рест апи
