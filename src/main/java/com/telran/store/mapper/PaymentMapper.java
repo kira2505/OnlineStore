@@ -12,6 +12,8 @@ public interface PaymentMapper {
 
     @Mapping(source = "order.id", target = "orderId")
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "dateTime", target = "paymentDate")
+    @Mapping(source = "status", target = "paymentStatus")
     PaymentResponseDto toDto(Payment payment);
 
     List<PaymentResponseDto> toDtoList(List<Payment> payments);

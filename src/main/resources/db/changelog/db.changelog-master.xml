@@ -219,6 +219,7 @@
                              referencedTableName="orders"
                              referencedColumnNames="id"/>
             </column>
+            <column name="status" type="VARCHAR(50)"/>
         </createTable>
     </changeSet>
 

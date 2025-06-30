@@ -5,7 +5,6 @@ import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Order;
 import com.telran.store.entity.Payment;
 import com.telran.store.enums.PaymentStatus;
-import com.telran.store.enums.Status;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (alreadyPaid.compareTo(totalPrice) == 0){
             order.setPaymentStatus(PaymentStatus.PAID);
+            payment.setStatus(order.getPaymentStatus());
         } else {
             order.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
+            payment.setStatus(order.getPaymentStatus());
         }
         paymentRepository.save(payment);
         return payment;
@@ -63,5 +64,13 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentResponseDto> getAll() {
         List<Payment> payments = paymentRepository.findAll();
         return paymentMapper.toDtoList(payments);
+    }
+
+    @Override
+    public Payment updatePaymentStatus(Long paymentId, PaymentStatus paymentStatus) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setStatus(paymentStatus);
+        return paymentRepository.save(payment);
     }
 }
