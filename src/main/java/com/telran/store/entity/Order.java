@@ -52,18 +52,11 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<Payment> payments;
 
-    @Transient
-    public BigDecimal getTotalPrice() {
-        if (orderItems == null || orderItems.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        return orderItems.stream()
-                .filter(item -> item.getPriceAtPurchase() != null)
-                .map(item -> item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatus paymentStatus;
+
+    private BigDecimal paymentAmount = BigDecimal.ZERO;
+
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 }

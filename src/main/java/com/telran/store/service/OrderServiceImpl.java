@@ -11,6 +11,7 @@ import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -74,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
             orderItems.add(orderItem);
         }
         order.setOrderItems(orderItems);
+        order.setTotalAmount(getTotalAmount(order));
         order.setPaymentStatus(PaymentStatus.PENDING_PAID);
         return orderRepository.save(order);
     }
@@ -120,5 +122,21 @@ public class OrderServiceImpl implements OrderService {
     public Order cancelOrder(Long orderId) {
         Order order = getById(orderId);
         return null;
+    }
+
+    @Override
+    public Order saveOrder(Order order){
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public BigDecimal getTotalAmount(Order order) {
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return order.getOrderItems().stream()
+                .filter(item -> item.getPriceAtPurchase() != null)
+                .map(item -> item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

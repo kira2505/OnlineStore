@@ -219,8 +219,21 @@
                              referencedTableName="orders"
                              referencedColumnNames="id"/>
             </column>
-            <column name="status" type="VARCHAR(50)"/>
         </createTable>
+    </changeSet>
+
+    <changeSet id="20250630128000" author="Kyra Subotovska">
+        <comment>Add payment_amount column to orders</comment>
+        <addColumn tableName="orders">
+            <column name="payment_amount" type="DECIMAL"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20250633128000" author="Kyra Subotovska">
+        <comment>Add total_amount column to orders</comment>
+        <addColumn tableName="orders">
+            <column name="total_amount" type="DECIMAL"/>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>
