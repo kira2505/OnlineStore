@@ -44,3 +44,28 @@ Payment - controller, service etc
 Service, dto, mapper, controller, repository, enum
 4. Сделать шедулеры которые меняют статус заказа(K)
 5. Написать тесты(K),(E)
+
+
+Спринт 3 шедулеры:
+NEW,
+PROCESSING,
+SHIPPED,
+DELIVERED,
+CANCELED,
+COMPLETED
+
+
+PENDING_PAID,
+PAID,
+PARTIALLY_PAID,
+REFUND
+
+
+NEW <-когда-> PENDING_PAID, PARTIALLY_PAID
+PROCESSING когда PAID
+SHIPPED
+DELIVERED
+CANCELED and PARTIALLY_PAID -> REFUND
+CANCELED and PAID -> REFUND
+CANCELED and PENDING_PAID -> CANCELED
+COMPLETED -> (PAID -> COMPLETED)

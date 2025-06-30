@@ -1,5 +1,6 @@
 package com.telran.store.dto;
 
+import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,4 +32,6 @@ public class OrderResponseDto {
     private List<OrderItemResponseDto> orderItems;
 
     private BigDecimal totalPrice;
+
+    private PaymentStatus paymentStatus;
 }

@@ -3,15 +3,14 @@ package com.telran.store.service;
 import com.telran.store.dto.OrderCreateDto;
 import com.telran.store.dto.OrderItemCreateDto;
 import com.telran.store.entity.*;
+import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.ShopUserRepository;
-import jakarta.persistence.Transient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -75,6 +74,7 @@ public class OrderServiceImpl implements OrderService {
             orderItems.add(orderItem);
         }
         order.setOrderItems(orderItems);
+        order.setPaymentStatus(PaymentStatus.PENDING_PAID);
         return orderRepository.save(order);
     }
 
@@ -98,9 +98,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Order> getAllByPaymentState(PaymentStatus paymentStatus) {
+        return orderRepository.findAllByPaymentStatus(paymentStatus);
+    }
+
+    @Override
     public Order updateOrderStatus(Long orderId, Status status) {
         Order order = getById(orderId);
         order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    @Override
+    public Order updateOrderPaymentStatus(Long orderId, PaymentStatus paymentStatus) {
+        Order order = getById(orderId);
+        order.setPaymentStatus(paymentStatus);
         return orderRepository.save(order);
     }
 }

@@ -4,6 +4,7 @@ import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Order;
 import com.telran.store.entity.Payment;
+import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.repository.PaymentRepository;
@@ -31,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderService.getById(paymentCreateDto.getOrderId());
         BigDecimal totalPrice = order.getTotalPrice();
 
-        if (order.getStatus() == Status.PAID){
+        if (order.getPaymentStatus() == PaymentStatus.PAID){
             throw new RuntimeException("Order has already been paid");
         }
 
@@ -50,9 +51,9 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDateTime(LocalDateTime.now());
 
         if (alreadyPaid.compareTo(totalPrice) == 0){
-            order.setStatus(Status.PAID);
+            order.setPaymentStatus(PaymentStatus.PAID);
         } else {
-            order.setStatus(Status.PARTIALLY_PAID);
+            order.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
         }
         paymentRepository.save(payment);
         return payment;
@@ -63,6 +64,4 @@ public class PaymentServiceImpl implements PaymentService {
         List<Payment> payments = paymentRepository.findAll();
         return paymentMapper.toDtoList(payments);
     }
-
-
 }

@@ -190,4 +190,36 @@
                 constraintName="fk_cart_items_products"/>
     </changeSet>
 
+    <changeSet id="20250630120000" author="Kyra Subotovska">
+        <comment>Add payment_status column to orders</comment>
+        <addColumn tableName="orders">
+            <column name="payment_status" type="VARCHAR(50)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20250630120004" author="Kyra Subotovska">
+        <comment>Create payments table</comment>
+        <createTable tableName="payments">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="shop_user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_payments_user"
+                             referencedTableName="shop_users"
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="amount" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_payments_order"
+                             referencedTableName="orders"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
