@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
                     user.getCart().getCartItems().add(cartItem);
                 }
             }
-
+            orderItem.setPriceAtPurchase(cartItem.getPrice());
             orderItem.setQuantity(orderItemCreateDto.getQuantity());
             orderItem.setOrder(order);
             orderItems.add(orderItem);
@@ -114,5 +114,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = getById(orderId);
         order.setPaymentStatus(paymentStatus);
         return orderRepository.save(order);
+    }
+
+    @Override
+    public Order cancelOrder(Long orderId) {
+        Order order = getById(orderId);
+        return null;
     }
 }

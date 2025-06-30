@@ -4,6 +4,7 @@ import com.telran.store.dto.OrderCreateDto;
 import com.telran.store.entity.Order;
 import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
+import org.aspectj.weaver.ast.Or;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface OrderService {
     Order updateOrderStatus(Long orderId, Status status);
 
     Order updateOrderPaymentStatus(Long orderId, PaymentStatus paymentStatus);
+
+    Order cancelOrder(Long orderId);
 }
