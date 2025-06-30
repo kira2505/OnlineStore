@@ -1,5 +1,6 @@
 package com.telran.store.entity;
 
+import com.telran.store.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "shop_user_id")
     private ShopUser user;
 
@@ -32,7 +33,10 @@ public class Payment {
     @CreationTimestamp
     private LocalDateTime dateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 }
