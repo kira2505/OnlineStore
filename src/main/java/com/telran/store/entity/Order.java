@@ -58,6 +58,7 @@ public class Order {
             return BigDecimal.ZERO;
         }
         return orderItems.stream()
+                .filter(item -> item.getPriceAtPurchase() != null)
                 .map(item -> item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
