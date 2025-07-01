@@ -13,10 +13,19 @@ public class CommonExceptionHandler {
     @ExceptionHandler({NoSuchMethodError.class, ProductNotFoundException.class,
             UserNotFoundException.class, FavoriteNotFoundException.class,
             CartItemNotFoundException.class, CartNotFoundException.class,
-            CartBadRequest.class, EmptyCartException.class,
-            InsufficientProductQuantityException.class, NoSuchCategoryException.class,
-            OrderNotFoundException.class})
+            NoSuchCategoryException.class, OrderNotFoundException.class})
     public ResponseEntity<Object> handleNotFoundException(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({CartBadRequest.class, EmptyCartException.class,
+            InsufficientProductQuantityException.class})
+    public ResponseEntity<Object> handleBadRequest(Exception e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderAlreadyCompletedException.class)
+    public ResponseEntity<Object> handleConflict(Exception e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 }

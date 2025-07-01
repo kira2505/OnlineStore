@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
             CartItem cartItem = cartItemMap.get(orderItemCreateDto.getProductId());
 
             if (cartItem == null) {
-                continue;
+                throw new CartItemNotFoundException("Product with ID " + orderItemCreateDto.getProductId() + " is not in the cart");
             } else {
                 orderItem.setProduct(cartItem.getProduct());
 
@@ -121,13 +121,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order cancelOrder(Long orderId) {
         Order order = getById(orderId);
+
+        if (Status.COMPLETED.equals(order.getStatus())) {
+            throw new OrderAlreadyCompletedException("Order is already completed and cannot be canceled");
+        }
+
         if (PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus())) {
             order.setPaymentStatus(PaymentStatus.CANCELED);
         } else {
             order.setPaymentStatus(PaymentStatus.REFUND);
         }
         order.setStatus(Status.CANCELED);
-        order.setPaymentAmount(BigDecimal.ZERO);
         return orderRepository.save(order);
     }
 

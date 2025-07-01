@@ -5,10 +5,7 @@ import com.telran.store.dto.OrderItemCreateDto;
 import com.telran.store.entity.*;
 import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
-import com.telran.store.exception.EmptyCartException;
-import com.telran.store.exception.InsufficientProductQuantityException;
-import com.telran.store.exception.OrderNotFoundException;
-import com.telran.store.exception.UserNotFoundException;
+import com.telran.store.exception.*;
 import com.telran.store.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -129,7 +126,7 @@ class OrderServiceImplTest {
         cart.setCartItems(new HashSet<>(Set.of(cartItem)));
 
         OrderItemCreateDto orderItemDto = new OrderItemCreateDto();
-        orderItemDto.setProductId(3L);
+        orderItemDto.setProductId(3L); // <-- не в корзине
         orderItemDto.setQuantity(3);
 
         OrderCreateDto createDto = new OrderCreateDto();
@@ -138,14 +135,10 @@ class OrderServiceImplTest {
         createDto.setOrderItems(List.of(orderItemDto));
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
-        when(orderRepository.save(any()))
-                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Order order = orderService.createOrder(userId, createDto);
-
-        assertNotNull(order);
-        assertEquals(0, order.getOrderItems().size());
-        assertEquals(BigDecimal.ZERO, order.getTotalAmount());
+        assertThrows(CartItemNotFoundException.class, () -> {
+            orderService.createOrder(userId, createDto);
+        });
     }
 
     @Test
@@ -322,8 +315,50 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void testCancelOrder() {
-        Order order = Order.builder().id(1L).build();
-        //
+    void testCancelOrderWithPendingPayment() {
+        long orderId = 1L;
+        Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.PENDING_PAID).status(Status.NEW).build();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order canceledOrder = orderService.cancelOrder(orderId);
+
+        assertEquals(PaymentStatus.CANCELED, canceledOrder.getPaymentStatus());
+        assertEquals(Status.CANCELED, canceledOrder.getStatus());
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    void testCancelOrderWithNonPendingPayment() {
+        Long orderId = 1L;
+        Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.PAID).status(Status.NEW).build();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Order canceledOrder = orderService.cancelOrder(orderId);
+
+        assertEquals(PaymentStatus.REFUND, canceledOrder.getPaymentStatus());
+        assertEquals(Status.CANCELED, canceledOrder.getStatus());
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    void testCancelOrderAlreadyCompleted() {
+        Long orderId = 1L;
+        Order completedOrder = Order.builder()
+                .id(orderId)
+                .status(Status.COMPLETED)
+                .paymentStatus(PaymentStatus.PAID)
+                .build();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(completedOrder));
+
+        assertThrows(OrderAlreadyCompletedException.class, () -> {
+            orderService.cancelOrder(orderId);
+        });
+
+        verify(orderRepository, never()).save(any());
     }
 }

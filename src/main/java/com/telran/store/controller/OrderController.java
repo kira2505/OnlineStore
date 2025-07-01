@@ -29,7 +29,7 @@ public class OrderController {
     }
 
     @GetMapping("{orderId}")
-    public OrderResponseDto getById(Long orderId){
+    public OrderResponseDto getById(@PathVariable Long orderId){
         return orderMapper.toDto(orderService.getById(orderId));
     }
 
@@ -38,7 +38,7 @@ public class OrderController {
         return orderMapper.toDtoList(orderService.getAllOrders(userId));
     }
 
-    @PatchMapping("{orderId}")
+    @PatchMapping("/{orderId}/close")
     @ResponseStatus(value = HttpStatus.OK)
     public OrderResponseDto closeOrder(@PathVariable Long orderId) {
         return orderMapper.toDto(orderService.cancelOrder(orderId));
