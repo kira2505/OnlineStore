@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,25 +44,73 @@ class PaymentServiceImplTest {
 
     @Test
     void testPay() {
-        Order order = new Order();
-        order.setId(1L);
-        order.setPaymentAmount(new BigDecimal("80"));
-        order.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
-        order.setTotalAmount(new BigDecimal("100.00"));
-        order.setShopUser(new ShopUser());
+        //Order already PAID (Заказ уже ОПЛАЧЕН)
+        Order paidOrder = new Order();
+        paidOrder.setId(1L);
+        paidOrder.setPaymentStatus(PaymentStatus.PAID);
+        paidOrder.setPaymentAmount(new BigDecimal("100"));
+        paidOrder.setTotalAmount(new BigDecimal("100"));
+        paidOrder.setShopUser(new ShopUser());
+
+        PaymentCreateDto dto = new PaymentCreateDto();
+        dto.setOrderId(paidOrder.getId());
+        dto.setAmount(new BigDecimal("10"));
+
+        when(orderService.getById(paidOrder.getId())).thenReturn(paidOrder);
+        when(orderService.getTotalAmount(paidOrder)).thenReturn(paidOrder.getTotalAmount());
+
+        RuntimeException exceptionForPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        assertEquals("Order has already been paid", exceptionForPaid.getMessage());
+
+        //Full payment changes status to PAID (Полная оплата меняет статус на ОПЛАЧЕНО)
+        Order partialOrder = new Order();
+        partialOrder.setId(2L);
+        partialOrder.setPaymentAmount(new BigDecimal("50"));
+        partialOrder.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
+        partialOrder.setTotalAmount(new BigDecimal("100.00"));
+        partialOrder.setShopUser(new ShopUser());
+        partialOrder.setPayments(new ArrayList<>());
+
+        when(orderService.getById(partialOrder.getId())).thenReturn(partialOrder);
+        when(orderService.getTotalAmount(partialOrder)).thenReturn(partialOrder.getTotalAmount());
+        when(orderService.saveOrder(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        PaymentCreateDto paymentCreateDto = new PaymentCreateDto();
-        paymentCreateDto.setOrderId(order.getId());
-        paymentCreateDto.setAmount(new BigDecimal("30"));
+        //Successful payment (Успешный платеж)
+        dto.setOrderId(partialOrder.getId());
+        dto.setAmount(new BigDecimal("30"));
 
-        when(orderService.getById(order.getId())).thenReturn(order);
-        when(orderService.getTotalAmount(order)).thenReturn(order.getTotalAmount());
+        Payment payment = paymentServiceImpl.pay(dto);
+        assertNotNull(payment);
+        assertEquals(new BigDecimal("30"), payment.getAmount());
+        assertEquals(PaymentStatus.PARTIALLY_PAID, partialOrder.getPaymentStatus());
+        assertEquals(new BigDecimal("80"), partialOrder.getPaymentAmount());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(paymentCreateDto));
+        dto.setAmount(new BigDecimal("20"));
+        Payment fullPayment = paymentServiceImpl.pay(dto);
+        assertNotNull(fullPayment);
+        assertEquals(new BigDecimal("20"), fullPayment.getAmount());
+        assertEquals(PaymentStatus.PAID, partialOrder.getPaymentStatus());
+        assertEquals(new BigDecimal("100"), partialOrder.getPaymentAmount());
 
-        assertTrue(exception.getMessage().contains("Payment exceeds the remaining amount"));
-        assertTrue(exception.getMessage().contains("You need to pay only: 20.00"));
+        //Overdue payment (Платеж с превышением суммы)
+        Order partialOrderForOverpay = new Order();
+        partialOrderForOverpay.setId(3L);
+        partialOrderForOverpay.setPaymentAmount(new BigDecimal("80"));
+        partialOrderForOverpay.setPaymentStatus(PaymentStatus.PARTIALLY_PAID);
+        partialOrderForOverpay.setTotalAmount(new BigDecimal("100.00"));
+        partialOrderForOverpay.setShopUser(new ShopUser());
+        partialOrderForOverpay.setPayments(new ArrayList<>());
+
+        when(orderService.getById(partialOrderForOverpay.getId())).thenReturn(partialOrderForOverpay);
+        when(orderService.getTotalAmount(partialOrderForOverpay)).thenReturn(partialOrderForOverpay.getTotalAmount());
+
+        dto.setOrderId(partialOrderForOverpay.getId());
+        dto.setAmount(new BigDecimal("30"));
+
+        RuntimeException exceptionForPartiallyPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        assertTrue(exceptionForPartiallyPaid.getMessage().contains("Payment exceeds the remaining amount"));
+        assertTrue(exceptionForPartiallyPaid.getMessage().contains("You need to pay only: 20.00"));
     }
 
     @Test
