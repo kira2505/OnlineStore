@@ -1,5 +1,6 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
@@ -11,14 +12,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.eq;
 
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -101,5 +103,27 @@ class ShopUserControllerTest {
                         .content("{\"name\": \"Max\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
+    void testEditUser() throws Exception {
+        ShopUser shopUser = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("44445555666").build();
+
+        ShopUserCreateDto shopUserCreateDto = new ShopUserCreateDto();
+        shopUserCreateDto.setName("Alex");
+
+        when(shopUserService.edit(eq(1L), any(ShopUserCreateDto.class))).thenReturn(shopUser);
+        when(shopUserMapper.toDto(shopUser)).thenReturn(new ShopUserResponseDto());
+
+        mockMvc.perform(patch("/users/" + shopUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"name\": \"Alex\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(shopUserService).edit(eq(1L), any(ShopUserCreateDto.class));
+        verify(shopUserMapper).toDto(shopUser);
     }
 }

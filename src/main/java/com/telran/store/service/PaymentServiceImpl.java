@@ -62,9 +62,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment updatePaymentStatus(Long paymentId, PaymentStatus paymentStatus) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-        return paymentRepository.save(payment);
+    public List<Payment> getAllById(Long orderId) {
+        Order byId = orderService.getById(orderId);
+        return paymentRepository.findAllByOrderId(byId.getId());
     }
 }

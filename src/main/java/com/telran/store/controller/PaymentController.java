@@ -33,4 +33,9 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponseDto>> getAllPayments() {
         return ResponseEntity.ok(paymentService.getAll());
     }
+
+    @GetMapping("{orderId}")
+    public List<PaymentResponseDto> getPaymentsById(@PathVariable Long orderId) {
+        return paymentMapper.toDtoList(paymentService.getAllById(orderId));
+    }
 }

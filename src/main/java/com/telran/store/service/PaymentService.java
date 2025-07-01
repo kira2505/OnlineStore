@@ -13,5 +13,5 @@ public interface PaymentService {
 
     List<PaymentResponseDto> getAll();
 
-    Payment updatePaymentStatus(Long paymentId, PaymentStatus paymentStatus);
+    List<Payment> getAllById(Long orderId);
 }

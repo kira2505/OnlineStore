@@ -1,8 +1,6 @@
 package com.telran.store.controller;
 
-import com.telran.store.dto.CategoryCreateDto;
-import com.telran.store.dto.CategoryDto;
-import com.telran.store.dto.CategoryResponseDto;
+import com.telran.store.dto.*;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
@@ -18,8 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -113,5 +112,28 @@ class CategoryControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.categoryId").value(1))
                 .andExpect(jsonPath("$.name").value("phones"));
+    }
+
+    @Test
+    void testEditCategory() throws Exception {
+        Category category = Category.builder().id(1L).name("phones").build();
+
+        CategoryCreateDto categoryCreateDto = new CategoryCreateDto();
+        categoryCreateDto.setName("tvs");
+
+        when(categoryService.edit(eq(1L), any(CategoryCreateDto.class))).thenReturn(category);
+        when(categoryMapper.toDto(category)).thenReturn(new CategoryResponseDto());
+
+        mockMvc.perform(patch("/categories/" + category.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"name\": \"tvs\"}"))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(categoryService).edit(eq(1L), any(CategoryCreateDto.class));
+        verify(categoryMapper).toDto(category);
+
     }
 }

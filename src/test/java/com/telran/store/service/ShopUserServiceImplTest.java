@@ -1,6 +1,9 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.exception.UserNotFoundException;
+import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +27,9 @@ class ShopUserServiceImplTest {
     @InjectMocks
     private ShopUserServiceImpl shopUserService;
 
+    @Mock
+    private ShopUserMapper shopUserMapper;
+
     @Test
     void testGetAllUsers() {
         List<ShopUser> shopUsers = Arrays.asList(
@@ -42,9 +48,14 @@ class ShopUserServiceImplTest {
     void testGetUserById() {
         ShopUser user = ShopUser.builder().id(1L).name("Alex").build();
 
+        long invalidId = 123L;
+        when(shopUserRepository.findById(invalidId)).thenReturn(Optional.empty());
+
         when(shopUserRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         assertEquals(user, shopUserService.getById(user.getId()));
+
+        assertThrows(UserNotFoundException.class, () -> shopUserService.getById(invalidId));
     }
 
     @Test
@@ -67,4 +78,28 @@ class ShopUserServiceImplTest {
         assertEquals(user, shopUserService.create(user));
     }
 
+    @Test
+    void testEditUser() {
+        ShopUser user = ShopUser.builder().id(1L).name("Alex").build();
+
+        ShopUserCreateDto userCreateDto = new ShopUserCreateDto();
+        userCreateDto.setName("Max");
+
+        when(shopUserRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(shopUserRepository.save(any())).thenReturn(user);
+
+        doAnswer(invocation -> {
+            ShopUser target = invocation.getArgument(0);
+            ShopUserCreateDto source = invocation.getArgument(1);
+            target.setName(source.getName());
+            return null;
+        }).when(shopUserMapper).toUpdateEntity(any(), any());
+
+        ShopUser result = shopUserService.edit(1L, userCreateDto);
+
+        verify(shopUserMapper).toUpdateEntity(user, userCreateDto);
+        verify(shopUserRepository).save(user);
+
+        assertEquals("Max", result.getName());
+    }
 }
