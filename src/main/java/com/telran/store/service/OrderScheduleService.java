@@ -63,7 +63,7 @@ public class OrderScheduleService {
 
     @Scheduled(fixedRate = 60000)
     @Async
-    public void refundPartialAndCancelOrder() {
+    public void markAsCompleted() {
         setOrdersStatus(Status.DELIVERED, Status.COMPLETED);
     }
 

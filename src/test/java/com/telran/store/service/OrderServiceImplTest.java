@@ -361,4 +361,31 @@ class OrderServiceImplTest {
 
         verify(orderRepository, never()).save(any());
     }
+
+    @Test
+    void testGetTotalAmount() {
+        OrderItem item1 = new OrderItem();
+        item1.setPriceAtPurchase(new BigDecimal("1"));
+        item1.setQuantity(2);
+
+        OrderItem item2 = new OrderItem();
+        item2.setPriceAtPurchase(new BigDecimal("1"));
+        item2.setQuantity(3);
+
+        Order order = new Order();
+        order.setOrderItems(Arrays.asList(item1, item2));
+
+        BigDecimal expected = new BigDecimal("5");
+
+        assertEquals(0, expected.compareTo(orderService.getTotalAmount(order))); // сравниваем BigDecimal правильно
+    }
+
+    @Test
+    void testGetTotalAmountIfItemsIsNull() {
+        Order order = new Order();
+
+        order.setOrderItems(null);
+        BigDecimal expected = BigDecimal.ZERO;
+        assertEquals(0, expected.compareTo(orderService.getTotalAmount(order)));
+    }
 }
