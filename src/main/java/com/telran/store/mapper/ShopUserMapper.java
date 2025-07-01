@@ -1,9 +1,8 @@
 package com.telran.store.mapper;
 
-import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.dto.ShopUserCreateDto;
+import com.telran.store.dto.ShopUserDto;
 import com.telran.store.dto.ShopUserResponseDto;
-import com.telran.store.entity.Category;
 import com.telran.store.entity.ShopUser;
 import org.mapstruct.*;
 
@@ -20,4 +19,6 @@ public interface ShopUserMapper {
     List<ShopUserResponseDto> toDtoList(List<ShopUser> shopUsers);
 
     void toUpdateEntity(@MappingTarget ShopUser shopUser, ShopUserCreateDto dto);
+
+    ShopUserDto toDtoUser(ShopUser shopUser);
 }

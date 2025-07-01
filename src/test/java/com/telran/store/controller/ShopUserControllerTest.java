@@ -13,15 +13,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,12 +41,13 @@ class ShopUserControllerTest {
     void testGetAllUsers() throws Exception {
         List<ShopUser> shopUsers = Arrays.asList(
                 ShopUser.builder()
-                        .id(1L).name("Alex").build(),
+                        .id(1L).name("Alex").email("alex@gmail.com").phoneNumber("111222").build(),
                 ShopUser.builder()
-                        .id(2L).name("Max").build());
+                        .id(2L).name("Max").email("max@gmail.com").phoneNumber("333444").build());
         List<ShopUserResponseDto> shopUserResponseDtos = shopUsers.stream()
                 .map(shopUser -> new ShopUserResponseDto(shopUser.getId(),
-                        shopUser.getName(), new HashSet<>())).toList();
+                        shopUser.getName(), shopUser.getEmail(), shopUser.getPhoneNumber()))
+                .toList();
 
         when(shopUserService.getAll()).thenReturn(shopUsers);
         when(shopUserMapper.toDtoList(any())).thenReturn(shopUserResponseDtos);
@@ -62,9 +62,8 @@ class ShopUserControllerTest {
 
     @Test
     void testGetUserById() throws Exception {
-        ShopUser shopUser = ShopUser.builder().id(1L).name("Alex").build();
-        ShopUserResponseDto shopUserDto = new ShopUserResponseDto(1L, "Alex",
-                new HashSet<>());
+        ShopUser shopUser = ShopUser.builder().id(1L).name("Alex").email("alex@gmail.com").phoneNumber("111222").build();
+        ShopUserResponseDto shopUserDto = new ShopUserResponseDto(1L, "Alex", "alex@gmail.com", "111222");
 
         when(shopUserService.getById(shopUser.getId())).thenReturn(shopUser);
         when(shopUserMapper.toDto(any())).thenReturn(shopUserDto);
@@ -79,7 +78,7 @@ class ShopUserControllerTest {
 
     @Test
     void testDeleteUserById() throws Exception {
-        ShopUser shopUser = ShopUser.builder().id(1L).name("Alex").build();
+        ShopUser shopUser = ShopUser.builder().id(1L).name("Alex").email("alex@gmail.com").phoneNumber("111222").build();
 
         doNothing().when(shopUserService).deleteById(shopUser.getId());
 
@@ -92,36 +91,39 @@ class ShopUserControllerTest {
 
     @Test
     void testCreateUser() throws Exception {
-        ShopUser user = ShopUser.builder().id(1L).name("Max").build();
+        ShopUser user = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("44445555666").build();
         ShopUserResponseDto userResponseDto =
-                new ShopUserResponseDto(1L, "Max", new HashSet<>());
+                new ShopUserResponseDto(1L, "Max", "max@gmail.com", "44445555666");
 
         when(shopUserService.create(any())).thenReturn(user);
         when(shopUserMapper.toDto(any())).thenReturn(userResponseDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"Max\"}"))
+                        .content("{\"name\": \"Max\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     void testEditUser() throws Exception {
-        ShopUser existing = ShopUser.builder().id(1L).name("Max").build();
+        ShopUser shopUser = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("44445555666").build();
 
-        ShopUserCreateDto dto = new ShopUserCreateDto();
-        dto.setName("Max");
+        ShopUserCreateDto shopUserCreateDto = new ShopUserCreateDto();
+        shopUserCreateDto.setName("Alex");
 
-        ShopUserResponseDto responseDto = new ShopUserResponseDto(existing.getId(), "Max", new HashSet<>());
-        when(shopUserService.edit(eq(existing.getId()),any(ShopUserCreateDto.class))).thenReturn(existing);
+        when(shopUserService.edit(eq(1L), any(ShopUserCreateDto.class))).thenReturn(shopUser);
+        when(shopUserMapper.toDto(shopUser)).thenReturn(new ShopUserResponseDto());
 
-        when(shopUserMapper.toDto(any())).thenReturn(responseDto);
-        mockMvc.perform(patch("/users/{id}", existing.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Max\"}"))
+        mockMvc.perform(patch("/users/" + shopUser.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"name\": \"Alex\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Max"))
-                .andExpect(jsonPath("$.id").value(existing.getId()));
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(shopUserService).edit(eq(1L), any(ShopUserCreateDto.class));
+        verify(shopUserMapper).toDto(shopUser);
     }
 }

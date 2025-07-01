@@ -2,6 +2,7 @@ package com.telran.store.service;
 
 import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.entity.Category;
+import com.telran.store.exception.NoSuchCategoryException;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
@@ -45,9 +46,15 @@ class CategoryServiceImplTest {
     void testGetCategoryById() {
         Category category = Category.builder().id(1L).build();
 
+        long invalidId = 999L;
+        when(categoryRepository.findById(invalidId)).thenReturn(Optional.empty());
+
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
 
         assertEquals(category, categoryService.getById(category.getId()));
+
+        assertThrows(NoSuchCategoryException.class, () -> categoryService.getById(invalidId));
+
     }
 
     @Test
@@ -72,19 +79,26 @@ class CategoryServiceImplTest {
 
     @Test
     void testEditCategory() {
-        Category existing = Category.builder().id(1L).name("phones").build();
+        Category category = Category.builder().id(1L).name("phones").build();
 
-        CategoryCreateDto dto = new CategoryCreateDto();
-        dto.setName("headphones");
+        CategoryCreateDto categoryCreateDto = new CategoryCreateDto();
+        categoryCreateDto.setName("tvs");
 
-        when(categoryRepository.findById(existing.getId())).thenReturn(Optional.of(existing));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.save(any())).thenReturn(category);
 
-        when(categoryRepository.save(existing)).thenReturn(existing);
+        doAnswer(invocation -> {
+            Category target = invocation.getArgument(0);
+            CategoryCreateDto source = invocation.getArgument(1);
+            target.setName(source.getName());
+            return null;
+        }).when(categoryMapper).toUpdateEntity(any(), any());
 
-        assertSame(existing, categoryService.edit(existing.getId(), dto));
+        Category result = categoryService.edit(1L, categoryCreateDto);
 
-        verify(categoryMapper).toUpdateEntity(existing, dto);
+        verify(categoryMapper).toUpdateEntity(category, categoryCreateDto);
+        verify(categoryRepository).save(category);
 
-        verify(categoryRepository).save(existing);
+        assertEquals("tvs", result.getName());
     }
 }

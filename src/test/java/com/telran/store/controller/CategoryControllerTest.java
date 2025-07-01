@@ -1,7 +1,6 @@
 package com.telran.store.controller;
 
-import com.telran.store.dto.CategoryCreateDto;
-import com.telran.store.dto.CategoryResponseDto;
+import com.telran.store.dto.*;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
@@ -18,9 +17,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,37 +92,48 @@ class CategoryControllerTest {
 
     @Test
     void testCreateCategory() throws Exception {
-        Category category = Category.builder().id(1L).name("phones").build();
-        CategoryResponseDto categoryResponseDto =
-                new CategoryResponseDto(1L, "phones", new ArrayList<>());
+        CategoryCreateDto createDto = new CategoryCreateDto("phones");
 
+        Category category = Category.builder()
+                .id(1L)
+                .name("phones")
+                .build();
+
+        CategoryDto categoryDto = new CategoryDto(1L, "phones");
+
+        when(categoryMapper.toEntity(any())).thenReturn(category);
         when(categoryService.save(any())).thenReturn(category);
-        when(categoryMapper.toDto(any())).thenReturn(categoryResponseDto);
+        when(categoryMapper.toDtoToCategory(any())).thenReturn(categoryDto);
 
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"phones\"}"))
+                .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.categoryId").value(1))
+                .andExpect(jsonPath("$.name").value("phones"));
     }
 
     @Test
     void testEditCategory() throws Exception {
-        Category existing = Category.builder().id(1L).name("headphones").build();
+        Category category = Category.builder().id(1L).name("phones").build();
 
-        CategoryCreateDto dto = new CategoryCreateDto();
-        dto.setName("headphones");
+        CategoryCreateDto categoryCreateDto = new CategoryCreateDto();
+        categoryCreateDto.setName("tvs");
 
-        CategoryResponseDto responseDto = new CategoryResponseDto(existing.getId(), "headphones", new ArrayList<>());
-        when(categoryService.edit(eq(existing.getId()),any(CategoryCreateDto.class))).thenReturn(existing);
+        when(categoryService.edit(eq(1L), any(CategoryCreateDto.class))).thenReturn(category);
+        when(categoryMapper.toDto(category)).thenReturn(new CategoryResponseDto());
 
-        when(categoryMapper.toDto(any())).thenReturn(responseDto);
-        mockMvc.perform(patch("/categories/{id}", existing.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"headphones\"}"))
+        mockMvc.perform(patch("/categories/" + category.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"name\": \"tvs\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("headphones"))
-                .andExpect(jsonPath("$.id").value(existing.getId()));
-    }
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
+        verify(categoryService).edit(eq(1L), any(CategoryCreateDto.class));
+        verify(categoryMapper).toDto(category);
+
+    }
 }
