@@ -36,7 +36,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
-            throw new RuntimeException("The amount of payment exceeds the total amount of the order");
+            BigDecimal remainingAmount = totalPrice.subtract(order.getPaymentAmount());
+            throw new RuntimeException("The amount of payment exceeds the total amount of the order\n" +
+                    "Payment exceeds the remaining amount. You need to pay only: " + remainingAmount);
         }
 
         order.setPaymentAmount(order.getPaymentAmount().add(paymentCreateDto.getAmount()));
