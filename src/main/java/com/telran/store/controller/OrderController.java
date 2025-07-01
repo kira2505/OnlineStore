@@ -37,4 +37,10 @@ public class OrderController {
     public List<OrderResponseDto> getAllOrders(@PathVariable Long userId) {
         return orderMapper.toDtoList(orderService.getAllOrders(userId));
     }
+
+    @PatchMapping("{orderId}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public OrderResponseDto closeOrder(@PathVariable Long orderId) {
+        return orderMapper.toDto(orderService.cancelOrder(orderId));
+    }
 }

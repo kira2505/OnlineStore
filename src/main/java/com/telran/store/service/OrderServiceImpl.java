@@ -121,11 +121,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order cancelOrder(Long orderId) {
         Order order = getById(orderId);
-        return null;
+        if (PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus())) {
+            order.setPaymentStatus(PaymentStatus.CANCELED);
+        } else {
+            order.setPaymentStatus(PaymentStatus.REFUND);
+        }
+        order.setStatus(Status.CANCELED);
+        order.setPaymentAmount(BigDecimal.ZERO);
+        return orderRepository.save(order);
     }
 
     @Override
-    public Order saveOrder(Order order){
+    public Order saveOrder(Order order) {
         return orderRepository.save(order);
     }
 
