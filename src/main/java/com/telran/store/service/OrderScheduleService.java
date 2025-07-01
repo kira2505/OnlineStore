@@ -27,7 +27,8 @@ public class OrderScheduleService {
     @Async
     public void cancelExpiredNewOrders() {
         for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(20))) {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(20)) && PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus()))
+            {
                 orderService.updateOrderStatus(order.getId(), Status.CANCELED);
                 orderService.updateOrderPaymentStatus(order.getId(), PaymentStatus.CANCELED);
                 log.info("New order with id " + order.getId() + " canceled due to expired payment period");
@@ -39,8 +40,10 @@ public class OrderScheduleService {
     @Async
     public void setProcessingIfPaid() {
         for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE)) && order.getPaymentStatus() == PaymentStatus.PAID) {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE))
+                    && order.getPaymentStatus() == PaymentStatus.PAID) {
                 orderService.updateOrderStatus(order.getId(), Status.PROCESSING);
+                orderService.updateOrderPaymentStatus(order.getId(), PaymentStatus.COMPLETED);
                 log.info("Order with id " + order.getId() + " in processing");
             }
         }
@@ -49,7 +52,7 @@ public class OrderScheduleService {
     @Scheduled(fixedRate = 60000)
     @Async
     public void markAsShipped() {
-        setOrdersStatus(Status.PROCESSING,  Status.SHIPPED);
+        setOrdersStatus(Status.PROCESSING, Status.SHIPPED);
     }
 
     @Scheduled(fixedRate = 60000)
