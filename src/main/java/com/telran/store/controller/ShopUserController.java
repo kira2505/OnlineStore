@@ -8,6 +8,7 @@ import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,31 +29,32 @@ public class ShopUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ShopUserResponseDto create(@RequestBody ShopUserCreateDto shopUserCreateDto){
+    public ShopUserResponseDto create(@RequestBody ShopUserCreateDto shopUserCreateDto) {
         shopUserCreateDto.setPassword(passwordEncoder.encode(shopUserCreateDto.getPassword()));
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
     }
 
     @GetMapping
-    public List<ShopUserResponseDto> getAll(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<ShopUserResponseDto> getAll() {
         return shopUserMapper.toDtoList(shopUserService.getAll());
     }
 
     @GetMapping("{id}")
-    public ShopUserResponseDto getById(@PathVariable long id){
-        ShopUser byId = shopUserService.getById(id);
-        ShopUserResponseDto dto = shopUserMapper.toDto(byId);
-        return dto;
+    @PreAuthorize("hasRole('ADMIN')")
+    public ShopUserResponseDto getById(@PathVariable long id) {
+        return shopUserMapper.toDto(shopUserService.getById(id));
     }
 
     @DeleteMapping("{id}")
-    public void deleteById(@PathVariable long id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteById(@PathVariable long id) {
         shopUserService.deleteById(id);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ShopUserResponseDto edit(@PathVariable long id, @RequestBody ShopUserCreateDto shopUserCreateDto){
-        return shopUserMapper.toDto(shopUserService.edit(id, shopUserCreateDto));
+    public ShopUserResponseDto edit(@RequestBody ShopUserDto shopUserDto) {
+        return shopUserMapper.toDto(shopUserService.edit(shopUserDto));
     }
 }

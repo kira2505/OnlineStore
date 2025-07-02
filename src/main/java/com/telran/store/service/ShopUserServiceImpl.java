@@ -1,6 +1,7 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.ShopUserCreateDto;
+import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.ShopUserMapper;
@@ -44,9 +45,8 @@ public class ShopUserServiceImpl implements ShopUserService {
     }
 
     @Override
-    public ShopUser edit(long id, ShopUserCreateDto shopUser) {
-        ShopUser user = getById(id);
-
+    public ShopUser edit(ShopUserDto shopUser) {
+        ShopUser user = getShopUser();
         shopUserMapper.toUpdateEntity(user, shopUser);
         return shopUserRepository.save(user);
     }

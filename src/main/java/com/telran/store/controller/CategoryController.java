@@ -47,7 +47,7 @@ public class CategoryController {
     }
 
     @PatchMapping("{id}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponseDto edit(@PathVariable long id, @RequestBody CategoryCreateDto category){
         return categoryMapper.toDto(categoryService.edit(id, category));

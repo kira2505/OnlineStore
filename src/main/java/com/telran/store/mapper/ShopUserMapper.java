@@ -9,7 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring",  uses = {FavoriteMapper.class})
+@Mapper(componentModel = "spring",  uses = {FavoriteMapper.class},
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ShopUserMapper {
 
     @Mapping(source = "password", target = "passwordHash")
@@ -20,7 +21,5 @@ public interface ShopUserMapper {
 
     List<ShopUserResponseDto> toDtoList(List<ShopUser> shopUsers);
 
-    void toUpdateEntity(@MappingTarget ShopUser shopUser, ShopUserCreateDto dto);
-
-    ShopUserDto toDtoUser(ShopUser shopUser);
+    void toUpdateEntity(@MappingTarget ShopUser shopUser, ShopUserDto dto);
 }
