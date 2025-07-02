@@ -23,10 +23,10 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public CartItemResponseDto add(@RequestHeader("userId") Long userId,
-                                   @RequestBody AddToCartRequestDto request) {
-        return cartMapper.toCartItemDto(cartService.add(userId, request));
+    public CartItemResponseDto add(@RequestBody AddToCartRequestDto request) {
+        return cartMapper.toCartItemDto(cartService.add(request));
     }
+
 
     @PatchMapping("/{user_id}")
     public CartResponseDto edit(@PathVariable("user_id") Long userId,

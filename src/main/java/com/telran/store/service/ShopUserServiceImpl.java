@@ -6,6 +6,9 @@ import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,5 +55,10 @@ public class ShopUserServiceImpl implements ShopUserService {
     public ShopUser getByEmail(String email) {
         return shopUserRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found."));
+    }
+
+    public ShopUser getShopUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (ShopUser) authentication.getPrincipal();
     }
 }

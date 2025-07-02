@@ -27,8 +27,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests ->
                         requests
+                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/users").authenticated()
                                 .requestMatchers("/products/**").authenticated()
+                                .requestMatchers("/orders/**").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/categories/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/categories/**").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/categories/**").authenticated()                                .requestMatchers("/orders/**").authenticated()
                                 .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
