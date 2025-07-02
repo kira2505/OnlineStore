@@ -1,19 +1,11 @@
-DELETE
-FROM cart;
-DELETE
-FROM cart_items;
-DELETE
-FROM categories;
-DELETE
-FROM favorites;
-DELETE
-FROM orders;
-DELETE
-FROM order_items;
-DELETE
-FROM products;
-DELETE
-FROM shop_users;
+TRUNCATE TABLE cart;
+TRUNCATE TABLE cart_items;
+TRUNCATE TABLE categories;
+TRUNCATE TABLE favorites;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE products;
+TRUNCATE TABLE shop_users;
 
 INSERT INTO shop_users(name, email, phone_number)
 VALUES ('Maria Petrova', 'maria.petrova@example.com', '+79161234567');

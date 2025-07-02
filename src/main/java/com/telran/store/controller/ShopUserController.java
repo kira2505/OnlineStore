@@ -8,6 +8,7 @@ import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +23,13 @@ public class ShopUserController {
     @Autowired
     private ShopUserMapper shopUserMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto create(@RequestBody ShopUserCreateDto shopUserCreateDto){
+        shopUserCreateDto.setPassword(passwordEncoder.encode(shopUserCreateDto.getPassword()));
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
     }
 

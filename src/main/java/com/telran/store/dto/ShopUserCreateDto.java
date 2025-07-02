@@ -14,4 +14,6 @@ public class ShopUserCreateDto {
     private String email;
 
     private String phoneNumber;
+
+    private String password;
 }

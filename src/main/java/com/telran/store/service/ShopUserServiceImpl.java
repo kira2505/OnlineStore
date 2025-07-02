@@ -47,4 +47,10 @@ public class ShopUserServiceImpl implements ShopUserService {
         shopUserMapper.toUpdateEntity(user, shopUser);
         return shopUserRepository.save(user);
     }
+
+    @Override
+    public ShopUser getByEmail(String email) {
+        return shopUserRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found."));
+    }
 }
