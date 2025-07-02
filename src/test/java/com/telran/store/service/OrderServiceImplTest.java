@@ -31,6 +31,9 @@ class OrderServiceImplTest {
     @InjectMocks
     private OrderServiceImpl orderService;
 
+    @Mock
+    private ShopUserService shopUserService;
+
     @Test
     void testSuccessCreateOrder() {
         long userId = 1L;
@@ -71,11 +74,12 @@ class OrderServiceImplTest {
         createDto.setDeliveryMethod("courier");
         createDto.setOrderItems(List.of(orderItemDto, orderItemDtoTwo));
 
+        when(shopUserService.getShopUser()).thenReturn(shopUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
         when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Order order = orderService.createOrder(userId, createDto);
+        Order order = orderService.createOrder(createDto);
 
         assertNotNull(order);
         assertEquals(userId, order.getShopUser().getId());
@@ -93,6 +97,7 @@ class OrderServiceImplTest {
         cart.setCartItems(new HashSet<>());
         shopUser.setCart(cart);
 
+        when(shopUserService.getShopUser()).thenReturn(shopUser);
         when(userRepository.findById(shopUser.getId())).thenReturn(Optional.of(shopUser));
 
         OrderCreateDto createDto = new OrderCreateDto();
@@ -101,14 +106,14 @@ class OrderServiceImplTest {
         createDto.setOrderItems(new ArrayList<>());
 
         assertThrows(EmptyCartException.class,
-                () -> orderService.createOrder(shopUser.getId(), createDto));
+                () -> orderService.createOrder(createDto));
 
         verify(userRepository).findById(shopUser.getId());
         verifyNoInteractions(orderRepository);
     }
 
     @Test
-    void testProductNotFoundInCart(){
+    void testProductNotFoundInCart() {
         long userId = 1L;
         ShopUser shopUser = ShopUser.builder().id(userId).phoneNumber("12345").build();
         Cart cart = new Cart();
@@ -126,7 +131,7 @@ class OrderServiceImplTest {
         cart.setCartItems(new HashSet<>(Set.of(cartItem)));
 
         OrderItemCreateDto orderItemDto = new OrderItemCreateDto();
-        orderItemDto.setProductId(3L); // <-- не в корзине
+        orderItemDto.setProductId(3L);
         orderItemDto.setQuantity(3);
 
         OrderCreateDto createDto = new OrderCreateDto();
@@ -134,10 +139,11 @@ class OrderServiceImplTest {
         createDto.setDeliveryMethod("courier");
         createDto.setOrderItems(List.of(orderItemDto));
 
+        when(shopUserService.getShopUser()).thenReturn(shopUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
 
         assertThrows(CartItemNotFoundException.class, () -> {
-            orderService.createOrder(userId, createDto);
+            orderService.createOrder(createDto);
         });
     }
 
@@ -173,10 +179,11 @@ class OrderServiceImplTest {
         orderCreateDto.setDeliveryMethod("method");
         orderCreateDto.setOrderItems(List.of(orderItemDto));
 
+        when(shopUserService.getShopUser()).thenReturn(shopUser);
         when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
 
         assertThrows(InsufficientProductQuantityException.class,
-                () -> orderService.createOrder(userId, orderCreateDto));
+                () -> orderService.createOrder(orderCreateDto));
 
         verify(orderRepository, never()).save(any());
     }
@@ -190,10 +197,12 @@ class OrderServiceImplTest {
         createDto.setDeliveryMethod("courier");
         createDto.setOrderItems(new ArrayList<>());
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        ShopUser mockUser = ShopUser.builder().id(userId).build();
+        when(shopUserService.getShopUser()).thenReturn(mockUser);
 
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
         assertThrows(UserNotFoundException.class,
-                () -> orderService.createOrder(userId, createDto));
+                () -> orderService.createOrder(createDto));
 
         verify(orderRepository, never()).save(any());
     }
@@ -219,22 +228,23 @@ class OrderServiceImplTest {
                 Order.builder().id(2L).build()
         );
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(shopUserService.getShopUser()).thenReturn(user);
         when(orderRepository.findAllByShopUserId(userId)).thenReturn(orders);
 
-        assertEquals(2, orderService.getAllOrders(userId).size());
-        verify(userRepository).findById(userId);
+        List<Order> result = orderService.getAllOrdersCurrentUser();
+
+        assertEquals(2, result.size());
+        verify(shopUserService).getShopUser();
         verify(orderRepository).findAllByShopUserId(userId);
     }
 
     @Test
     void testGetAllOrdersIfUserNotFound() {
-        long userId = 1L;
+        when(shopUserService.getShopUser()).thenThrow(new UserNotFoundException("User not found"));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> orderService.getAllOrders(userId));
+        assertThrows(UserNotFoundException.class, () -> orderService.getAllOrdersCurrentUser());
 
-        verify(userRepository).findById(userId);
+        verify(shopUserService).getShopUser();
         verify(orderRepository, never()).findAllByShopUserId(anyLong());
     }
 
@@ -307,7 +317,7 @@ class OrderServiceImplTest {
 
     @Test
     void testSaveOrder() {
-        Order order  = Order.builder().id(1L).build();
+        Order order = Order.builder().id(1L).build();
 
         when(orderRepository.save(order)).thenReturn(order);
 

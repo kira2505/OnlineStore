@@ -1,7 +1,9 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.ShopUserCreateDto;
+import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.enums.Role;
 import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
@@ -10,6 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,26 +85,69 @@ class ShopUserServiceImplTest {
 
     @Test
     void testEditUser() {
-        ShopUser user = ShopUser.builder().id(1L).name("Alex").build();
+        ShopUser user = ShopUser.builder().id(1L).name("Alex").role(Role.ROLE_USER).build();
 
-        ShopUserCreateDto userCreateDto = new ShopUserCreateDto();
-        userCreateDto.setName("Max");
+        ShopUserDto userDto = new ShopUserDto();
+        userDto.setName("Max");
 
-        when(shopUserRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(shopUserRepository.save(any())).thenReturn(user);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
 
         doAnswer(invocation -> {
             ShopUser target = invocation.getArgument(0);
-            ShopUserCreateDto source = invocation.getArgument(1);
+            ShopUserDto source = invocation.getArgument(1);
             target.setName(source.getName());
             return null;
         }).when(shopUserMapper).toUpdateEntity(any(), any());
 
-        ShopUser result = shopUserService.edit(1L, userCreateDto);
+        when(shopUserRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        verify(shopUserMapper).toUpdateEntity(user, userCreateDto);
+        ShopUser result = shopUserService.edit(userDto);
+
+        verify(shopUserMapper).toUpdateEntity(user, userDto);
         verify(shopUserRepository).save(user);
-
         assertEquals("Max", result.getName());
+    }
+
+    @Test
+    void testGetUserByEmail() {
+        String email = "email@example.com";
+        ShopUser user = ShopUser.builder().id(1L).email(email).build();
+
+        when(shopUserRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        ShopUser result = shopUserService.getByEmail(email);
+
+        assertEquals(email, result.getEmail());
+        verify(shopUserRepository).findByEmail(email);
+    }
+
+    @Test
+    void testGetUserByEmailNotFound() {
+        String email = "email@example.com";
+
+        when(shopUserRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> shopUserService.getByEmail(email));
+    }
+    
+    @Test
+    void testGetShopUser() {
+        ShopUser user = ShopUser.builder().id(1L).name("Alex").role(Role.ROLE_USER).build();
+
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+
+        ShopUser result = shopUserService.getShopUser();
+
+        assertEquals(user, result);
     }
 }

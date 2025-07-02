@@ -6,6 +6,7 @@ import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CategoryController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class CategoryControllerTest {
 
     @Autowired
@@ -92,8 +94,6 @@ class CategoryControllerTest {
 
     @Test
     void testCreateCategory() throws Exception {
-        CategoryCreateDto createDto = new CategoryCreateDto("phones");
-
         Category category = Category.builder()
                 .id(1L)
                 .name("phones")
@@ -127,13 +127,12 @@ class CategoryControllerTest {
         mockMvc.perform(patch("/categories/" + category.getId())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("{\"name\": \"tvs\"}"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
         verify(categoryService).edit(eq(1L), any(CategoryCreateDto.class));
         verify(categoryMapper).toDto(category);
-
     }
 }
