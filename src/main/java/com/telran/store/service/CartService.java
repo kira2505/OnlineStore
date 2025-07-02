@@ -11,15 +11,15 @@ public interface CartService {
 
     CartItem add(AddToCartRequestDto cartRequest);
 
-    Cart edit(Long userId, AddToCartRequestDto cartRequest);
+    Cart edit(AddToCartRequestDto cartRequest);
 
-    Cart getById(Long userId);
+    Cart getById();
 
-    void clearCart(Long userId);
+    void clearCart();
 
-    void deleteById(Long userId);
+    void deleteById();
 
-    void deleteCartItem(Long userId, Long productId);
+    void deleteCartItem(Long productId);
 
     Cart save(Cart cart);
 }

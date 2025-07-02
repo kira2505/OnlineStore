@@ -7,6 +7,7 @@ import com.telran.store.mapper.CartMapper;
 import com.telran.store.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -28,33 +29,32 @@ public class CartController {
     }
 
 
-    @PatchMapping("/{user_id}")
-    public CartResponseDto edit(@PathVariable("user_id") Long userId,
-                                @RequestBody AddToCartRequestDto cartRequest) {
-        return cartMapper.toDto(cartService.edit(userId, cartRequest));
+    @PatchMapping
+    public CartResponseDto edit(@RequestBody AddToCartRequestDto cartRequest) {
+        return cartMapper.toDto(cartService.edit(cartRequest));
     }
 
-    @GetMapping("/{user_id}")
-    public CartResponseDto getById(@PathVariable("user_id") Long userId) {
-        return cartMapper.toDto(cartService.getById(userId));
+    @GetMapping
+    public CartResponseDto getById() {
+        return cartMapper.toDto(cartService.getById());
     }
 
-    @PutMapping("/clear/{user_id}")
+    @PutMapping("/clear/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void clearCart(@PathVariable("user_id") Long userId) {
-        cartService.clearCart(userId);
+    public void clearCart() {
+        cartService.clearCart();
     }
 
-    @DeleteMapping("/{user_id}")
+    @DeleteMapping
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("user_id") Long userId) {
-        cartService.deleteById(userId);
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteById() {
+        cartService.deleteById();
     }
 
-    @DeleteMapping("/{user_id}/products/{product_id}")
+    @DeleteMapping("/products/{product_id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteByUserId(@PathVariable("user_id") Long userId,
-                               @PathVariable("product_id") Long productId) {
-        cartService.deleteCartItem(userId, productId);
+    public void deleteByUserId(@PathVariable("product_id") Long productId) {
+        cartService.deleteCartItem(productId);
     }
 }

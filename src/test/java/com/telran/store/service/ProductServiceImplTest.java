@@ -4,10 +4,12 @@ import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.entity.Category;
 import com.telran.store.entity.Product;
+import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -50,27 +52,51 @@ class ProductServiceImplTest {
                 Product.builder()
                         .id(2L).name("Lopata").build());
 
+        // Чтобы ловить specification и sort, можно использовать ArgumentCaptor
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
         when(productRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(products);
 
         List<Product> productList = productServiceIml.getAll(category, minPrice,
                 maxPrice, discount, sortBy);
 
-        assertEquals(2, productList.size());
+        assertEquals(products, productList);
 
-        verify(productRepository, times(1)).findAll(any(Specification.class),
-                any(Sort.class));
+        verify(productRepository).findAll(specCaptor.capture(), sortCaptor.capture());
+
+
+        Sort sort = sortCaptor.getValue();
+        assertEquals("price", sort.getOrderFor("price").getProperty());
+        assertTrue(sort.getOrderFor("price").isAscending());
+
+        // Спецификацию проверить сложнее — можно проверить, что она не null
+        assertNotNull(specCaptor.getValue());
     }
 
 
     @Test
     void testCreateProduct() {
-        Product createProduct = new Product().builder().id(1L).name("Flowerpot").description("big").build();
+        Product createProduct = new Product().builder()
+                .id(1L)
+                .name("Flowerpot")
+                .description("big")
+                .build();
 
         when(productRepository.save(createProduct)).thenReturn(createProduct);
 
         Product product = productServiceIml.create(createProduct);
         assertEquals(createProduct, product);
+        verify(productRepository).save(createProduct);
+
+        long missingId = 5L;
+        when(productRepository.findById(missingId)).thenReturn(Optional.empty());
+
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
+                () -> productServiceIml.getById(missingId));
+        assertEquals("Product with id 5 not found ", exception.getMessage());
+
     }
 
     @Test

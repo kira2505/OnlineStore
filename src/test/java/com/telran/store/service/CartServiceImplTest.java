@@ -7,6 +7,7 @@ import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.CartItemNotFoundException;
 import com.telran.store.exception.CartNotFoundException;
+import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
 import org.junit.jupiter.api.Test;
@@ -83,31 +84,46 @@ class CartServiceImplTest {
         product.setId(2L);
         product.setPrice(BigDecimal.valueOf(100));
 
-        AddToCartRequestDto newCartItemRequest = new AddToCartRequestDto();
-        newCartItemRequest.setProductId(product.getId());
-        newCartItemRequest.setQuantity(2);
-
-        AddToCartRequestDto editCartItemRequest = new AddToCartRequestDto();
-        editCartItemRequest.setProductId(product.getId());
-        editCartItemRequest.setQuantity(10);
-
+        when(shopUserService.getShopUser()).thenReturn(user);
         when(shopUserService.getById(user.getId())).thenReturn(user);
         when(productService.getById(product.getId())).thenReturn(product);
         when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
         when(cartRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CartItem cartItem = cartServiceImpl.add(user.getId(), newCartItemRequest);
+        //New CartItem
 
-        assertNotNull(cartItem);
-        assertEquals(2, cartItem.getQuantity());
-        assertEquals(product, cartItem.getProduct());
-        assertEquals(BigDecimal.valueOf(100), cartItem.getPrice());
+        AddToCartRequestDto newCartItemRequest = new AddToCartRequestDto();
+        newCartItemRequest.setProductId(product.getId());
+        newCartItemRequest.setQuantity(2);
 
+        CartItem addCartItem = cartServiceImpl.add(newCartItemRequest);
+
+        assertNotNull(addCartItem);
+        assertEquals(2, addCartItem.getQuantity());
+        assertEquals(product, addCartItem.getProduct());
+        assertEquals(BigDecimal.valueOf(100), addCartItem.getPrice());
+
+        //Existing CartItem
         CartItem existCartItem = new CartItem();
         existCartItem.setProduct(product);
         existCartItem.setQuantity(2);
         existCartItem.setPrice(BigDecimal.valueOf(100));
+
+        Product discountedProduct = new Product();
+        discountedProduct.setId(3L);
+        discountedProduct.setPrice(BigDecimal.valueOf(200));
+        discountedProduct.setDiscountPrice(BigDecimal.valueOf(150));
+
+        when(productService.getById(discountedProduct.getId())).thenReturn(discountedProduct);
+
+        AddToCartRequestDto discountRequest = new AddToCartRequestDto();
+        discountRequest.setProductId(discountedProduct.getId());
+        discountRequest.setQuantity(1);
+
+        CartItem discountedItem = cartServiceImpl.add(discountRequest);
+
+        assertEquals(BigDecimal.valueOf(150), discountedItem.getPrice());
 
         Cart cart = new Cart();
         cart.setUser(user);
@@ -119,60 +135,122 @@ class CartServiceImplTest {
 
         when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        CartItem add = cartServiceImpl.add(user.getId(), editCartItemRequest);
+        AddToCartRequestDto editCartItemRequest = new AddToCartRequestDto();
+        editCartItemRequest.setProductId(product.getId());
+        editCartItemRequest.setQuantity(3);
 
-        assertNotNull(add);
-        assertEquals(12, existCartItem.getQuantity());
+        CartItem update = cartServiceImpl.add(editCartItemRequest);
+
+        assertNotNull(update);
+        assertEquals(5, existCartItem.getQuantity());
         verify(cartItemRepository, atLeastOnce()).save(existCartItem);
     }
 
     @Test
-    void testEditCart() {
-        Long userId = 1L;
+    void testAddNewProductWithDiscount() {
+        ShopUser user = new ShopUser();
+        user.setId(1L);
 
-        CartItem cartItem = new CartItem();
+        Product product = new Product();
+        product.setId(3L);
+        product.setPrice(BigDecimal.valueOf(100));
+        product.setDiscountPrice(BigDecimal.valueOf(75)); // скидка есть
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(shopUserService.getById(user.getId())).thenReturn(user);
+        when(productService.getById(product.getId())).thenReturn(product);
+        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.empty());
+        when(cartRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(cartItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AddToCartRequestDto dto = new AddToCartRequestDto();
+        dto.setProductId(product.getId());
+        dto.setQuantity(1);
+
+        CartItem result = cartServiceImpl.add(dto);
+
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(75), result.getPrice()); // скидка применилась
+        assertEquals(1, result.getQuantity());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"true", "false"})
+    void testEditCart(boolean cartExists) {
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+
         Product product = new Product();
         product.setId(2L);
-        cartItem.setProduct(product);
+        product.setPrice(BigDecimal.valueOf(100));
+
+        Product existingProduct = new Product();
+        existingProduct.setId(cartExists ? 2L : 999L); // 2L — тот же, 999L — другой
+
+        CartItem cartItem = new CartItem();
+        cartItem.setProduct(existingProduct);
         cartItem.setQuantity(2);
 
         Cart cart = new Cart();
+        cart.setUser(user);
+        cart.setCartItems(new HashSet<>(Collections.singletonList(cartItem)));
 
-        HashSet<CartItem> cartItems = new HashSet<>();
-        cartItems.add(cartItem);
-        cart.setCartItems(cartItems);
+        lenient().when(shopUserService.getShopUser()).thenReturn(user);
+        lenient().when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
+        lenient().when(productService.getById(product.getId())).thenReturn(product);
 
-        AddToCartRequestDto request =  new AddToCartRequestDto();
-        request.setProductId(product.getId());
-        request.setQuantity(10);
+        AddToCartRequestDto dto = new AddToCartRequestDto();
+        dto.setProductId(product.getId());
+        dto.setQuantity(5);
 
-        when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(cart));
-        when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        if (cartExists) {
+            when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            Cart result = cartServiceImpl.edit(dto);
 
-        Cart editCart = cartServiceImpl.edit(userId, request);
+            assertNotNull(result);
+            CartItem updatedItem = result.getCartItems().stream()
+                    .filter(ci -> ci.getProduct().getId().equals(product.getId()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("Updated cart item not found"));
 
-        assertNotNull(editCart);
-        assertEquals(10, cartItem.getQuantity());
+            assertEquals(5, updatedItem.getQuantity());
+            assertEquals(product.getId(), updatedItem.getProduct().getId());
+
+            verify(cartItemRepository).save(any(CartItem.class));
+        } else {
+            ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () ->
+                    cartServiceImpl.edit(dto)
+            );
+            assertTrue(exception.getMessage().contains("Product not found"));
+            verify(cartItemRepository, never()).save(any());
+        }
     }
 
     @Test
     void testGetById() {
-        Long userId = 1L;
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+
         Cart expectedCart = new Cart();
         expectedCart.setId(100L);
         
-        when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(expectedCart));
+        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(expectedCart));
 
-        Cart result = cartServiceImpl.getById(userId);
+        Cart result = cartServiceImpl.getById();
 
         assertNotNull(result);
         assertEquals(expectedCart.getId(), result.getId());
-        verify(cartRepository).findByUserId(userId);
+        verify(cartRepository).findByUserId(user.getId());
     }
 
     @Test
     void testClearCart() {
-        Long userId = 1L;
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+
+        when(shopUserService.getShopUser()).thenReturn(user);
 
         Cart cart = new Cart();
 
@@ -181,10 +259,10 @@ class CartServiceImplTest {
         cartItems.add(new CartItem());
         cart.setCartItems(cartItems);
 
-        when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
         when(cartRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        cartServiceImpl.clearCart(userId);
+        cartServiceImpl.clearCart();
 
         assertEquals(0, cart.getCartItems().size());
         verify(cartRepository).save(cart);
@@ -193,20 +271,24 @@ class CartServiceImplTest {
 
     @Test
     void testDeleteCart() {
-        Long existUserId = 1L;
-        Long missUserId = 2L;
+        ShopUser existUser = new ShopUser();
+        existUser.setId(2L);
+
+        when(shopUserService.getShopUser()).thenReturn(existUser);
 
         Cart existCart = new Cart();
-        when(cartRepository.findByUserId(existUserId)).thenReturn(Optional.of(existCart));
+        existCart.setUser(existUser);
 
-        cartServiceImpl.deleteById(existUserId);
+        when(cartRepository.findByUserId(existUser.getId())).thenReturn(Optional.of(existCart));
+
+        cartServiceImpl.deleteById();
 
         verify(cartRepository).delete(existCart);
 
-        when(cartRepository.findByUserId(missUserId)).thenReturn(Optional.empty());
+        when(cartRepository.findByUserId(existUser.getId())).thenReturn(Optional.empty());
 
         CartNotFoundException exception = assertThrows(CartNotFoundException.class, () ->
-                cartServiceImpl.deleteById(missUserId));
+                cartServiceImpl.deleteById());
 
         assertEquals("Cart by user id 2 not found", exception.getMessage());
     }
@@ -214,7 +296,10 @@ class CartServiceImplTest {
 
     @Test
     void testDeleteCartItem() {
-        Long userId = 1L;
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+        when(shopUserService.getShopUser()).thenReturn(user);
+
         Long productId = 2L;
         Long missingProductId = 999L;
 
@@ -227,13 +312,13 @@ class CartServiceImplTest {
         Cart cart = new Cart();
         cart.setCartItems(new HashSet<>(Set.of(cartItem)));
 
-        when(cartRepository.findByUserId(userId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
 
-        cartServiceImpl.deleteCartItem(userId, productId);
+        cartServiceImpl.deleteCartItem(productId);
         assertFalse(cart.getCartItems().contains(cartItem), "CartItem should be removed");
 
         CartItemNotFoundException exception = assertThrows(CartItemNotFoundException.class, () ->
-                cartServiceImpl.deleteCartItem(userId, missingProductId));
+                cartServiceImpl.deleteCartItem(missingProductId));
         assertEquals("Cart item not found in cart", exception.getMessage());
     }
 
