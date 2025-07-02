@@ -5,6 +5,8 @@ import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Order;
 import com.telran.store.entity.Payment;
 import com.telran.store.enums.PaymentStatus;
+import com.telran.store.exception.AmountPaymentExceedsOrderTotalAmount;
+import com.telran.store.exception.OrderAlreadyPaidException;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +33,13 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderService.getById(paymentCreateDto.getOrderId());
         BigDecimal totalPrice = orderService.getTotalAmount(order);
 
-        if (order.getPaymentStatus() == PaymentStatus.PAID) {
-            throw new RuntimeException("Order has already been paid");
+        if (PaymentStatus.PAID.equals(order.getPaymentStatus()) || PaymentStatus.COMPLETED.equals(order.getPaymentStatus())) {
+            throw new OrderAlreadyPaidException("Order has already been paid");
         }
 
         if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
             BigDecimal remainingAmount = totalPrice.subtract(order.getPaymentAmount());
-            throw new RuntimeException("The amount of payment exceeds the total amount of the order\n" +
+            throw new AmountPaymentExceedsOrderTotalAmount("The amount of payment exceeds the total amount of the order\n" +
                     "Payment exceeds the remaining amount. You need to pay only: " + remainingAmount);
         }
 

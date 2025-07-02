@@ -44,8 +44,8 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public CartItem add(Long userId, AddToCartRequestDto cartRequest) {
-        ShopUser shopUser = shopUserService.getById(userId);
+    public CartItem add(AddToCartRequestDto cartRequest) {
+        ShopUser shopUser = shopUserService.getById(shopUserService.getShopUser().getId());
 
         Product product = productService.getById(cartRequest.getProductId());
 

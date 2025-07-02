@@ -9,7 +9,7 @@ public interface CartService {
 
     Cart create(ShopUser user);
 
-    CartItem add(Long userId, AddToCartRequestDto cartRequest);
+    CartItem add(AddToCartRequestDto cartRequest);
 
     Cart edit(Long userId, AddToCartRequestDto cartRequest);
 

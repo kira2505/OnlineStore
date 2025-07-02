@@ -18,4 +18,6 @@ public interface ShopUserService {
     ShopUser edit(long id, ShopUserCreateDto shopUser);
 
     ShopUser getByEmail(String email);
+
+    ShopUser getShopUser();
 }
