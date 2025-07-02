@@ -13,6 +13,5 @@ public class ShopUserDto {
 
     private String name;
 
-    private Set<FavoriteResponseDto> favorites;
-
+    private String phoneNumber;
 }
