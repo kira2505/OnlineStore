@@ -7,6 +7,7 @@ import com.telran.store.entity.Product;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
+import jakarta.persistence.criteria.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,41 +41,179 @@ class ProductServiceImplTest {
     private ProductServiceImpl productServiceIml;
 
     @Test
-    void testGetAllProduct() {
-        String category = "Phones";
-        BigDecimal minPrice = new BigDecimal("100.00");
-        BigDecimal maxPrice = new BigDecimal("200.00");
-        Boolean discount = true;
-        String sortBy = "price";
-        List<Product> products = Arrays.asList(
-                Product.builder()
-                        .id(1L).name("Flowerpot").build(),
-                Product.builder()
-                        .id(2L).name("Lopata").build());
+    void testGetAllProductsWithoutFilters() {
 
-        // Чтобы ловить specification и sort, можно использовать ArgumentCaptor
-        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
-        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        List<Product> products = List.of(
+                Product.builder()
+                        .id(1L).name("Flowerpot").build());
 
         when(productRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(products);
 
-        List<Product> productList = productServiceIml.getAll(category, minPrice,
-                maxPrice, discount, sortBy);
+        List<Product> result = productServiceIml.getAll(null, null, null, null, null);
 
-        assertEquals(products, productList);
+        assertEquals(products, result);
+
+
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        verify(productRepository).findAll(any(Specification.class), sortCaptor.capture());
+
+        Sort sort = sortCaptor.getValue();
+        assertEquals("id", sort.getOrderFor("id").getProperty());
+    }
+
+    @Test
+    void testGetAllWithCategoryOnly() {
+        String category = "Electronics";
+
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(category, null, null, null, "id");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
 
         verify(productRepository).findAll(specCaptor.capture(), sortCaptor.capture());
 
-
-        Sort sort = sortCaptor.getValue();
-        assertEquals("price", sort.getOrderFor("price").getProperty());
-        assertTrue(sort.getOrderFor("price").isAscending());
-
-        // Спецификацию проверить сложнее — можно проверить, что она не null
         assertNotNull(specCaptor.getValue());
+
+        //cb.equal()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<Object> categoryPath = mock(Path.class);
+        Path<Object> namePath = mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.get("category")).thenReturn(categoryPath);
+        when(categoryPath.get("name")).thenReturn(namePath);
+        when(cb.equal(namePath, category)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).equal(namePath, category);
     }
 
+
+    @Test
+    void testGetAllWithMinPriceOnly() {
+        BigDecimal minPrice = new BigDecimal("150.00");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, minPrice, null, null, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.greaterThanOrEqualTo()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<BigDecimal> pricePath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.<BigDecimal>get("price")).thenReturn(pricePath);
+        when(cb.greaterThanOrEqualTo(pricePath, minPrice)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).greaterThanOrEqualTo(pricePath, minPrice);
+    }
+
+    @Test
+    void testGetAllWithMaxPriceOnly() {
+        BigDecimal maxPrice = new BigDecimal("150.00");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, maxPrice, null, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.lessThanOrEqualTo()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<BigDecimal> pricePath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.<BigDecimal>get("price")).thenReturn(pricePath);
+        when(cb.lessThanOrEqualTo(pricePath, maxPrice)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).lessThanOrEqualTo(pricePath, maxPrice);
+    }
+
+    //discount = true
+    @Test
+    void testGetAllWithDiscountTrueOnly() {
+        Boolean discount = true;
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, discount, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.isNotNull()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<Object> discountPath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.get("discountPrice")).thenReturn(discountPath);
+        when(cb.isNotNull(discountPath)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).isNotNull(discountPath);
+    }
+
+    //discount = false
+    @Test
+    void testGetAllWithDiscountFalse() {
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, false, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+    }
+
+    @Test
+    void testGetAllWithInvalidSortBy() {
+        String invalidSortBy = "unknownField";
+
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, null, invalidSortBy);
+
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        verify(productRepository).findAll(any(Specification.class), sortCaptor.capture());
+
+        Sort sort = sortCaptor.getValue();
+        assertEquals("id", sort.getOrderFor("id").getProperty());
+    }
 
     @Test
     void testCreateProduct() {

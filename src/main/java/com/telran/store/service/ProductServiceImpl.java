@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<String> remainingFieldsSorting = List.of("id", "price", "name");
-        if (!remainingFieldsSorting.contains(sortBy)) {
+        if (sortBy == null || !remainingFieldsSorting.contains(sortBy)) {
             sortBy = "id";
         }
 
