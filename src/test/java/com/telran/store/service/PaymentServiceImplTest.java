@@ -7,6 +7,8 @@ import com.telran.store.entity.Payment;
 import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.enums.PaymentStatus;
+import com.telran.store.exception.AmountPaymentExceedsOrderTotalAmount;
+import com.telran.store.exception.OrderAlreadyPaidException;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.repository.PaymentRepository;
 import org.junit.jupiter.api.Test;
@@ -59,7 +61,7 @@ class PaymentServiceImplTest {
         when(orderService.getById(paidOrder.getId())).thenReturn(paidOrder);
         when(orderService.getTotalAmount(paidOrder)).thenReturn(paidOrder.getTotalAmount());
 
-        RuntimeException exceptionForPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        OrderAlreadyPaidException exceptionForPaid = assertThrows(OrderAlreadyPaidException.class, () -> paymentServiceImpl.pay(dto));
         assertEquals("Order has already been paid", exceptionForPaid.getMessage());
 
         //Full payment changes status to PAID (Полная оплата меняет статус на ОПЛАЧЕНО)
@@ -108,7 +110,7 @@ class PaymentServiceImplTest {
         dto.setOrderId(partialOrderForOverpay.getId());
         dto.setAmount(new BigDecimal("30"));
 
-        RuntimeException exceptionForPartiallyPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        AmountPaymentExceedsOrderTotalAmount exceptionForPartiallyPaid = assertThrows(AmountPaymentExceedsOrderTotalAmount.class, () -> paymentServiceImpl.pay(dto));
         assertTrue(exceptionForPartiallyPaid.getMessage().contains("Payment exceeds the remaining amount"));
         assertTrue(exceptionForPartiallyPaid.getMessage().contains("You need to pay only: 20.00"));
     }

@@ -26,12 +26,12 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponseDto createProduct(@RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.create(productMapper.toEntity(dto)));
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public List<ProductResponseDto> getAll(@RequestParam(name = "category", required = false) String category,
                                            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
                                            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
@@ -46,11 +46,13 @@ public class ProductController {
     }
 
     @DeleteMapping("/{product_id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteById(@PathVariable long product_id) {
         productService.deleteById(product_id);
     }
 
     @PatchMapping("/{product_id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(value = HttpStatus.CREATED)
     public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.edit(id, dto));

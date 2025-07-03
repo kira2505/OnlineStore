@@ -10,6 +10,4 @@ import lombok.NoArgsConstructor;
 public class FavoriteCreateDto {
 
     private Long productId;
-
-    private Long userId;
 }

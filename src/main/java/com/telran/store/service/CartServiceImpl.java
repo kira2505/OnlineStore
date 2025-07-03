@@ -81,8 +81,8 @@ public class CartServiceImpl implements CartService{
 
 
     @Override
-    public Cart edit(Long userId, AddToCartRequestDto request) {
-        Cart cart = getById(userId);
+    public Cart edit(AddToCartRequestDto request) {
+        Cart cart = getById();
 
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(cartItems -> cartItems.getProduct().getId().equals(request.getProductId()))
@@ -95,29 +95,29 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public Cart getById(Long userId) {
-        return cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new CartNotFoundException("Cart by user id " + userId + " not found"));
+    public Cart getById() {
+        return cartRepository.findByUserId(shopUserService.getShopUser().getId())
+                .orElseThrow(() -> new CartNotFoundException("Cart by user id " + shopUserService.getShopUser().getId() + " not found"));
     }
 
     @Override
-    public void clearCart(Long userId) {
-        Cart cart = getById(userId);
+    public void clearCart() {
+        Cart cart = getById();
         cart.getCartItems().clear();
         cartRepository.save(cart);
     }
 
     @Override
     @Transactional
-    public void deleteById(Long userId) {
-        Cart cart = getById(userId);
+    public void deleteById() {
+        Cart cart = getById();
         cartRepository.delete(cart);
     }
 
     @Transactional
     @Override
-    public void deleteCartItem(Long userId, Long productId) {
-        Cart cart = getById(userId);
+    public void deleteCartItem(Long productId) {
+        Cart cart = getById();
         Set<CartItem> cartItems = cart.getCartItems();
 
         CartItem cartItem = null;
