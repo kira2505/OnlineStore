@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +24,12 @@ public class ShopUserServiceImpl implements ShopUserService {
     @Autowired
     private ShopUserMapper shopUserMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public ShopUser create(ShopUser shopUser) {
+        shopUser.setPasswordHash(passwordEncoder.encode(shopUser.getPassword()));
         return shopUserRepository.save(shopUser);
     }
 
