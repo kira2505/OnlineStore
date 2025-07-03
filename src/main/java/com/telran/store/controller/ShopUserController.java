@@ -24,13 +24,9 @@ public class ShopUserController {
     @Autowired
     private ShopUserMapper shopUserMapper;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto create(@RequestBody ShopUserCreateDto shopUserCreateDto) {
-        shopUserCreateDto.setPassword(passwordEncoder.encode(shopUserCreateDto.getPassword()));
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
     }
 

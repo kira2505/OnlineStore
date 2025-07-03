@@ -1,26 +1,14 @@
-TRUNCATE TABLE cart;
-TRUNCATE TABLE cart_items;
-TRUNCATE TABLE categories;
-TRUNCATE TABLE favorites;
-TRUNCATE TABLE orders;
-TRUNCATE TABLE order_items;
-TRUNCATE TABLE products;
-TRUNCATE TABLE shop_users;
-
-INSERT INTO shop_users(name, email, phone_number)
-VALUES ('Maria Petrova', 'maria.petrova@example.com', '+79161234567');
-
-INSERT INTO shop_users(name, email, phone_number)
-VALUES ('Ivan Ivanov', 'ivan.ivanov@gmail.com', '+79261112233');
-
-INSERT INTO shop_users(name, email, phone_number)
-VALUES ('Elena Smirnova', 'elena_smirnova@yahoo.com', '+79035556677');
-
-INSERT INTO shop_users(name, email, phone_number)
-VALUES ('Dmitry Orlov', 'd.orlov@mail.ru', '+79301234567');
-
-INSERT INTO shop_users(name, email, phone_number)
-VALUES ('Anastasia Volkova', 'nastya.volkova@outlook.com', '+79876543210');
+TRUNCATE TABLE
+    cart_items,
+    cart,
+    order_items,
+    payments,
+    orders,
+    favorites,
+    products,
+    categories,
+    shop_users
+    RESTART IDENTITY CASCADE;
 
 INSERT INTO categories (name)
 VALUES ('Smartphones');
@@ -34,10 +22,6 @@ INSERT INTO categories (name)
 VALUES ('Smartwatches');
 INSERT INTO categories (name)
 VALUES ('Monitors');
-INSERT INTO categories (name)
-VALUES ('Gaming Consoles');
-INSERT INTO categories (name)
-VALUES ('Accessories');
 
 INSERT INTO products (name, description, price, discount_price, image_url, category_id)
 VALUES ('iPhone 15 Pro',
