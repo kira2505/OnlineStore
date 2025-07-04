@@ -17,4 +17,6 @@ public interface ProductService {
     void deleteById(long productId);
 
     Product edit(Long id, ProductCreateDto productCreateDto);
+
+    Product getDailyProduct();
 }
