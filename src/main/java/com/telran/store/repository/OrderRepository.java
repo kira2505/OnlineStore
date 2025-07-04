@@ -1,5 +1,6 @@
 package com.telran.store.repository;
 
+import com.telran.store.dto.ProductSalesDTO;
 import com.telran.store.entity.Order;
 import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
@@ -16,4 +17,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByStatus(Status status);
 
     List<Order> findAllByPaymentStatus(PaymentStatus paymentStatus);
+
+    @Query("""
+    SELECT new com.telran.store.dto.ProductSalesDTO(p.name, SUM(oi.quantity))
+    FROM Order o
+    JOIN o.orderItems oi
+    JOIN oi.product p
+    WHERE o.status = :status
+    GROUP BY p.name
+    ORDER BY SUM(oi.quantity) DESC
+""")
+    List<ProductSalesDTO> findProductSalesByStatus(@Param("status") Status status);
 }
