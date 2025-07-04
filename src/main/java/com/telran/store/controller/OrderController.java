@@ -4,6 +4,7 @@ import com.telran.store.dto.OrderCreateDto;
 import com.telran.store.dto.OrderResponseDto;
 import com.telran.store.mapper.OrderMapper;
 import com.telran.store.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +24,7 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public OrderResponseDto createOrder(@RequestBody OrderCreateDto orderCreateDto) {
+    public OrderResponseDto createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto) {
         return orderMapper.toDto(orderService.createOrder(orderCreateDto));
     }
 

@@ -5,6 +5,7 @@ import com.telran.store.dto.CartItemResponseDto;
 import com.telran.store.dto.CartResponseDto;
 import com.telran.store.mapper.CartMapper;
 import com.telran.store.service.CartService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,13 +25,13 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public CartItemResponseDto add(@RequestBody AddToCartRequestDto request) {
+    public CartItemResponseDto add(@Valid @RequestBody AddToCartRequestDto request) {
         return cartMapper.toCartItemDto(cartService.add(request));
     }
 
 
     @PatchMapping
-    public CartResponseDto edit(@RequestBody AddToCartRequestDto cartRequest) {
+    public CartResponseDto edit(@Valid @RequestBody AddToCartRequestDto cartRequest) {
         return cartMapper.toDto(cartService.edit(cartRequest));
     }
 
@@ -54,7 +55,7 @@ public class CartController {
 
     @DeleteMapping("/products/{product_id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteByUserId(@PathVariable("product_id") Long productId) {
+    public void deleteByUserId(@Valid @PathVariable("product_id") Long productId) {
         cartService.deleteCartItem(productId);
     }
 }

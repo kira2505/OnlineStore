@@ -6,6 +6,7 @@ import com.telran.store.dto.CategoryResponseDto;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +27,7 @@ public class CategoryController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public CategoryDto create(@RequestBody CategoryCreateDto categoryCreateDto){
+    public CategoryDto create(@Valid @RequestBody CategoryCreateDto categoryCreateDto){
         return categoryMapper.toDtoToCategory(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
     }
 
@@ -49,7 +50,7 @@ public class CategoryController {
     @PatchMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ADMIN')")
-    public CategoryResponseDto edit(@PathVariable long id, @RequestBody CategoryCreateDto category){
+    public CategoryResponseDto edit(@Valid @PathVariable long id, @Valid @RequestBody CategoryCreateDto category){
         return categoryMapper.toDto(categoryService.edit(id, category));
     }
 }

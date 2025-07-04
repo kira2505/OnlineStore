@@ -6,6 +6,7 @@ import com.telran.store.dto.ProductResponseDto;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +28,7 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public ProductResponseDto createProduct(@RequestBody ProductCreateDto dto) {
+    public ProductResponseDto createProduct(@Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.create(productMapper.toEntity(dto)));
     }
 
@@ -51,10 +52,15 @@ public class ProductController {
         productService.deleteById(product_id);
     }
 
-    @PatchMapping("/{product_id}")
+    @PutMapping("/{product_id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @RequestBody ProductCreateDto dto) {
+    public ProductResponseDto edit(@Valid @PathVariable(name = "product_id") Long id, @Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.edit(id, dto));
+    }
+
+    @GetMapping("/daily_product")
+    public ProductResponseDto getDailyProduct() {
+        return productMapper.toDto(productService.getDailyProduct());
     }
 }
