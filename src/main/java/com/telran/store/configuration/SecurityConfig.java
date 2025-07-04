@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PATCH, "/categories/**").authenticated()
                                 .requestMatchers(HttpMethod.DELETE, "/categories/**").authenticated()
                                 .requestMatchers("/orders/**").authenticated()
+                                .requestMatchers("/reports/**").authenticated()
                                 .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
