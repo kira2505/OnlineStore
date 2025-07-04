@@ -4,6 +4,7 @@ import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.service.PaymentService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class PaymentController {
 
     @PostMapping("/pay")
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponseDto pay(@RequestBody PaymentCreateDto request) {
+    public PaymentResponseDto pay(@Valid @RequestBody PaymentCreateDto request) {
         return paymentMapper.toDto(paymentService.pay(request));
     }
 
