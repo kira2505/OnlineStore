@@ -1,6 +1,7 @@
 package com.telran.store.service;
 
 import com.telran.store.dto.ProductSalesDTO;
+import com.telran.store.dto.ReportRequestDto;
 import com.telran.store.enums.Status;
 import com.telran.store.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +28,16 @@ public class ReportServiceImp implements ReportService{
     }
 
     @Override
-    public BigDecimal getProfit(long amount, String value) {
+    public BigDecimal getProfit(ReportRequestDto reportRequestDto) {
         LocalDateTime date = LocalDateTime.now();
+        long amount = reportRequestDto.getAmount();
 
-        switch (value.toLowerCase()) {
+        switch (reportRequestDto.getValue().toLowerCase()) {
             case "hours" -> date = date.minusHours(amount);
             case "minutes" -> date = date.minusMinutes(amount);
             case "days" -> date = date.minusDays(amount);
-            case "months" -> date = date.minusMonths(amount);
+            case "month" -> date = date.minusMonths(amount);
             case "years" -> date = date.minusYears(amount);
-            default -> throw new IllegalArgumentException("Unsupported time value. " +
-                    "Must be one of: hours, minutes, days, months, years");
         }
 
         return orderRepository.getTotalProfit(date);
