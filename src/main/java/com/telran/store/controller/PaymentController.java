@@ -1,5 +1,6 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.OrderPendingPaidDto;
 import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.mapper.PaymentMapper;
@@ -38,7 +39,14 @@ public class PaymentController {
     }
 
     @GetMapping("{orderId}")
-    public List<PaymentResponseDto> getPaymentsById(@PathVariable Long orderId) {
+    public List<PaymentResponseDto> getPaymentsById(@Valid @PathVariable Long orderId) {
         return paymentMapper.toDtoList(paymentService.getAllById(orderId));
+    }
+
+
+    @GetMapping("/pending_orders")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<OrderPendingPaidDto> getOrdersWaitingMoreThan(@Valid @RequestParam int days) {
+        return paymentService.getWaiting(days);
     }
 }

@@ -1,5 +1,6 @@
 package com.telran.store.repository;
 
+import com.telran.store.dto.OrderPendingPaidDto;
 import com.telran.store.dto.ProductSalesDTO;
 import com.telran.store.entity.Order;
 import com.telran.store.enums.PaymentStatus;
@@ -37,4 +38,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             WHERE o.status = 'COMPLETED' AND o.createdAt >= :date
             """)
     BigDecimal getTotalProfit(@Param("date") LocalDateTime date);
+
+    @Query("""
+            SELECT o
+            FROM Order o
+            WHERE o.paymentStatus = 'PENDING_PAID'
+                        AND o.createdAt < :cutoffDate
+            """)
+    List<Order> findPendingPaymentOrderThen(@Param("cutoffDate") LocalDateTime cutoffDate);
 }
