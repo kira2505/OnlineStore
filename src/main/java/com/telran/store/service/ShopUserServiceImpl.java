@@ -3,6 +3,7 @@ package com.telran.store.service;
 import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.enums.Role;
 import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
@@ -30,6 +31,7 @@ public class ShopUserServiceImpl implements ShopUserService {
     @Override
     public ShopUser create(ShopUser shopUser) {
         shopUser.setPasswordHash(passwordEncoder.encode(shopUser.getPassword()));
+        shopUser.setRole(Role.ROLE_USER);
         return shopUserRepository.save(shopUser);
     }
 
