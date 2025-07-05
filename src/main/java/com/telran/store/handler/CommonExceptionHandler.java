@@ -24,7 +24,8 @@ public class CommonExceptionHandler {
     }
 
     @ExceptionHandler({CartBadRequest.class, EmptyCartException.class,
-            InsufficientProductQuantityException.class, AmountPaymentExceedsOrderTotalAmount.class, OrderAlreadyPaidException.class})
+            InsufficientProductQuantityException.class, AmountPaymentExceedsOrderTotalAmount.class,
+            OrderAlreadyPaidException.class, IllegalArgumentException.class})
     public ResponseEntity<Object> handleBadRequest(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
