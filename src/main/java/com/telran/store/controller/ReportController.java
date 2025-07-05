@@ -1,13 +1,13 @@
 package com.telran.store.controller;
 
 import com.telran.store.dto.ProductSalesDTO;
+import com.telran.store.dto.ReportRequestDto;
 import com.telran.store.service.ReportService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,8 +33,7 @@ public class ReportController {
 
     @GetMapping("/profit")
     @PreAuthorize("hasRole('ADMIN')")
-    public BigDecimal getProfit(@RequestParam long amount,
-                                @RequestParam String value) {
-        return reportService.getProfit(amount, value);
+    public BigDecimal getProfit(@Valid @RequestBody ReportRequestDto reportRequestDto) {
+        return reportService.getProfit(reportRequestDto);
     }
 }
