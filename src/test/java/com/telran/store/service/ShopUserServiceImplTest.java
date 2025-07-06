@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,9 @@ class ShopUserServiceImplTest {
 
     @Mock
     private ShopUserMapper shopUserMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void testGetAllUsers() {
@@ -76,11 +80,31 @@ class ShopUserServiceImplTest {
 
     @Test
     void testCreateUser() {
-        ShopUser user = ShopUser.builder().id(1L).name("Alex").build();
+        ShopUser user = ShopUser.builder().id(1L).name("Alex").role(Role.ROLE_USER).passwordHash("1234").build();
 
-        when(shopUserRepository.save(user)).thenReturn(user);
+        String encodedPassword = "$2a$10$TPephM0u8ELy6Z54uWa6iuT";
 
-        assertEquals(user, shopUserService.create(user));
+        when(passwordEncoder.encode("1234"))
+                .thenReturn(encodedPassword);
+
+        ShopUser savedUser = ShopUser.builder()
+                .id(1L)
+                .name("Alex")
+                .passwordHash(encodedPassword)
+                .role(Role.ROLE_USER)
+                .build();
+
+        when(shopUserRepository.save(any())).thenReturn(savedUser);
+
+        ShopUser result = shopUserService.create(user);
+
+        assertEquals(1L, result.getId());
+        assertEquals("Alex", result.getName());
+        assertEquals(encodedPassword, result.getPasswordHash());
+        assertEquals(Role.ROLE_USER, result.getRole());
+
+        verify(passwordEncoder).encode("1234");
+        verify(shopUserRepository).save(any(ShopUser.class));
     }
 
     @Test

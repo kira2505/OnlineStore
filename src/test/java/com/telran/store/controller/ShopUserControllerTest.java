@@ -95,23 +95,37 @@ class ShopUserControllerTest {
 
     @Test
     void testCreateUser() throws Exception {
-        ShopUser user = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("44445555666").build();
+        ShopUser user = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("+380123444567").build();
         ShopUserResponseDto userResponseDto =
-                new ShopUserResponseDto(1L, "Max", "max@gmail.com", "44445555666");
+                new ShopUserResponseDto(1L, "Max", "max@gmail.com", "+380123444567");
 
         when(shopUserService.create(any())).thenReturn(user);
         when(shopUserMapper.toDto(any())).thenReturn(userResponseDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"Max\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
+                        .content("{\"name\": \"Max\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"+380123444567\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
+    void testCreateUserInvalidEmail() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "Max",
+                          "email": "email",
+                          "phoneNumber": "44445555666"
+                        }
+                    """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testEditUser() throws Exception {
-        ShopUser shopUser = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("44445555666").build();
+        ShopUser shopUser = ShopUser.builder().id(1L).name("Max").email("max@gmail.com").phoneNumber("+380123444567").build();
 
         ShopUserCreateDto shopUserCreateDto = new ShopUserCreateDto();
         shopUserCreateDto.setName("Alex");
@@ -121,7 +135,7 @@ class ShopUserControllerTest {
 
         mockMvc.perform(patch("/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content("{\"name\": \"Alex\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"44445555666\"}"))
+                        .content("{\"name\": \"Alex\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"+380123444567\"}"))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
