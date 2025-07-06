@@ -1,6 +1,7 @@
 package com.telran.store.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.telran.store.dto.OrderPendingPaidDto;
 import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Payment;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -113,5 +115,29 @@ class PaymentControllerTest {
 
         verify(paymentService, times(1)).getAllById(orderId);
         verify(paymentMapper, times(1)).toDtoList(payments);
+    }
+
+    @Test
+    void testGetOrdersWaitingMoreThan() throws Exception {
+        int days = 5;
+
+        OrderPendingPaidDto dtoOne = new OrderPendingPaidDto(1L, LocalDateTime.now().minusDays(6), 6);
+        OrderPendingPaidDto dtoTwo = new OrderPendingPaidDto(2L, LocalDateTime.now().minusDays(7), 7);
+
+        List<OrderPendingPaidDto> list = List.of(dtoOne, dtoTwo);
+
+        when(paymentService.getWaiting(days)).thenReturn(list);
+
+        mockMvc.perform(get("/payments/pending_orders")
+                        .param("days", String.valueOf(days))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(list.size()))
+                .andExpect(jsonPath("$[0].orderId").value(dtoOne.getOrderId()))
+                .andExpect(jsonPath("$[0].dayWaiting").value(dtoOne.getDayWaiting()))
+                .andExpect(jsonPath("$[1].orderId").value(dtoTwo.getOrderId()))
+                .andExpect(jsonPath("$[1].dayWaiting").value(dtoTwo.getDayWaiting()));
+
+        verify(paymentService, times(1)).getWaiting(days);
     }
 }

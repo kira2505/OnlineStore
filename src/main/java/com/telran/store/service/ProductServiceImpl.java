@@ -14,6 +14,7 @@ import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -103,12 +104,18 @@ public class ProductServiceImpl implements ProductService {
         }
 
         BigDecimal maxDiscount = dailyProducts.stream()
-                .map(product -> product.getPrice().subtract(product.getDiscountPrice()))
+                .map(product -> product.getPrice()
+                        .subtract(product.getDiscountPrice())
+                        .divide(product.getPrice(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100)))
                 .max(BigDecimal::compareTo)
                 .orElse(BigDecimal.ZERO);
 
         List<Product> topDiscount = dailyProducts.stream()
-                .filter(product -> product.getPrice().subtract(product.getDiscountPrice()).compareTo(maxDiscount) == 0)
+                .filter(product -> product.getPrice()
+                        .subtract(product.getDiscountPrice())
+                        .divide(product.getPrice(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100)).compareTo(maxDiscount) == 0)
                 .toList();
 
         int index = new Random().nextInt(topDiscount.size());
