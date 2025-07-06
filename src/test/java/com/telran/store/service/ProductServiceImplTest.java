@@ -4,6 +4,7 @@ import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.entity.Category;
 import com.telran.store.entity.Product;
+import com.telran.store.exception.NotFoundProductWithDiscountPrice;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -292,4 +294,46 @@ class ProductServiceImplTest {
         assertEquals("Lopata", result.getName());
     }
 
+    @Test
+    void testGetDailyProduct() {
+        List<Product> products = Arrays.asList(
+                new Product().builder().id(1L).name("Flowerpot").price(new BigDecimal(100)).discountPrice(new BigDecimal(80)).build(),
+                new Product().builder().id(2L).name("Flowerpot 2").price(new BigDecimal(200)).discountPrice(new BigDecimal(160)).build(),
+                new Product().builder().id(3L).name("Flowerpot 3").price(new BigDecimal(300)).discountPrice(new BigDecimal(260)).build());
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        Product result = productServiceIml.getDailyProduct();
+
+        assertNotNull(result);
+        BigDecimal price = result.getPrice();
+        BigDecimal discountPrice = result.getDiscountPrice();
+
+        BigDecimal actualDiscount = price.subtract(discountPrice)
+                .divide(price, 2, BigDecimal.ROUND_HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        assertEquals(new BigDecimal("20.00"), actualDiscount);
+        assertTrue(result.equals(products.get(0)) || result.equals(products.get(1)));
+    }
+
+    @Test
+    void testGetDailyProduct_throwsExceptionWhenNoValidProducts() {
+        List<Product> products = List.of();
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        assertThrows(NotFoundProductWithDiscountPrice.class, () -> productServiceIml.getDailyProduct());
+    }
+
+    @Test
+    void testGetDailyProduct_ignoresNullPrices() {
+        List<Product> products = Arrays.asList(
+                new Product().builder().id(1L).name("Flowerpot").price(null).discountPrice(new BigDecimal(80)).build(),
+                new Product().builder().id(2L).name("Flowerpot 2").price(new BigDecimal(200)).discountPrice(null).build());
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        assertThrows(NotFoundProductWithDiscountPrice.class, () -> productServiceIml.getDailyProduct());
+    }
 }

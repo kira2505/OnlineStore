@@ -39,14 +39,14 @@ public class PaymentController {
     }
 
     @GetMapping("{orderId}")
-    public List<PaymentResponseDto> getPaymentsById(@Valid @PathVariable Long orderId) {
+    public List<PaymentResponseDto> getPaymentsById(@PathVariable Long orderId) {
         return paymentMapper.toDtoList(paymentService.getAllById(orderId));
     }
 
 
     @GetMapping("/pending_orders")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<OrderPendingPaidDto> getOrdersWaitingMoreThan(@Valid @RequestParam int days) {
+    public List<OrderPendingPaidDto> getOrdersWaitingMoreThan(@RequestParam int days) {
         return paymentService.getWaiting(days);
     }
 }

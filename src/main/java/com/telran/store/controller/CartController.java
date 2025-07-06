@@ -55,7 +55,7 @@ public class CartController {
 
     @DeleteMapping("/products/{product_id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteByUserId(@Valid @PathVariable("product_id") Long productId) {
+    public void deleteByUserId(@PathVariable("product_id") Long productId) {
         cartService.deleteCartItem(productId);
     }
 }

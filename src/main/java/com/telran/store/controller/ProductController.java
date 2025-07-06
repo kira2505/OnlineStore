@@ -55,7 +55,7 @@ public class ProductController {
     @PutMapping("/{product_id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ProductResponseDto edit(@Valid @PathVariable(name = "product_id") Long id, @Valid @RequestBody ProductCreateDto dto) {
+    public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.edit(id, dto));
     }
 
