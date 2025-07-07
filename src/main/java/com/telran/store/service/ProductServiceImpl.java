@@ -3,6 +3,7 @@ package com.telran.store.service;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.entity.Category;
 import com.telran.store.entity.Product;
+import com.telran.store.exception.NotFoundProductWithDiscountPrice;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
@@ -13,8 +14,10 @@ import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -56,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<String> remainingFieldsSorting = List.of("id", "price", "name");
-        if (!remainingFieldsSorting.contains(sortBy)) {
+        if (sortBy == null || !remainingFieldsSorting.contains(sortBy)) {
             sortBy = "id";
         }
 
@@ -88,5 +91,34 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productRepository.save(product);
+    }
+
+    @Override
+    public Product getDailyProduct() {
+        List<Product> dailyProducts = productRepository.findAll().stream()
+                .filter(product -> product.getPrice() != null && product.getDiscountPrice() != null)
+                .toList();
+
+        if (dailyProducts.isEmpty()) {
+            throw new NotFoundProductWithDiscountPrice("There are no products with correct prices");
+        }
+
+        BigDecimal maxDiscount = dailyProducts.stream()
+                .map(product -> product.getPrice()
+                        .subtract(product.getDiscountPrice())
+                        .divide(product.getPrice(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100)))
+                .max(BigDecimal::compareTo)
+                .orElse(BigDecimal.ZERO);
+
+        List<Product> topDiscount = dailyProducts.stream()
+                .filter(product -> product.getPrice()
+                        .subtract(product.getDiscountPrice())
+                        .divide(product.getPrice(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100)).compareTo(maxDiscount) == 0)
+                .toList();
+
+        int index = new Random().nextInt(topDiscount.size());
+        return topDiscount.get(index);
     }
 }

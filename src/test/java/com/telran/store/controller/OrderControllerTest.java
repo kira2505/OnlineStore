@@ -9,6 +9,7 @@ import com.telran.store.mapper.OrderMapper;
 import com.telran.store.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -19,7 +20,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
 
@@ -42,7 +43,6 @@ class OrderControllerTest {
 
     @Test
     void testCreateOrder() throws Exception {
-        Long userId = 1L;
 
         OrderCreateDto createDto = new OrderCreateDto();
         createDto.setDeliveryAddress("address");
@@ -53,10 +53,10 @@ class OrderControllerTest {
         responseDto.setDeliveryAddress("address");
         responseDto.setDeliveryMethod("courier");
 
-        when(orderService.createOrder(eq(userId), any(OrderCreateDto.class))).thenReturn(new Order());
+        when(orderService.createOrder(any(OrderCreateDto.class))).thenReturn(new Order());
         when(orderMapper.toDto(any(Order.class))).thenReturn(responseDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/orders/{userId}", 1L)
+        mockMvc.perform(MockMvcRequestBuilders.post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"deliveryAddress\": \"address\", \"deliveryMethod\": \"courier\", \"orderItems\": [{\"productId\": 2, \"quantity\": 3}] }"))
                 .andExpect(status().isCreated())
@@ -86,8 +86,6 @@ class OrderControllerTest {
 
     @Test
     void testGetAllOrders() throws Exception {
-        Long userId = 1L;
-
         List<Order> orders = List.of(new Order(), new Order());
         OrderResponseDto dto1 = new OrderResponseDto();
         dto1.setId(1L);
@@ -102,18 +100,17 @@ class OrderControllerTest {
         List<OrderResponseDto> dtos = List.of(dto1, dto2);
 
 
-        when(orderService.getAllOrders(userId)).thenReturn(orders);
+        when(orderService.getAllOrdersCurrentUser()).thenReturn(orders);
         when(orderMapper.toDtoList(orders)).thenReturn(dtos);
 
-        mockMvc.perform(get("/orders/history/{userId}", userId))
+        mockMvc.perform(get("/orders/history"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L));
-
     }
 
     @Test
-    void testCancelOrder()  throws Exception {
+    void testCancelOrder() throws Exception {
         Long orderId = 1L;
         Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.CANCELED).status(Status.CANCELED).build();
 
@@ -134,10 +131,4 @@ class OrderControllerTest {
         verify(orderService).cancelOrder(orderId);
         verify(orderMapper).toDto(order);
     }
-
-    /*
-    public OrderResponseDto closeOrder(@PathVariable Long orderId) {
-        return orderMapper.toDto(orderService.cancelOrder(orderId));
-    }
-     */
 }

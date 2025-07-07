@@ -54,7 +54,6 @@ class CategoryServiceImplTest {
         assertEquals(category, categoryService.getById(category.getId()));
 
         assertThrows(NoSuchCategoryException.class, () -> categoryService.getById(invalidId));
-
     }
 
     @Test

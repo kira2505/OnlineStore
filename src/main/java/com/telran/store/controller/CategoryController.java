@@ -6,8 +6,10 @@ import com.telran.store.dto.CategoryResponseDto;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +26,8 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto create(@RequestBody CategoryCreateDto categoryCreateDto){
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoryDto create(@Valid @RequestBody CategoryCreateDto categoryCreateDto){
         return categoryMapper.toDtoToCategory(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
     }
 
@@ -39,13 +42,15 @@ public class CategoryController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteById(@PathVariable long id){
         categoryService.deleteById(id);
     }
 
     @PatchMapping("{id}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponseDto edit(@PathVariable long id, @RequestBody CategoryCreateDto category){
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoryResponseDto edit(@PathVariable long id, @Valid @RequestBody CategoryCreateDto category){
         return categoryMapper.toDto(categoryService.edit(id, category));
     }
 }

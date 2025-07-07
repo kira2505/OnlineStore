@@ -2,6 +2,7 @@ package com.telran.store.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.dto.ProductResponseDto;
 import com.telran.store.entity.Product;
@@ -10,12 +11,14 @@ import com.telran.store.mapper.ProductMapper;
 import com.telran.store.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProductControllerTest {
 
     @Autowired
@@ -68,21 +72,39 @@ class ProductControllerTest {
 
     @Test
     void testCreateProduct() throws Exception {
-        Product product = Product.builder().id(1L).name("Flowerpot").build();
-        ProductResponseDto productResponseDto = new ProductResponseDto(1L, "Flowerpot",
-                product.getDescription(), product.getPrice(),
-                product.getImageUrl(), product.getDiscountPrice());
+        CategoryDto category = new CategoryDto(1L, "Electronics");
 
-        when(productService.create(any(Product.class))).thenReturn(product);
-        when(productMapper.toEntity(any(ProductCreateDto.class))).thenReturn(product);
+        ProductCreateDto createDto = new ProductCreateDto(
+                "Laptop",
+                "High performance laptop",
+                new BigDecimal("1200.00"),
+                "http://image.com/laptop.png",
+                new BigDecimal("999.99"),
+                category
+        );
 
-        String productObject = objectMapper.writeValueAsString(productResponseDto);
+        Product product = new Product();
+        product.setId(1L);
 
-        mockMvc.perform(post("/products").contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(String.valueOf(productObject)))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        ProductResponseDto responseDto = new ProductResponseDto();
+        responseDto.setId(1L);
+        responseDto.setName("Laptop");
+        responseDto.setDescription("High performance laptop");
+        responseDto.setPrice(new BigDecimal("1200.00"));
+        responseDto.setImageUrl("http://image.com/laptop.png");
+        responseDto.setDiscountPrice(new BigDecimal("999.99"));
+
+        when(productMapper.toEntity(any())).thenReturn(product);
+        when(productService.create(any())).thenReturn(product);
+        when(productMapper.toDto(any())).thenReturn(responseDto);
+
+        mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Laptop"))
+                .andExpect(jsonPath("$.price").value(1200.00));
     }
 
     @Test
@@ -117,23 +139,66 @@ class ProductControllerTest {
     }
 
     @Test
-    void testUpdateProduct() throws Exception {
-        Product product = Product.builder().id(1L).name("Flowerpot").build();
+    void testEditProduct() throws Exception {
+        Long id = 1L;
+        CategoryDto category = new CategoryDto(1L, "Electronics");
 
-        ProductCreateDto productCreateDto = new ProductCreateDto();
-        productCreateDto.setName("Lopata");
+        ProductCreateDto createDto = new ProductCreateDto(
+                "Laptop",
+                "Updated description",
+                new BigDecimal("1300.00"),
+                "http://image.com/laptop-new.png",
+                new BigDecimal("1100.00"),
+                category
+        );
 
-        when(productService.edit(eq(1L), any(ProductCreateDto.class))).thenReturn(product);
-        when(productMapper.toDto(product)).thenReturn(new ProductResponseDto());
+        Product updatedProduct = new Product();
+        updatedProduct.setId(1L);
 
-        mockMvc.perform(patch("/products/" + product.getId()).contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(productCreateDto)))
+        ProductResponseDto updatedResponse = new ProductResponseDto();
+        updatedResponse.setId(1L);
+        updatedResponse.setName("Laptop");
+        updatedResponse.setDescription("Updated description");
+        updatedResponse.setPrice(new BigDecimal("1200.00"));
+        updatedResponse.setImageUrl("http://image.com/laptop.png");
+        updatedResponse.setDiscountPrice(new BigDecimal("999.99"));
+
+        when(productService.edit(eq(id), any())).thenReturn(updatedProduct);
+        when(productMapper.toDto(any())).thenReturn(updatedResponse);
+
+        mockMvc.perform(put("/products/{product_id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Laptop"))
+                .andExpect(jsonPath("$.description").value("Updated description"));
+    }
 
-        verify(productService).edit(eq(1L), any(ProductCreateDto.class));
-        verify(productMapper).toDto(product);
+    @Test
+    void testGetDailyProduct() throws Exception {
+        Product product = Product.builder()
+                .id(1L)
+                .name("Flowerpot")
+                .price(new BigDecimal("100.00"))
+                .discountPrice(new BigDecimal("80.00"))
+                .build();
+
+        ProductResponseDto dto = ProductResponseDto.builder()
+                .id(1L)
+                .name("Flowerpot")
+                .price(new BigDecimal("100.00"))
+                .discountPrice(new BigDecimal("80.00"))
+                .build();
+
+        when(productService.getDailyProduct()).thenReturn(product);
+        when(productMapper.toDto(any())).thenReturn(dto);
+
+        mockMvc.perform(get("/products/daily_product"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Flowerpot"))
+                .andExpect(jsonPath("$.price").value("100.0"))
+                .andExpect(jsonPath("$.discountPrice").value("80.0"));
     }
 }

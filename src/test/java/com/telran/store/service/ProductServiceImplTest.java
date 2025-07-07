@@ -4,10 +4,14 @@ import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.entity.Category;
 import com.telran.store.entity.Product;
+import com.telran.store.exception.NotFoundProductWithDiscountPrice;
+import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
+import jakarta.persistence.criteria.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,39 +43,201 @@ class ProductServiceImplTest {
     private ProductServiceImpl productServiceIml;
 
     @Test
-    void testGetAllProduct() {
-        String category = "Phones";
-        BigDecimal minPrice = new BigDecimal("100.00");
-        BigDecimal maxPrice = new BigDecimal("200.00");
-        Boolean discount = true;
-        String sortBy = "price";
-        List<Product> products = Arrays.asList(
+    void testGetAllProductsWithoutFilters() {
+
+        List<Product> products = List.of(
                 Product.builder()
-                        .id(1L).name("Flowerpot").build(),
-                Product.builder()
-                        .id(2L).name("Lopata").build());
+                        .id(1L).name("Flowerpot").build());
 
         when(productRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(products);
 
-        List<Product> productList = productServiceIml.getAll(category, minPrice,
-                maxPrice, discount, sortBy);
+        List<Product> result = productServiceIml.getAll(null, null, null, null, null);
 
-        assertEquals(2, productList.size());
+        assertEquals(products, result);
 
-        verify(productRepository, times(1)).findAll(any(Specification.class),
-                any(Sort.class));
+
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        verify(productRepository).findAll(any(Specification.class), sortCaptor.capture());
+
+        Sort sort = sortCaptor.getValue();
+        assertEquals("id", sort.getOrderFor("id").getProperty());
+    }
+
+    @Test
+    void testGetAllWithCategoryOnly() {
+        String category = "Electronics";
+
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(category, null, null, null, "id");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
+        verify(productRepository).findAll(specCaptor.capture(), sortCaptor.capture());
+
+        assertNotNull(specCaptor.getValue());
+
+        //cb.equal()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<Object> categoryPath = mock(Path.class);
+        Path<Object> namePath = mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.get("category")).thenReturn(categoryPath);
+        when(categoryPath.get("name")).thenReturn(namePath);
+        when(cb.equal(namePath, category)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).equal(namePath, category);
     }
 
 
     @Test
+    void testGetAllWithMinPriceOnly() {
+        BigDecimal minPrice = new BigDecimal("150.00");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, minPrice, null, null, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.greaterThanOrEqualTo()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<BigDecimal> pricePath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.<BigDecimal>get("price")).thenReturn(pricePath);
+        when(cb.greaterThanOrEqualTo(pricePath, minPrice)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).greaterThanOrEqualTo(pricePath, minPrice);
+    }
+
+    @Test
+    void testGetAllWithMaxPriceOnly() {
+        BigDecimal maxPrice = new BigDecimal("150.00");
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, maxPrice, null, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.lessThanOrEqualTo()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<BigDecimal> pricePath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.<BigDecimal>get("price")).thenReturn(pricePath);
+        when(cb.lessThanOrEqualTo(pricePath, maxPrice)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).lessThanOrEqualTo(pricePath, maxPrice);
+    }
+
+    //discount = true
+    @Test
+    void testGetAllWithDiscountTrueOnly() {
+        Boolean discount = true;
+
+        ArgumentCaptor<Specification<Product>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        when(productRepository.findAll(specCaptor.capture(), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, discount, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+
+        //cb.isNotNull()
+        Specification<Product> spec = specCaptor.getValue();
+
+        Root<Product> root = mock(Root.class);
+        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+
+        Path<Object> discountPath = (Path) mock(Path.class);
+        Predicate predicate = mock(Predicate.class);
+
+        when(root.get("discountPrice")).thenReturn(discountPath);
+        when(cb.isNotNull(discountPath)).thenReturn(predicate);
+
+        Predicate result = spec.toPredicate(root, query, cb);
+
+        assertEquals(predicate, result);
+        verify(cb).isNotNull(discountPath);
+    }
+
+    //discount = false
+    @Test
+    void testGetAllWithDiscountFalse() {
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, false, "id");
+
+        verify(productRepository).findAll(any(Specification.class), any(Sort.class));
+    }
+
+    @Test
+    void testGetAllWithInvalidSortBy() {
+        String invalidSortBy = "unknownField";
+
+        when(productRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(List.of());
+
+        productServiceIml.getAll(null, null, null, null, invalidSortBy);
+
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        verify(productRepository).findAll(any(Specification.class), sortCaptor.capture());
+
+        Sort sort = sortCaptor.getValue();
+        assertEquals("id", sort.getOrderFor("id").getProperty());
+    }
+
+    @Test
     void testCreateProduct() {
-        Product createProduct = new Product().builder().id(1L).name("Flowerpot").description("big").build();
+        Product createProduct = new Product().builder()
+                .id(1L)
+                .name("Flowerpot")
+                .description("big")
+                .build();
 
         when(productRepository.save(createProduct)).thenReturn(createProduct);
 
         Product product = productServiceIml.create(createProduct);
         assertEquals(createProduct, product);
+        verify(productRepository).save(createProduct);
+
+        long missingId = 5L;
+        when(productRepository.findById(missingId)).thenReturn(Optional.empty());
+
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class,
+                () -> productServiceIml.getById(missingId));
+        assertEquals("Product with id 5 not found ", exception.getMessage());
+
     }
 
     @Test
@@ -127,4 +294,46 @@ class ProductServiceImplTest {
         assertEquals("Lopata", result.getName());
     }
 
+    @Test
+    void testGetDailyProduct() {
+        List<Product> products = Arrays.asList(
+                new Product().builder().id(1L).name("Flowerpot").price(new BigDecimal(100)).discountPrice(new BigDecimal(80)).build(),
+                new Product().builder().id(2L).name("Flowerpot 2").price(new BigDecimal(200)).discountPrice(new BigDecimal(160)).build(),
+                new Product().builder().id(3L).name("Flowerpot 3").price(new BigDecimal(300)).discountPrice(new BigDecimal(260)).build());
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        Product result = productServiceIml.getDailyProduct();
+
+        assertNotNull(result);
+        BigDecimal price = result.getPrice();
+        BigDecimal discountPrice = result.getDiscountPrice();
+
+        BigDecimal actualDiscount = price.subtract(discountPrice)
+                .divide(price, 2, BigDecimal.ROUND_HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        assertEquals(new BigDecimal("20.00"), actualDiscount);
+        assertTrue(result.equals(products.get(0)) || result.equals(products.get(1)));
+    }
+
+    @Test
+    void testGetDailyProduct_throwsExceptionWhenNoValidProducts() {
+        List<Product> products = List.of();
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        assertThrows(NotFoundProductWithDiscountPrice.class, () -> productServiceIml.getDailyProduct());
+    }
+
+    @Test
+    void testGetDailyProduct_ignoresNullPrices() {
+        List<Product> products = Arrays.asList(
+                new Product().builder().id(1L).name("Flowerpot").price(null).discountPrice(new BigDecimal(80)).build(),
+                new Product().builder().id(2L).name("Flowerpot 2").price(new BigDecimal(200)).discountPrice(null).build());
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        assertThrows(NotFoundProductWithDiscountPrice.class, () -> productServiceIml.getDailyProduct());
+    }
 }

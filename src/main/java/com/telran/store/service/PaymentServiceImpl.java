@@ -1,17 +1,24 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.OrderPendingPaidDto;
 import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Order;
 import com.telran.store.entity.Payment;
 import com.telran.store.enums.PaymentStatus;
+import com.telran.store.exception.AmountPaymentExceedsOrderTotalAmount;
+import com.telran.store.exception.OrderAlreadyPaidException;
 import com.telran.store.mapper.PaymentMapper;
+import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,6 +31,9 @@ public class PaymentServiceImpl implements PaymentService {
     private OrderService orderService;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private PaymentMapper paymentMapper;
 
     @Override
@@ -31,13 +41,13 @@ public class PaymentServiceImpl implements PaymentService {
         Order order = orderService.getById(paymentCreateDto.getOrderId());
         BigDecimal totalPrice = orderService.getTotalAmount(order);
 
-        if (order.getPaymentStatus() == PaymentStatus.PAID) {
-            throw new RuntimeException("Order has already been paid");
+        if (PaymentStatus.PAID.equals(order.getPaymentStatus()) || PaymentStatus.COMPLETED.equals(order.getPaymentStatus())) {
+            throw new OrderAlreadyPaidException("Order has already been paid");
         }
 
         if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
             BigDecimal remainingAmount = totalPrice.subtract(order.getPaymentAmount());
-            throw new RuntimeException("The amount of payment exceeds the total amount of the order\n" +
+            throw new AmountPaymentExceedsOrderTotalAmount("The amount of payment exceeds the total amount of the order\n" +
                     "Payment exceeds the remaining amount. You need to pay only: " + remainingAmount);
         }
 
@@ -67,5 +77,15 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Payment> getAllById(Long orderId) {
         Order byId = orderService.getById(orderId);
         return paymentRepository.findAllByOrderId(byId.getId());
+    }
+
+    @Override
+    public List<OrderPendingPaidDto> getWaiting(int days) {
+        LocalDateTime cutoffDate = LocalDateTime.now().minusMinutes(days);
+        List<Order> orders = orderRepository.findPendingPaymentOrderThen(cutoffDate);
+        return orders.stream()
+                .map(order -> {long daysPending = ChronoUnit.MINUTES.between(order.getCreatedAt().toLocalTime(), LocalDateTime.now());
+                return new OrderPendingPaidDto(order.getId(), order.getCreatedAt(), daysPending);
+                }).toList();
     }
 }

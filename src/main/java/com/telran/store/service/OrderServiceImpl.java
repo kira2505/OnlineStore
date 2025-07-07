@@ -9,6 +9,8 @@ import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,9 +26,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ShopUserRepository userRepository;
 
+    @Autowired
+    private ShopUserService shopUserService;
+
     @Override
-    public Order createOrder(Long userId, OrderCreateDto orderCreateDto) {
-        ShopUser user = userRepository.findById(userId)
+    public Order createOrder(OrderCreateDto orderCreateDto) {
+        ShopUser user = userRepository.findById(shopUserService.getShopUser().getId())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         Order order = new Order();
@@ -87,14 +92,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrders(Long userId) {
-        ShopUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-
-        return orderRepository.findAllByShopUserId(user.getId());
-    }
-
-    @Override
     public List<Order> getAllByState(Status status) {
         return orderRepository.findAllByStatus(status);
     }
@@ -149,5 +146,10 @@ public class OrderServiceImpl implements OrderService {
                 .filter(item -> item.getPriceAtPurchase() != null)
                 .map(item -> item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public List<Order> getAllOrdersCurrentUser() {
+        return orderRepository.findAllByShopUserId(shopUserService.getShopUser().getId());
     }
 }

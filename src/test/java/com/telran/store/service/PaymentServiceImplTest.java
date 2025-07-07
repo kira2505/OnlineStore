@@ -1,5 +1,6 @@
 package com.telran.store.service;
 
+import com.telran.store.dto.OrderPendingPaidDto;
 import com.telran.store.dto.PaymentCreateDto;
 import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Order;
@@ -7,7 +8,10 @@ import com.telran.store.entity.Payment;
 import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.enums.PaymentStatus;
+import com.telran.store.exception.AmountPaymentExceedsOrderTotalAmount;
+import com.telran.store.exception.OrderAlreadyPaidException;
 import com.telran.store.mapper.PaymentMapper;
+import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.PaymentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,10 +23,13 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.within;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -35,6 +42,9 @@ class PaymentServiceImplTest {
 
     @Mock
     private OrderService orderService;
+
+    @Mock
+    OrderRepository orderRepository;
 
     @Mock
     private PaymentMapper paymentMapper;
@@ -59,7 +69,7 @@ class PaymentServiceImplTest {
         when(orderService.getById(paidOrder.getId())).thenReturn(paidOrder);
         when(orderService.getTotalAmount(paidOrder)).thenReturn(paidOrder.getTotalAmount());
 
-        RuntimeException exceptionForPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        OrderAlreadyPaidException exceptionForPaid = assertThrows(OrderAlreadyPaidException.class, () -> paymentServiceImpl.pay(dto));
         assertEquals("Order has already been paid", exceptionForPaid.getMessage());
 
         //Full payment changes status to PAID (Полная оплата меняет статус на ОПЛАЧЕНО)
@@ -108,7 +118,7 @@ class PaymentServiceImplTest {
         dto.setOrderId(partialOrderForOverpay.getId());
         dto.setAmount(new BigDecimal("30"));
 
-        RuntimeException exceptionForPartiallyPaid = assertThrows(RuntimeException.class, () -> paymentServiceImpl.pay(dto));
+        AmountPaymentExceedsOrderTotalAmount exceptionForPartiallyPaid = assertThrows(AmountPaymentExceedsOrderTotalAmount.class, () -> paymentServiceImpl.pay(dto));
         assertTrue(exceptionForPartiallyPaid.getMessage().contains("Payment exceeds the remaining amount"));
         assertTrue(exceptionForPartiallyPaid.getMessage().contains("You need to pay only: 20.00"));
     }
@@ -155,5 +165,33 @@ class PaymentServiceImplTest {
         assertEquals(2, payments.size());
         assertEquals(BigDecimal.valueOf(100), result.get(0).getAmount());
         assertEquals(BigDecimal.valueOf(200), result.get(1).getAmount());
+    }
+
+    @Test
+    void testGetWaiting() {
+        int minutesParam = 5;
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime cutoffDateExpected = now.minusMinutes(minutesParam);
+
+        LocalDateTime createdAt = now.minusMinutes(10);
+        Order order = mock(Order.class);
+        when(order.getId()).thenReturn(1L);
+        when(order.getCreatedAt()).thenReturn(createdAt);
+
+        List<Order> ordersFromRepo = List.of(order);
+
+        when(orderRepository.findPendingPaymentOrderThen(any(LocalDateTime.class))).thenReturn(ordersFromRepo);
+
+        List<OrderPendingPaidDto> result = paymentServiceImpl.getWaiting(minutesParam);
+        verify(orderRepository).findPendingPaymentOrderThen(any(LocalDateTime.class));
+
+        assertThat(result).hasSize(1);
+
+        OrderPendingPaidDto dto = result.get(0);
+        assertThat(dto.getOrderId()).isEqualTo(1L);
+        assertThat(dto.getCreatedDate()).isEqualTo(createdAt);
+
+        long expectedMinutesPending = ChronoUnit.MINUTES.between(createdAt.toLocalTime(), LocalDateTime.now());
+        assertThat(dto.getDayWaiting()).isCloseTo(expectedMinutesPending, within(1L));
     }
 }

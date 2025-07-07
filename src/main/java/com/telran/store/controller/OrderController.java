@@ -4,8 +4,10 @@ import com.telran.store.dto.OrderCreateDto;
 import com.telran.store.dto.OrderResponseDto;
 import com.telran.store.mapper.OrderMapper;
 import com.telran.store.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +22,10 @@ public class OrderController {
     @Autowired
     private OrderMapper orderMapper;
 
-    @PostMapping("{userId}")
+    @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public OrderResponseDto createOrder(
-            @PathVariable Long userId,
-            @RequestBody OrderCreateDto orderCreateDto) {
-        return orderMapper.toDto(orderService.createOrder(userId, orderCreateDto));
+    public OrderResponseDto createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto) {
+        return orderMapper.toDto(orderService.createOrder(orderCreateDto));
     }
 
     @GetMapping("{orderId}")
@@ -33,9 +33,9 @@ public class OrderController {
         return orderMapper.toDto(orderService.getById(orderId));
     }
 
-    @GetMapping("/history/{userId}")
-    public List<OrderResponseDto> getAllOrders(@PathVariable Long userId) {
-        return orderMapper.toDtoList(orderService.getAllOrders(userId));
+    @GetMapping("/history")
+    public List<OrderResponseDto> getAllOrders() {
+        return orderMapper.toDtoList(orderService.getAllOrdersCurrentUser());
     }
 
     @PatchMapping("/{orderId}/close")
