@@ -38,4 +38,10 @@ public class CartItem {
         this.cart = cart;
         this.product = product;
     }
+
+    public CartItem(Cart cart, Product product, Integer quantity) {
+        this.cart = cart;
+        this.product = product;
+        this.quantity = quantity;
+    }
 }

@@ -10,6 +10,7 @@ import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,11 +27,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ShopUserService shopUserService;
+    @Autowired
+    private CartService cartService;
 
     @Override
+    @Transactional
     public Order createOrder(OrderCreateDto orderCreateDto) {
-        ShopUser user = userRepository.findById(shopUserService.getShopUser().getId())
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        ShopUser user = shopUserService.getShopUser();
 
         Order order = new Order();
         order.setShopUser(user);
@@ -81,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderItems(orderItems);
         order.setTotalAmount(getTotalAmount(order));
         order.setPaymentStatus(PaymentStatus.PENDING_PAID);
+        cartService.save(user.getCart());
         return orderRepository.save(order);
     }
 
