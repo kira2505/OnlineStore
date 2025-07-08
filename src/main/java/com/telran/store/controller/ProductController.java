@@ -1,9 +1,7 @@
 package com.telran.store.controller;
 
-
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.dto.ProductResponseDto;
-import com.telran.store.entity.Category;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.service.ProductService;
 import jakarta.validation.Valid;
@@ -17,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/products")
-public class ProductController {
+public class ProductController implements ProductApi {
 
     @Autowired
     public ProductService productService;
@@ -28,38 +26,44 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ProductResponseDto createProduct(@Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.create(productMapper.toEntity(dto)));
     }
 
     @GetMapping
+    @Override
     public List<ProductResponseDto> getAll(@RequestParam(name = "category", required = false) String category,
                                            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
                                            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
                                            @RequestParam(name = "discount", required = false) Boolean discount,
                                            @RequestParam(name = "sort", required = false, defaultValue = "id") String sort) {
-        return productMapper.toDtoList(productService.getAll(category, minPrice, maxPrice, discount, sort ));
+        return productMapper.toDtoList(productService.getAll(category, minPrice, maxPrice, discount, sort));
     }
 
-    @GetMapping("/{product_id}")
-    public ProductResponseDto getById(@PathVariable(name = "product_id") long productId) {
-        return productMapper.toDto(productService.getById(productId));
+    @GetMapping("/{id}")
+    @Override
+    public ProductResponseDto getById(@PathVariable long id) {
+        return productMapper.toDto(productService.getById(id));
     }
 
-    @DeleteMapping("/{product_id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteById(@PathVariable long product_id) {
-        productService.deleteById(product_id);
+    @Override
+    public void deleteById(@PathVariable long id) {
+        productService.deleteById(id);
     }
 
-    @PutMapping("/{product_id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public ProductResponseDto edit(@PathVariable(name = "product_id") Long id, @Valid @RequestBody ProductCreateDto dto) {
+    @Override
+    public ProductResponseDto edit(@PathVariable Long id, @Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.edit(id, dto));
     }
 
     @GetMapping("/daily_product")
+    @Override
     public ProductResponseDto getDailyProduct() {
         return productMapper.toDto(productService.getDailyProduct());
     }

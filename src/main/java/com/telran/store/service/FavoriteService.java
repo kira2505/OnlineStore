@@ -14,4 +14,6 @@ public interface FavoriteService {
     Set<Favorite> getAllByUserId();
 
     Favorite save(FavoriteCreateDto dto);
+
+    void delete(Long id);
 }

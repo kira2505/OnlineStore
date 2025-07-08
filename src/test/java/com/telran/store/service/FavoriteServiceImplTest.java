@@ -50,7 +50,6 @@ class FavoriteServiceImplTest {
 
     @Test
     void getAllByUserId_shouldReturnFavoritesForUser() {
-        // Given
         Long userId = 1L;
         ShopUser user = new ShopUser();
         user.setId(userId);
@@ -68,10 +67,8 @@ class FavoriteServiceImplTest {
         when(shopUserService.getShopUser()).thenReturn(user);
         when(favoriteRepository.findByShopUser_Id(userId)).thenReturn(favorites);
 
-        // When
         Set<Favorite> result = favoriteService.getAllByUserId();
 
-        // Then
         assertEquals(favorites, result);
         verify(shopUserService).getShopUser();
         verify(favoriteRepository).findByShopUser_Id(userId);
@@ -79,7 +76,6 @@ class FavoriteServiceImplTest {
 
     @Test
     void save_shouldCreateFavoriteSuccessfully() {
-        // Given
         Long userId = 1L;
         Long productId = 2L;
 
@@ -99,14 +95,33 @@ class FavoriteServiceImplTest {
         when(productService.getById(productId)).thenReturn(product);
         when(favoriteRepository.save(any(Favorite.class))).thenReturn(expected);
 
-        // When
         Favorite result = favoriteService.save(dto);
 
-        // Then
         assertEquals(expected, result);
         verify(shopUserService).getShopUser();
         verify(shopUserService).getById(userId);
         verify(productService).getById(productId);
         verify(favoriteRepository).save(any(Favorite.class));
+    }
+
+    @Test
+    void delete_ShouldDeleteFavoriteByUserAndProductId() {
+        Long productId = 42L;
+        Long userId = 1L;
+
+        ShopUser user = new ShopUser();
+        user.setId(userId);
+
+        Favorite favorite = new Favorite();
+        favorite.setId(99L);
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(favoriteRepository.findByShopUser_IdAndProducts_Id(userId, productId)).thenReturn(favorite);
+
+        favoriteService.delete(productId);
+
+        verify(shopUserService).getShopUser();
+        verify(favoriteRepository).findByShopUser_IdAndProducts_Id(userId, productId);
+        verify(favoriteRepository).deleteById(favorite.getId());
     }
 }

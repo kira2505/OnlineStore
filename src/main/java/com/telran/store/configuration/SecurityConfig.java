@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests ->
                         requests
-                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
                                 .requestMatchers(HttpMethod.PATCH, "/users").authenticated()
                                 .requestMatchers(HttpMethod.DELETE,"/users/**").authenticated()
