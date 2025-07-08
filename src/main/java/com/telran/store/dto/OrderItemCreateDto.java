@@ -1,6 +1,5 @@
 package com.telran.store.dto;
 
-import com.telran.store.entity.Product;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

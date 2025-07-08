@@ -3,21 +3,19 @@ package com.telran.store.controller;
 import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserDto;
 import com.telran.store.dto.ShopUserResponseDto;
-import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-public class ShopUserController {
+public class ShopUserController implements ShopUserApi {
 
     @Autowired
     private ShopUserService shopUserService;
@@ -25,7 +23,7 @@ public class ShopUserController {
     @Autowired
     private ShopUserMapper shopUserMapper;
 
-    @PostMapping
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto create(@Valid @RequestBody ShopUserCreateDto shopUserCreateDto) {
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
@@ -53,5 +51,11 @@ public class ShopUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto edit(@Valid @RequestBody ShopUserDto shopUserDto) {
         return shopUserMapper.toDto(shopUserService.edit(shopUserDto));
+    }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ShopUserResponseDto assignAdminStatus(@PathVariable Long id) {
+        return shopUserMapper.toDto(shopUserService.assignAdminStatus(id));
     }
 }

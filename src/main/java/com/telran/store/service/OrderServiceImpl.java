@@ -9,8 +9,6 @@ import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -59,7 +57,8 @@ public class OrderServiceImpl implements OrderService {
             CartItem cartItem = cartItemMap.get(orderItemCreateDto.getProductId());
 
             if (cartItem == null) {
-                throw new CartItemNotFoundException("Product with ID " + orderItemCreateDto.getProductId() + " is not in the cart");
+                throw new CartItemNotFoundException("Product with ID " +
+                        orderItemCreateDto.getProductId() + " is not in the cart");
             } else {
                 orderItem.setProduct(cartItem.getProduct());
 

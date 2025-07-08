@@ -1,6 +1,5 @@
 package com.telran.store.service;
 
-import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
 
@@ -21,4 +20,6 @@ public interface ShopUserService {
     ShopUser getByEmail(String email);
 
     ShopUser getShopUser();
+
+    ShopUser assignAdminStatus(Long userId);
 }

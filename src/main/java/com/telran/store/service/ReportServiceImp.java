@@ -5,26 +5,33 @@ import com.telran.store.dto.ReportRequestDto;
 import com.telran.store.enums.Status;
 import com.telran.store.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class ReportServiceImp implements ReportService{
+public class ReportServiceImp implements ReportService {
 
     @Autowired
     private OrderRepository orderRepository;
 
     @Override
     public List<ProductSalesDTO> mostPurchased() {
-        return orderRepository.findProductSalesByStatus(Status.COMPLETED);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable);
+        return page.getContent();
     }
 
     @Override
     public List<ProductSalesDTO> mostCancelled() {
-        return orderRepository.findProductSalesByStatus(Status.CANCELED);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.CANCELED, pageable);
+        return page.getContent();
     }
 
     @Override

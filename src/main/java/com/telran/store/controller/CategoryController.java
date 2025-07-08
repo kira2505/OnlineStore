@@ -3,7 +3,6 @@ package com.telran.store.controller;
 import com.telran.store.dto.CategoryCreateDto;
 import com.telran.store.dto.CategoryDto;
 import com.telran.store.dto.CategoryResponseDto;
-import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
 import jakarta.validation.Valid;
