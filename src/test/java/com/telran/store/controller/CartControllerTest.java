@@ -9,6 +9,7 @@ import com.telran.store.entity.CartItem;
 import com.telran.store.entity.Product;
 import com.telran.store.mapper.CartMapper;
 import com.telran.store.service.CartService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CartController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class CartControllerTest {
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Autowired
     private MockMvc mockMvc;

@@ -7,6 +7,7 @@ import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import com.telran.store.mapper.OrderMapper;
 import com.telran.store.service.OrderService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,6 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Autowired
     private MockMvc mockMvc;

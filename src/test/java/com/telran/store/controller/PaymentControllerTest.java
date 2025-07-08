@@ -7,6 +7,7 @@ import com.telran.store.dto.PaymentResponseDto;
 import com.telran.store.entity.Payment;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.service.PaymentService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(PaymentController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class PaymentControllerTest {
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Autowired
     private MockMvc mockMvc;

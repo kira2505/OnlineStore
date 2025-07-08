@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Cart Management", description = "Operations related to shopping cart functionality")
@@ -37,6 +38,8 @@ public interface CartApi {
     @Operation(summary = "Clear user's cart", description = "Removes all items from the authenticated user's cart")
     @ApiResponse(responseCode = "200", description = "Cart successfully cleared",
             content = @Content(schema = @Schema(implementation = CartResponseDto.class)))
+    @PutMapping("/clear/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     void clearCart();
 
     @Operation(summary = "Delete cart by ID (admin only)", description = "Deletes a cart by its ID. Accessible only by users with ADMIN role")

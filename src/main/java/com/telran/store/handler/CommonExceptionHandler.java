@@ -2,6 +2,7 @@ package com.telran.store.handler;
 
 import com.telran.store.exception.*;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,5 +43,14 @@ public class CommonExceptionHandler {
                 .collect(Collectors.toUnmodifiableList());
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleValidationErrors(ConstraintViolationException e) {
+//        List<String> errors = e.getBindingResult().getFieldErrors().stream()
+//                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+//                .collect(Collectors.toUnmodifiableList());
+
+        return new ResponseEntity<>("errors", HttpStatus.BAD_REQUEST);
     }
 }

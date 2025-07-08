@@ -9,6 +9,7 @@ import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.service.ProductService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,6 +46,9 @@ class ProductControllerTest {
 
     @MockBean
     private ProductMapper productMapper;
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Test
     void testGetProductAll() throws Exception {

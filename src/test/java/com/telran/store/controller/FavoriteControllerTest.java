@@ -8,6 +8,7 @@ import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.FavoriteMapper;
 import com.telran.store.service.FavoriteService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(FavoriteController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class FavoriteControllerTest {
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Autowired
     private MockMvc mockMvc;

@@ -4,6 +4,7 @@ import com.telran.store.dto.*;
 import com.telran.store.entity.Category;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.service.CategoryService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CategoryController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class CategoryControllerTest {
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     @Autowired
     private MockMvc mockMvc;
