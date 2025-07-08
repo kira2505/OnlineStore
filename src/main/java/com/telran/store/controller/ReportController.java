@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reports")
-public class ReportController {
+public class ReportController implements  ReportApi {
 
     @Autowired
     private ReportService reportService;
@@ -30,7 +30,7 @@ public class ReportController {
         return reportService.mostPurchased();
     }
 
-    @GetMapping("/profit")
+    @PostMapping("/profit")
     @PreAuthorize("hasRole('ADMIN')")
     public BigDecimal getProfit(@Valid @RequestBody ReportRequestDto reportRequestDto) {
         return reportService.getProfit(reportRequestDto);

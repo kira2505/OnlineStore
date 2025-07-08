@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
-public class CategoryController {
+public class CategoryController implements CategoryApi {
 
     @Autowired
     private CategoryService categoryService;
@@ -42,6 +42,7 @@ public class CategoryController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable long id){
         categoryService.deleteById(id);
     }
