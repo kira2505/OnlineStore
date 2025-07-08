@@ -8,7 +8,6 @@ import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.CartItemNotFoundException;
 import com.telran.store.exception.CartNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
-import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,6 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private ShopUserService shopUserService;
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
-
     @Override
     public Cart create(ShopUser user) {
         Cart cart = cartRepository
@@ -46,7 +42,6 @@ public class CartServiceImpl implements CartService{
     @Override
     public CartItem add(AddToCartRequestDto cartRequest) {
         ShopUser shopUser = shopUserService.getById(shopUserService.getShopUser().getId());
-
         Product product = productService.getById(cartRequest.getProductId());
 
         Cart cart = create(shopUser);
@@ -60,10 +55,7 @@ public class CartServiceImpl implements CartService{
         }
 
         if (cartItem == null) {
-            cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(cartRequest.getQuantity());
+            cartItem = new CartItem(cart,product, cartRequest.getQuantity());
             BigDecimal discount = cartItem.getProduct().getDiscountPrice();
             if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
                 cartItem.setPrice(discount);
@@ -74,7 +66,7 @@ public class CartServiceImpl implements CartService{
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
         }
-        cartItemRepository.save(cartItem);
+
         this.save(cart);
         return cartItem;
     }
@@ -90,8 +82,7 @@ public class CartServiceImpl implements CartService{
                 .orElseThrow(() -> new ProductNotFoundException("Product not found in cart"));
 
         cartItem.setQuantity(request.getQuantity());
-        cartItemRepository.save(cartItem);
-        return cart;
+        return save(cart);
     }
 
     @Override

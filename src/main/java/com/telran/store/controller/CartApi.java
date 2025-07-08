@@ -18,7 +18,7 @@ public interface CartApi {
 
     @Operation(summary = "Add product to cart ", description = "Add a product with specified quantity to the user's cart")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cart item details", required = true,
-            content = @Content(schema = @Schema(implementation = CartItemResponseDto.class)))
+            content = @Content(schema = @Schema(implementation = AddToCartRequestDto.class)))
     @ApiResponse(responseCode = "201", description = "Successfully added product to cart",
             content = @Content(schema = @Schema(implementation = CartItemResponseDto.class)))
     CartItemResponseDto add(@Valid @RequestBody AddToCartRequestDto request);
