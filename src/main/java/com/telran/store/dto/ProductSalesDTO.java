@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 public class ProductSalesDTO {
 
+    private long productId;
+
     private String productName;
 
     private long totalQuantity;

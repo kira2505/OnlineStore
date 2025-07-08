@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+public class OrderController implements OrderApi {
 
     @Autowired
     private OrderService orderService;
@@ -21,23 +21,25 @@ public class OrderController {
     @Autowired
     private OrderMapper orderMapper;
 
-    @PostMapping
+    @Override
     @ResponseStatus(value = HttpStatus.CREATED)
     public OrderResponseDto createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto) {
         return orderMapper.toDto(orderService.createOrder(orderCreateDto));
     }
 
-    @GetMapping("{orderId}")
+    @Override
+    @ResponseStatus(value = HttpStatus.OK)
     public OrderResponseDto getById(@PathVariable Long orderId){
         return orderMapper.toDto(orderService.getById(orderId));
     }
 
-    @GetMapping("/history")
+    @Override
+    @ResponseStatus(value = HttpStatus.OK)
     public List<OrderResponseDto> getAllOrders() {
         return orderMapper.toDtoList(orderService.getAllOrdersCurrentUser());
     }
 
-    @PatchMapping("/{orderId}/close")
+    @Override
     @ResponseStatus(value = HttpStatus.OK)
     public OrderResponseDto closeOrder(@PathVariable Long orderId) {
         return orderMapper.toDto(orderService.cancelOrder(orderId));

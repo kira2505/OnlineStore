@@ -7,7 +7,6 @@ import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
-import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +22,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ShopUserRepository userRepository;
-
-    @Autowired
     private ShopUserService shopUserService;
+
     @Autowired
     private CartService cartService;
 

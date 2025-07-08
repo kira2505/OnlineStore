@@ -47,5 +47,4 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.toUpdateEntity(categoryById, category);
         return categoryRepository.save(categoryById);
     }
-
 }
