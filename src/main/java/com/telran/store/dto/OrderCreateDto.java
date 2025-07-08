@@ -1,7 +1,5 @@
 package com.telran.store.dto;
 
-import com.telran.store.entity.OrderItem;
-import com.telran.store.entity.ShopUser;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

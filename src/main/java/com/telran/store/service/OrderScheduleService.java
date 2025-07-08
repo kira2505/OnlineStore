@@ -1,7 +1,6 @@
 package com.telran.store.service;
 
 import com.telran.store.entity.Order;
-import com.telran.store.entity.Payment;
 import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -27,8 +24,8 @@ public class OrderScheduleService {
     @Async
     public void cancelExpiredNewOrders() {
         for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(20)) && PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus()))
-            {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(20)) &&
+                    PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus())) {
                 orderService.updateOrderStatus(order.getId(), Status.CANCELED);
                 orderService.updateOrderPaymentStatus(order.getId(), PaymentStatus.CANCELED);
                 log.info("New order with id " + order.getId() + " canceled due to expired payment period");

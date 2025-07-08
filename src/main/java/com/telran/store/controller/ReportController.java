@@ -5,7 +5,6 @@ import com.telran.store.dto.ReportRequestDto;
 import com.telran.store.service.ReportService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

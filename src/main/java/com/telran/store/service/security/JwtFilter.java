@@ -1,9 +1,6 @@
 package com.telran.store.service.security;
 
-import com.telran.store.entity.ShopUser;
-import com.telran.store.repository.ShopUserRepository;
 import com.telran.store.service.ShopUserDetailService;
-import com.telran.store.service.ShopUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 

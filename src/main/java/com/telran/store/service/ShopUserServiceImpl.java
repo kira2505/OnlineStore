@@ -1,6 +1,5 @@
 package com.telran.store.service;
 
-import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.enums.Role;
@@ -9,7 +8,6 @@ import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,5 +65,12 @@ public class ShopUserServiceImpl implements ShopUserService {
     public ShopUser getShopUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (ShopUser) authentication.getPrincipal();
+    }
+
+    @Override
+    public ShopUser assignAdminStatus(Long userId) {
+        ShopUser user = getById(userId);
+        user.setRole(Role.ROLE_ADMIN);
+        return shopUserRepository.save(user);
     }
 }

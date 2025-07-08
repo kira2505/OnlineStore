@@ -1,5 +1,6 @@
 package com.telran.store.dto;
 
+import com.telran.store.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,5 @@ public class ShopUserResponseDto {
 
     private String phoneNumber;
 
+    private Role role;
 }

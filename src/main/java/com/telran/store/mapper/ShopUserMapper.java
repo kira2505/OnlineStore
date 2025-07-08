@@ -5,11 +5,10 @@ import com.telran.store.dto.ShopUserDto;
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
 import org.mapstruct.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring",  uses = {FavoriteMapper.class},
+@Mapper(componentModel = "spring", uses = {FavoriteMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ShopUserMapper {
 

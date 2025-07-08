@@ -1,7 +1,5 @@
 package com.telran.store.dto;
 
-import com.telran.store.entity.Order;
-import com.telran.store.entity.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
