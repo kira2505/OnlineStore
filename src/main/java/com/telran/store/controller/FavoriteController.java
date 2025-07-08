@@ -24,26 +24,21 @@ public class FavoriteController implements FavoriteApi{
     @Autowired
     private FavoriteMapper favoriteMapper;
 
-    @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public Set<FavoriteResponseDto> getAll () {
         return favoriteMapper.toDtoSet(favoriteService.getAll());
     }
 
-    @GetMapping
     @Override
     public Set<FavoriteResponseDto> getAllByUserId() {
         return favoriteMapper.toDtoSet(favoriteService.getAllByUserId());
     }
 
-    @PostMapping
     @Override
     public FavoriteResponseDto addToFavorite(@Valid @RequestBody FavoriteCreateDto dto) {
         return favoriteMapper.toDto(favoriteService.save(dto));
     }
 
-    @DeleteMapping("/{id}")
     @Override
     public void delete(@PathVariable Long id) {
         favoriteService.delete(id);

@@ -23,15 +23,11 @@ public class ProductController implements ProductApi {
     @Autowired
     private ProductMapper productMapper;
 
-    @PostMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public ProductResponseDto createProduct(@Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.create(productMapper.toEntity(dto)));
     }
 
-    @GetMapping
     @Override
     public List<ProductResponseDto> getAll(@RequestParam(name = "category", required = false) String category,
                                            @RequestParam(name = "minPrice", required = false) BigDecimal minPrice,
@@ -41,28 +37,21 @@ public class ProductController implements ProductApi {
         return productMapper.toDtoList(productService.getAll(category, minPrice, maxPrice, discount, sort));
     }
 
-    @GetMapping("/{id}")
     @Override
     public ProductResponseDto getById(@PathVariable long id) {
         return productMapper.toDto(productService.getById(id));
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public void deleteById(@PathVariable long id) {
         productService.deleteById(id);
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @ResponseStatus(value = HttpStatus.CREATED)
     @Override
     public ProductResponseDto edit(@PathVariable Long id, @Valid @RequestBody ProductCreateDto dto) {
         return productMapper.toDto(productService.edit(id, dto));
     }
 
-    @GetMapping("/daily_product")
     @Override
     public ProductResponseDto getDailyProduct() {
         return productMapper.toDto(productService.getDailyProduct());
