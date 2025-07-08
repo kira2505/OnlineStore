@@ -23,15 +23,15 @@ public class ReportServiceImp implements ReportService {
     @Override
     public List<ProductSalesDTO> mostPurchased() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable);
-        return page.getContent();
+        List<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable);
+        return page;
     }
 
     @Override
     public List<ProductSalesDTO> mostCancelled() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.CANCELED, pageable);
-        return page.getContent();
+        List<ProductSalesDTO> page = orderRepository.findProductSalesByStatus(Status.CANCELED, pageable);
+        return page;
     }
 
     @Override

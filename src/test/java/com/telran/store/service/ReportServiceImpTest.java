@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,14 +39,14 @@ class ReportServiceImpTest {
                 new ProductSalesDTO("Product 1", 10),
                 new ProductSalesDTO("Product 2", 5)
         );
-
-        when(orderRepository.findProductSalesByStatus(Status.COMPLETED)).thenReturn(mockList);
+        Pageable pageable = PageRequest.of(0, 10);
+        when(orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable)).thenReturn(mockList);
 
         List<ProductSalesDTO> result = reportService.mostPurchased();
 
         assertEquals(2, result.size());
         assertEquals("Product 1", result.get(0).getProductName());
-        verify(orderRepository).findProductSalesByStatus(Status.COMPLETED);
+        verify(orderRepository).findProductSalesByStatus(Status.COMPLETED, pageable);
     }
 
     @Test
@@ -53,14 +55,14 @@ class ReportServiceImpTest {
                 new ProductSalesDTO("Product 1", 10),
                 new ProductSalesDTO("Product 2", 5)
         );
-
-        when(orderRepository.findProductSalesByStatus(Status.CANCELED)).thenReturn(mockList);
+        Pageable pageable = PageRequest.of(0, 10);
+        when(orderRepository.findProductSalesByStatus(Status.CANCELED, pageable)).thenReturn(mockList);
 
         List<ProductSalesDTO> result = reportService.mostCancelled();
 
         assertEquals(2, result.size());
         assertEquals("Product 1", result.get(0).getProductName());
-        verify(orderRepository).findProductSalesByStatus(Status.CANCELED);
+        verify(orderRepository).findProductSalesByStatus(Status.CANCELED, pageable);
     }
 
     @ParameterizedTest

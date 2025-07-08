@@ -5,6 +5,8 @@ import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
+import com.telran.store.service.security.AuthenticationService;
+import com.telran.store.service.security.JwtFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,6 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ShopUserController.class)
 class ShopUserControllerTest {
 
+    @MockBean
+    private JwtFilter jwtFilter;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -39,6 +44,8 @@ class ShopUserControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    private AuthenticationService authenticationService;
 
     @Test
     void testGetAllUsers() throws Exception {
@@ -47,7 +54,8 @@ class ShopUserControllerTest {
                 ShopUser.builder().id(2L).name("Max").email("max@gmail.com").phoneNumber("333444").build()
         );
         List<ShopUserResponseDto> responseDtos = shopUsers.stream()
-                .map(user -> new ShopUserResponseDto(user.getId(), user.getName(), user.getEmail(), user.getPhoneNumber()))
+                .map(user -> new ShopUserResponseDto(user.getId(), user.getName(),
+                        user.getEmail(), user.getPhoneNumber()))
                 .toList();
 
         when(shopUserService.getAll()).thenReturn(shopUsers);
@@ -102,7 +110,7 @@ class ShopUserControllerTest {
         when(shopUserService.create(any())).thenReturn(user);
         when(shopUserMapper.toDto(any())).thenReturn(userResponseDto);
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Max\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"+380123444567\"}"))
                 .andExpect(status().isCreated())
@@ -111,7 +119,7 @@ class ShopUserControllerTest {
 
     @Test
     void testCreateUserInvalidEmail() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {
@@ -136,7 +144,7 @@ class ShopUserControllerTest {
         mockMvc.perform(patch("/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("{\"name\": \"Alex\", \"email\": \"max@gmail.com\", \"phoneNumber\": \"+380123444567\"}"))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

@@ -31,7 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             GROUP BY p.name
             ORDER BY SUM(oi.quantity) DESC
             """)
-    Page<ProductSalesDTO> findProductSalesByStatus(@Param("status") Status status,  Pageable pageable);
+    List<ProductSalesDTO> findProductSalesByStatus(@Param("status") Status status,  Pageable pageable);
 
     @Query("""
             SELECT (SUM(o.totalAmount))

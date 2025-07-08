@@ -40,8 +40,7 @@ public class CartController implements CartApi{
         return cartMapper.toDto(cartService.getById());
     }
 
-    @PutMapping("/clear/")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+
     @Override
     public void clearCart() {
         cartService.clearCart();
