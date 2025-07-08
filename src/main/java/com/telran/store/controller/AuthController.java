@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+//@RestController
+//@RequestMapping("/auth")
+//public class AuthController {
+//
+//    @Autowired
+//    private AuthenticationService authenticationService;
 
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    @PostMapping("/login")
-    public String login(@RequestBody LoginRequestDto loginRequestDto) {
-           return authenticationService.login(loginRequestDto);
-    }
-}
+//    @PostMapping("/login")
+//    public String login(@RequestBody LoginRequestDto loginRequestDto) {
+//           return authenticationService.login(loginRequestDto);
+//    }
+//}

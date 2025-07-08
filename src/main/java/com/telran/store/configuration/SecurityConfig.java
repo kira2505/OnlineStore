@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests ->
                         requests
-                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
                                 .requestMatchers(HttpMethod.PATCH, "/users").authenticated()
                                 .requestMatchers(HttpMethod.DELETE,"/users/**").authenticated()
@@ -55,7 +56,6 @@ public class SecurityConfig {
                                 .requestMatchers("/payments/**").authenticated()
                                 .requestMatchers("/reports/**").authenticated()
                                 .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                .requestMatchers(POST, "/auth/login").permitAll()
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(sessionManagement ->
