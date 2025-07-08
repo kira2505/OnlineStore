@@ -19,7 +19,7 @@ public class Favorite {
     @EqualsAndHashCode.Exclude
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonManagedReference
     private Product products;

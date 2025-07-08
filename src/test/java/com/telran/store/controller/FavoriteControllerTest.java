@@ -23,9 +23,9 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -122,19 +122,27 @@ class FavoriteControllerTest {
         when(favoriteService.save(createDto)).thenReturn(savedFavorite);
         when(favoriteMapper.toDto(savedFavorite)).thenReturn(responseDto);
 
-        // When
         String jsonRequest = """
             {
                 "productId": 2
             }
             """;
 
-        // Выполняем POST-запрос и проверяем ответ
         mockMvc.perform(post("/favorites")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(11))
                 .andExpect(jsonPath("$.products.id").value(2));
+    }
+
+    @Test
+    void delete_ShouldCallServiceAndReturnOk() throws Exception {
+        Long id = 42L;
+
+        mockMvc.perform(delete("/favorites/{id}", id))
+                .andExpect(status().isOk());
+
+        verify(favoriteService).delete(id);
     }
 }

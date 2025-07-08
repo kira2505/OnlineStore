@@ -154,7 +154,7 @@ class CartServiceImplTest {
         Product product = new Product();
         product.setId(3L);
         product.setPrice(BigDecimal.valueOf(100));
-        product.setDiscountPrice(BigDecimal.valueOf(75)); // скидка есть
+        product.setDiscountPrice(BigDecimal.valueOf(75));
 
         when(shopUserService.getShopUser()).thenReturn(user);
         when(shopUserService.getById(user.getId())).thenReturn(user);
@@ -170,7 +170,7 @@ class CartServiceImplTest {
         CartItem result = cartServiceImpl.add(dto);
 
         assertNotNull(result);
-        assertEquals(BigDecimal.valueOf(75), result.getPrice()); // скидка применилась
+        assertEquals(BigDecimal.valueOf(75), result.getPrice());
         assertEquals(1, result.getQuantity());
     }
 
@@ -185,7 +185,7 @@ class CartServiceImplTest {
         product.setPrice(BigDecimal.valueOf(100));
 
         Product existingProduct = new Product();
-        existingProduct.setId(cartExists ? 2L : 999L); // 2L — тот же, 999L — другой
+        existingProduct.setId(cartExists ? 2L : 999L);
 
         CartItem cartItem = new CartItem();
         cartItem.setProduct(existingProduct);

@@ -11,10 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/carts")
-public class CartController {
+public class CartController implements CartApi{
 
     @Autowired
     private CartService cartService;
@@ -22,26 +21,28 @@ public class CartController {
     @Autowired
     private CartMapper cartMapper;
 
-
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
+    @Override
     public CartItemResponseDto add(@Valid @RequestBody AddToCartRequestDto request) {
         return cartMapper.toCartItemDto(cartService.add(request));
     }
 
-
     @PatchMapping
+    @Override
     public CartResponseDto edit(@Valid @RequestBody AddToCartRequestDto cartRequest) {
         return cartMapper.toDto(cartService.edit(cartRequest));
     }
 
     @GetMapping
+    @Override
     public CartResponseDto getById() {
         return cartMapper.toDto(cartService.getById());
     }
 
     @PutMapping("/clear/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void clearCart() {
         cartService.clearCart();
     }
@@ -49,6 +50,7 @@ public class CartController {
     @DeleteMapping
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public void deleteById() {
         cartService.deleteById();
     }

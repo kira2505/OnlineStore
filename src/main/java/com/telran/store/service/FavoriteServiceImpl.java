@@ -41,4 +41,10 @@ public class FavoriteServiceImpl implements FavoriteService{
         Product productById = productService.getById(dto.getProductId());
         return favoriteRepository.save(new Favorite(productById, userById));
     }
+
+    @Override
+    public void delete(Long id) {
+        Favorite favorite = favoriteRepository.findByShopUser_IdAndProducts_Id(shopUserService.getShopUser().getId(), id);
+        favoriteRepository.deleteById(favorite.getId());
+    }
 }
