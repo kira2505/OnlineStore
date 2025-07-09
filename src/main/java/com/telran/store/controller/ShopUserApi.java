@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,6 +59,7 @@ public interface ShopUserApi {
                                     """
                             )}))
     @PostMapping("/register")
+    @ResponseStatus(value = HttpStatus.CREATED)
     ShopUserResponseDto create(@Valid @RequestBody ShopUserCreateDto shopUserCreateDto);
 
     @Operation(summary = "User login",
@@ -65,26 +67,29 @@ public interface ShopUserApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "JWT token returned",
                     content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(example = "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"")
+                            schema = @Schema(type = "string", example = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTIwNjQ4NTgsImV4cCI6MT..."),
+                            examples = @ExampleObject(
+                                    value = "\"eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTIwNjQ4NTgsImV4cCI6MT...\""
+                            )
                     )),
             @ApiResponse(responseCode = "401", description = "Invalid login or password",
                     content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(example = "\"Invalid username or password\"")
-                    ))})
+                            schema = @Schema(type = "string", example = "Invalid username or password"),
+                            examples = @ExampleObject(value = "\"Invalid username or password\"")
+                    ))
+    })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Login credentials",
             required = true,
             content = @Content(schema = @Schema(implementation = LoginRequestDto.class),
                     examples = {
                             @ExampleObject(value = """
-                                    {
-                                      "login": "john@example.com",
-                                      "password": "StrongPassword78&8*"
-                                    }
-                                    """
-                            )}))
+                                {
+                                  "login": "john@example.com",
+                                  "password": "StrongPassword78&8*"
+                                }
+                                """)
+                    }))
     @PostMapping("/login")
     String login(@RequestBody LoginRequestDto loginRequestDto);
 
@@ -219,5 +224,6 @@ public interface ShopUserApi {
                             schema = @Schema(example = "\"User with ID 1 not found\"")
                     ))})
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     ShopUserResponseDto assignAdminStatus(@PathVariable Long id);
 }

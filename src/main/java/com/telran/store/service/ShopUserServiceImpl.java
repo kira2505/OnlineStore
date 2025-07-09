@@ -6,6 +6,7 @@ import com.telran.store.enums.Role;
 import com.telran.store.exception.UserNotFoundException;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.repository.ShopUserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class ShopUserServiceImpl implements ShopUserService {
 
@@ -30,7 +32,9 @@ public class ShopUserServiceImpl implements ShopUserService {
     public ShopUser create(ShopUser shopUser) {
         shopUser.setPasswordHash(passwordEncoder.encode(shopUser.getPassword()));
         shopUser.setRole(Role.ROLE_USER);
-        return shopUserRepository.save(shopUser);
+        ShopUser savedUser = shopUserRepository.save(shopUser);
+        log.info("A new user has registered, user ID: {}", savedUser.getId());
+        return savedUser;
     }
 
     @Override
@@ -72,6 +76,7 @@ public class ShopUserServiceImpl implements ShopUserService {
     public ShopUser assignAdminStatus(Long userId) {
         ShopUser user = getById(userId);
         user.setRole(Role.ROLE_ADMIN);
+        log.info("Assigned admin status for user with ID: {}", user.getId());
         return shopUserRepository.save(user);
     }
 }
