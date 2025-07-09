@@ -11,16 +11,16 @@ import com.telran.store.exception.OrderAlreadyPaidException;
 import com.telran.store.mapper.PaymentMapper;
 import com.telran.store.repository.OrderRepository;
 import com.telran.store.repository.PaymentRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
@@ -59,12 +59,15 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmount(paymentCreateDto.getAmount());
         payment.setDateTime(LocalDateTime.now());
 
+        log.debug("Payment created: {}", payment);
+
         order.getPayments().add(payment);
         order.setPaymentStatus(order.getPaymentAmount().compareTo(totalPrice) == 0 ? PaymentStatus.PAID
                 : PaymentStatus.PARTIALLY_PAID);
 
         Order orderEntity = orderService.saveOrder(order);
-        return orderEntity.getPayments().get(orderEntity.getPayments().size()-1);
+        log.info("Payment was made for the order: {}", orderEntity);
+        return orderEntity.getPayments().get(orderEntity.getPayments().size() - 1);
     }
 
     @Override
@@ -84,8 +87,9 @@ public class PaymentServiceImpl implements PaymentService {
         LocalDateTime cutoffDate = LocalDateTime.now().minusMinutes(days);
         List<Order> orders = orderRepository.findPendingPaymentOrderThen(cutoffDate);
         return orders.stream()
-                .map(order -> {long daysPending = ChronoUnit.MINUTES.between(order.getCreatedAt().toLocalTime(), LocalDateTime.now());
-                return new OrderPendingPaidDto(order.getId(), order.getCreatedAt(), daysPending);
+                .map(order -> {
+                    long daysPending = ChronoUnit.MINUTES.between(order.getCreatedAt().toLocalTime(), LocalDateTime.now());
+                    return new OrderPendingPaidDto(order.getId(), order.getCreatedAt(), daysPending);
                 }).toList();
     }
 }

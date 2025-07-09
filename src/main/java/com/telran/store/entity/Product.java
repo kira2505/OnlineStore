@@ -12,6 +12,7 @@ import java.util.List;
 
 @Data
 @Builder
+@ToString(exclude = {"favorites", "category"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

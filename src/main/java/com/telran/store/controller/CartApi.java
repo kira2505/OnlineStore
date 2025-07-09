@@ -64,7 +64,7 @@ public interface CartApi {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Clear user's cart", description = "Removes all items from the authenticated user's cart")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Cart successfully cleared"),
+            @ApiResponse(responseCode = "200", description = "Cart successfully cleared"),
             @ApiResponse(responseCode = "404", description = "Cart items not found")
     })
     void clearCart();
@@ -74,7 +74,7 @@ public interface CartApi {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete cart by ID (admin only)", description = "Deletes a cart by its ID. Accessible only by users with ADMIN role")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Cart successfully deleted"),
+            @ApiResponse(responseCode = "200", description = "Cart successfully deleted"),
             @ApiResponse(responseCode = "403", description = "Access denied – only admins can perform this action")
     })
     void deleteById();
@@ -85,7 +85,7 @@ public interface CartApi {
     @Parameter(name = "product_id", description = "ID of the product to remove", required = true,
     schema = @Schema(type = "integer", format = "int64", example = "1"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Product successfully removed from cart"),
+            @ApiResponse(responseCode = "200", description = "Product successfully removed from cart"),
             @ApiResponse(responseCode = "400", description = "Invalid product ID"),
             @ApiResponse(responseCode = "404", description = "Product not found in cart")
     })

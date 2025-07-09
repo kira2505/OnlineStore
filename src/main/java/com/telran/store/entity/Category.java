@@ -1,15 +1,13 @@
 package com.telran.store.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
 @Builder
+@ToString(exclude = {"products"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

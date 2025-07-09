@@ -4,6 +4,7 @@ import com.telran.store.dto.FavoriteCreateDto;
 import com.telran.store.entity.Favorite;
 import com.telran.store.entity.Product;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.exception.FavoriteAlreadyExistsException;
 import com.telran.store.repository.FavoriteRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class FavoriteServiceImplTest {
@@ -102,6 +102,34 @@ class FavoriteServiceImplTest {
         verify(shopUserService).getById(userId);
         verify(productService).getById(productId);
         verify(favoriteRepository).save(any(Favorite.class));
+    }
+
+    @Test
+    void save_shouldThrowExceptionWhenFavoriteAlreadyExists() {
+        Long userId = 1L;
+        Long productId = 2L;
+
+        ShopUser user = new ShopUser();
+        user.setId(userId);
+
+        Product product = new Product();
+        product.setId(productId);
+
+        FavoriteCreateDto dto = new FavoriteCreateDto();
+        dto.setProductId(productId);
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(shopUserService.getById(userId)).thenReturn(user);
+        when(productService.getById(productId)).thenReturn(product);
+        when(favoriteRepository.existsByProductsIdAndShopUserId(productId, userId)).thenReturn(true);
+
+        assertThrows(FavoriteAlreadyExistsException.class, () -> favoriteService.save(dto));
+
+        verify(shopUserService).getShopUser();
+        verify(shopUserService).getById(userId);
+        verify(productService).getById(productId);
+        verify(favoriteRepository).existsByProductsIdAndShopUserId(productId, userId);
+        verify(favoriteRepository, never()).save(any(Favorite.class));
     }
 
     @Test
