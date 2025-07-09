@@ -34,7 +34,7 @@ public class Product {
 
     private BigDecimal discountPrice;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP", updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt = LocalDateTime.now();
 
