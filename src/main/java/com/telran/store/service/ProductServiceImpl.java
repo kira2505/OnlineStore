@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -33,6 +34,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product create(Product product) {
+        LocalDateTime now = LocalDateTime.now();
+        product.setCreatedAt(now);
+        product.setUpdatedAt(now);
         return productRepository.save(product);
     }
 
@@ -89,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
             Category category = categoryService.getById(productCreateDto.getCategory().getCategoryId());
             product.setCategory(category);
         }
-
+        product.setUpdatedAt(LocalDateTime.now());
         return productRepository.save(product);
     }
 

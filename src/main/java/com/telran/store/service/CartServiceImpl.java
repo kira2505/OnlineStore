@@ -8,6 +8,7 @@ import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.CartItemNotFoundException;
 import com.telran.store.exception.CartNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
+import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class CartServiceImpl implements CartService{
 
     @Autowired
     private ShopUserService shopUserService;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Override
     public Cart create(ShopUser user) {
@@ -66,7 +70,7 @@ public class CartServiceImpl implements CartService{
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
         }
-
+        cartItemRepository.save(cartItem);
         this.save(cart);
         return cartItem;
     }
