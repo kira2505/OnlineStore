@@ -5,11 +5,13 @@ import com.telran.store.entity.Category;
 import com.telran.store.exception.NoSuchCategoryException;
 import com.telran.store.mapper.CategoryMapper;
 import com.telran.store.repository.CategoryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -21,7 +23,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category save(Category category) {
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        log.info("Category with ID: {} has been created", savedCategory.getId());
+        return savedCategory;
     }
 
     @Override
@@ -43,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category edit(long id, CategoryCreateDto category) {
         Category categoryById = getById(id);
-
+        log.info("Category with ID: {} has been edited", categoryById.getId());
         categoryMapper.toUpdateEntity(categoryById, category);
         return categoryRepository.save(categoryById);
     }

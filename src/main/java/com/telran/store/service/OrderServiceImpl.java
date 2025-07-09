@@ -7,7 +7,9 @@ import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
 import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -31,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order createOrder(OrderCreateDto orderCreateDto) {
         ShopUser user = shopUserService.getShopUser();
+        log.info("Creating order for user with ID: {}", user.getId());
 
         Order order = new Order();
         order.setShopUser(user);
@@ -82,7 +86,10 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(getTotalAmount(order));
         order.setPaymentStatus(PaymentStatus.PENDING_PAID);
         cartService.save(user.getCart());
-        return orderRepository.save(order);
+
+        Order save = orderRepository.save(order);
+        log.info("Order with ID: {} successfully saved", save.getId());
+        return save;
     }
 
     @Override
@@ -117,7 +124,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order cancelOrder(Long orderId) {
+        ShopUser user = shopUserService.getShopUser();
         Order order = getById(orderId);
+
+        if (!order.getShopUser().getId().equals(user.getId())) {
+            throw new OrderNotFoundException("Order with id " + orderId + " not found");
+        }
 
         if (Status.COMPLETED.equals(order.getStatus())) {
             throw new OrderAlreadyCompletedException("Order is already completed and cannot be canceled");
@@ -129,6 +141,7 @@ public class OrderServiceImpl implements OrderService {
             order.setPaymentStatus(PaymentStatus.REFUND);
         }
         order.setStatus(Status.CANCELED);
+        log.info("Order with ID: {} has been cancelled by user", orderId);
         return orderRepository.save(order);
     }
 

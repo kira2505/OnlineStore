@@ -23,27 +23,13 @@ public class OrderScheduleService {
     @Scheduled(fixedRate = 60000)
     @Async
     public void cancelExpiredNewOrders() {
-        for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(20)) &&
-                    PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus())) {
-                orderService.updateOrderStatus(order.getId(), Status.CANCELED);
-                orderService.updateOrderPaymentStatus(order.getId(), PaymentStatus.CANCELED);
-                log.info("New order with id " + order.getId() + " canceled due to expired payment period");
-            }
-        }
+        setStatusAndPStatus(Status.NEW, Status.CANCELED, PaymentStatus.PENDING_PAID, PaymentStatus.CANCELED);
     }
 
     @Scheduled(fixedRate = 60000)
     @Async
     public void setProcessingIfPaid() {
-        for (Order order : orderService.getAllByState(Status.NEW)) {
-            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE))
-                    && order.getPaymentStatus() == PaymentStatus.PAID) {
-                orderService.updateOrderStatus(order.getId(), Status.PROCESSING);
-                orderService.updateOrderPaymentStatus(order.getId(), PaymentStatus.COMPLETED);
-                log.info("Order with id " + order.getId() + " in processing");
-            }
-        }
+        setStatusAndPStatus(Status.NEW,Status.PROCESSING, PaymentStatus.PAID,PaymentStatus.COMPLETED);
     }
 
     @Scheduled(fixedRate = 60000)
@@ -68,7 +54,18 @@ public class OrderScheduleService {
         for (Order order : orderService.getAllByState(oldStatus)) {
             if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE))) {
                 orderService.updateOrderStatus(order.getId(), newStatus);
-                log.info("New order with id {} {}", order.getId(), order.getStatus());
+                log.info("Order with id {} {}", order.getId(), order.getStatus());
+            }
+        }
+    }
+
+    private void setStatusAndPStatus(Status oldStatus, Status newStatus, PaymentStatus oldPaymentStatus, PaymentStatus newPaymentStatus) {
+        for (Order order : orderService.getAllByState(oldStatus)) {
+            if (order.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(NUMBER_OF_MINUTES_FOR_PAUSE_BETWEEN_STATUS_CHANGE))
+                    && order.getPaymentStatus() == oldPaymentStatus ){
+                orderService.updateOrderStatus(order.getId(), newStatus);
+                orderService.updateOrderPaymentStatus(order.getId(), newPaymentStatus);
+                log.info("Order with id {} {}", order.getId(), order.getStatus());
             }
         }
     }

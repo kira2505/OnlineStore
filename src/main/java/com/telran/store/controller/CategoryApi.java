@@ -52,6 +52,7 @@ public interface CategoryApi {
                             """)))
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(value = HttpStatus.CREATED)
     CategoryDto create(CategoryCreateDto categoryCreateDto);
 
     @Operation(summary = "Get all categories",
@@ -75,7 +76,7 @@ public interface CategoryApi {
     @GetMapping
     List<CategoryResponseDto> getAll();
 
-    @Operation(summary = "Get category by ID (Only for admins)",
+    @Operation(summary = "Get category by ID",
             description = "Returns the category by ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category returned",
