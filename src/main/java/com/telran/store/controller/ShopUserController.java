@@ -10,7 +10,6 @@ import com.telran.store.service.security.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,44 +27,43 @@ public class ShopUserController implements ShopUserApi {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostMapping("/register")
+    @Override
     @ResponseStatus(HttpStatus.CREATED)
     public ShopUserResponseDto create(@Valid @RequestBody ShopUserCreateDto shopUserCreateDto) {
         return shopUserMapper.toDto(shopUserService.create(shopUserMapper.toEntity(shopUserCreateDto)));
     }
 
-    @PostMapping("/login")
+    @Override
     @ResponseStatus(HttpStatus.OK)
     public String login(@RequestBody LoginRequestDto loginRequestDto) {
         return authenticationService.login(loginRequestDto);
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public List<ShopUserResponseDto> getAll() {
         return shopUserMapper.toDtoList(shopUserService.getAll());
     }
 
-    @GetMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public ShopUserResponseDto getById(@PathVariable long id) {
         return shopUserMapper.toDto(shopUserService.getById(id));
     }
 
-    @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable long id) {
         shopUserService.deleteById(id);
     }
 
-    @PatchMapping
+    @Override
     @ResponseStatus(HttpStatus.OK)
     public ShopUserResponseDto edit(@Valid @RequestBody ShopUserDto shopUserDto) {
         return shopUserMapper.toDto(shopUserService.edit(shopUserDto));
     }
 
-    @PatchMapping("/{id}")
+    @Override
     @ResponseStatus(HttpStatus.OK)
     public ShopUserResponseDto assignAdminStatus(@PathVariable Long id) {
         return shopUserMapper.toDto(shopUserService.assignAdminStatus(id));

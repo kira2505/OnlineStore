@@ -4,7 +4,6 @@ import com.telran.store.dto.ProductSalesDTO;
 import com.telran.store.entity.Order;
 import com.telran.store.enums.PaymentStatus;
 import com.telran.store.enums.Status;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,12 +22,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByPaymentStatus(PaymentStatus paymentStatus);
 
     @Query("""
-            SELECT new com.telran.store.dto.ProductSalesDTO(p.name, SUM(oi.quantity))
+            SELECT new com.telran.store.dto.ProductSalesDTO(p.id, p.name, SUM(oi.quantity))
             FROM Order o
             JOIN o.orderItems oi
             JOIN oi.product p
             WHERE o.status = :status
-            GROUP BY p.name
+            GROUP BY p.id, p.name
             ORDER BY SUM(oi.quantity) DESC
             """)
     List<ProductSalesDTO> findProductSalesByStatus(@Param("status") Status status,  Pageable pageable);

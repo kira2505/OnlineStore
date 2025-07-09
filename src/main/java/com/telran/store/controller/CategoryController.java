@@ -23,33 +23,32 @@ public class CategoryController implements CategoryApi {
     @Autowired
     private CategoryMapper categoryMapper;
 
-    @PostMapping
+    @Override
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
     public CategoryDto create(@Valid @RequestBody CategoryCreateDto categoryCreateDto){
         return categoryMapper.toDtoToCategory(categoryService.save(categoryMapper.toEntity(categoryCreateDto)));
     }
 
-    @GetMapping
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public List<CategoryResponseDto> getAll(){
         return categoryMapper.toDtoList(categoryService.getAll());
     }
 
-    @GetMapping("{id}")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public CategoryResponseDto getById(@PathVariable long id){
         return categoryMapper.toDto(categoryService.getById(id));
     }
 
-    @DeleteMapping("{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     @ResponseStatus(HttpStatus.OK)
     public void deleteById(@PathVariable long id){
         categoryService.deleteById(id);
     }
 
-    @PatchMapping("{id}")
+    @Override
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponseDto edit(@PathVariable long id, @Valid @RequestBody CategoryCreateDto category){
         return categoryMapper.toDto(categoryService.edit(id, category));
     }

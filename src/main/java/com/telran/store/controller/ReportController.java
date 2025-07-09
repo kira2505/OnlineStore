@@ -5,7 +5,7 @@ import com.telran.store.dto.ReportRequestDto;
 import com.telran.store.service.ReportService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -18,20 +18,20 @@ public class ReportController implements  ReportApi {
     @Autowired
     private ReportService reportService;
 
-    @GetMapping("/most-cancelled")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public List<ProductSalesDTO> mostCancelled() {
         return reportService.mostCancelled();
     }
 
-    @GetMapping("/top-sellers")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public List<ProductSalesDTO> mostPurchased() {
         return reportService.mostPurchased();
     }
 
-    @PostMapping("/profit")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    @ResponseStatus(HttpStatus.OK)
     public BigDecimal getProfit(@Valid @RequestBody ReportRequestDto reportRequestDto) {
         return reportService.getProfit(reportRequestDto);
     }

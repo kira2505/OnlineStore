@@ -14,11 +14,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "User", description = "Custom operations")
+@Tag(name = "User Management", description = "Manage user profiles and roles.")
 public interface ShopUserApi {
 
     @Operation(summary = "Create user",
@@ -56,6 +57,7 @@ public interface ShopUserApi {
                                     }
                                     """
                             )}))
+    @PostMapping("/register")
     ShopUserResponseDto create(@Valid @RequestBody ShopUserCreateDto shopUserCreateDto);
 
     @Operation(summary = "User login",
@@ -83,6 +85,7 @@ public interface ShopUserApi {
                                     }
                                     """
                             )}))
+    @PostMapping("/login")
     String login(@RequestBody LoginRequestDto loginRequestDto);
 
     @Operation(summary = "Get all users (Only for admins)",
@@ -107,6 +110,8 @@ public interface ShopUserApi {
                                     }
                                     """
                             )}))
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     List<ShopUserResponseDto> getAll();
 
     @Operation(summary = "Get user by ID (Only for admins)",
@@ -129,8 +134,10 @@ public interface ShopUserApi {
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(example = "\"User with ID 99 not found\"")
+                            schema = @Schema(example = "\"User with ID 1 not found\"")
                     ))})
+    @GetMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     ShopUserResponseDto getById(@PathVariable long id);
 
     @Operation(summary = "Delete user by ID (Only for admins)",
@@ -140,6 +147,8 @@ public interface ShopUserApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")})
+    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     void deleteById(@PathVariable long id);
 
     @Operation(summary = "Update curren user",
@@ -162,16 +171,16 @@ public interface ShopUserApi {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(type = "array", example = """
-                            [
-                              "name: must not be blank",
-                              "phoneNumber: invalid format"
-                            ]
-                            """)
+                                    [
+                                      "name: must not be blank",
+                                      "phoneNumber: invalid format"
+                                    ]
+                                    """)
                     )),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(example = "\"User with ID 99 not found\"")
+                            schema = @Schema(example = "\"User with ID 1 not found\"")
                     ))})
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Fields that can be changed", required = true,
@@ -184,6 +193,7 @@ public interface ShopUserApi {
                                     }
                                     """
                             )}))
+    @PatchMapping
     ShopUserResponseDto edit(@Valid @RequestBody ShopUserDto shopUserDto);
 
     @Operation(summary = "Assign admin status to a user by ID (Only for admins)",
@@ -206,7 +216,8 @@ public interface ShopUserApi {
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(example = "\"User with ID 99 not found\"")
+                            schema = @Schema(example = "\"User with ID 1 not found\"")
                     ))})
+    @PatchMapping("/{id}")
     ShopUserResponseDto assignAdminStatus(@PathVariable Long id);
 }
