@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class ProductCreateDto {
 
     @NotBlank(message = "Product name must not be empty")
-    @Pattern(regexp = "^[A-Za-z]+$", message = "The name must contain only Latin letters")
+    @Pattern(regexp = "^[A-Za-z0-9 ]+$", message = "The name must contain only Latin letters")
     private String name;
 
     @NotBlank(message = "Description must not be empty")

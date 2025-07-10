@@ -250,23 +250,23 @@ class CartServiceImplTest {
         ShopUser user = new ShopUser();
         user.setId(1L);
 
-        when(shopUserService.getShopUser()).thenReturn(user);
-
         Cart cart = new Cart();
-
+        cart.setUser(user);
         HashSet<CartItem> cartItems = new HashSet<>();
         cartItems.add(new CartItem());
         cartItems.add(new CartItem());
         cart.setCartItems(cartItems);
 
+        when(shopUserService.getShopUser()).thenReturn(user);
         when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
         when(cartRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         cartServiceImpl.clearCart();
 
-        assertEquals(0, cart.getCartItems().size());
+        assertTrue(cart.getCartItems().isEmpty(), "Cart items should be cleared");
+        verify(shopUserService).getShopUser();
+        verify(cartRepository).findByUserId(user.getId());
         verify(cartRepository).save(cart);
-
     }
 
     @Test
@@ -284,6 +284,7 @@ class CartServiceImplTest {
         cartServiceImpl.deleteById();
 
         verify(cartRepository).delete(existCart);
+        verify(shopUserService).getShopUser();
 
         when(cartRepository.findByUserId(existUser.getId())).thenReturn(Optional.empty());
 
@@ -295,14 +296,12 @@ class CartServiceImplTest {
 
 
     @Test
-    void testDeleteCartItem() {
+    void deleteCartItem_shouldRemoveItemSuccessfully() {
         ShopUser user = new ShopUser();
         user.setId(1L);
         when(shopUserService.getShopUser()).thenReturn(user);
 
         Long productId = 2L;
-        Long missingProductId = 999L;
-
         Product product = new Product();
         product.setId(productId);
 
@@ -310,16 +309,42 @@ class CartServiceImplTest {
         cartItem.setProduct(product);
 
         Cart cart = new Cart();
+        cart.setUser(user);
         cart.setCartItems(new HashSet<>(Set.of(cartItem)));
 
         when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
 
         cartServiceImpl.deleteCartItem(productId);
+
         assertFalse(cart.getCartItems().contains(cartItem), "CartItem should be removed");
+        verify(shopUserService).getShopUser();
+        verify(cartRepository).findByUserId(user.getId());
+    }
+
+    @Test
+    void deleteCartItem_shouldThrowExceptionWhenItemNotFound() {
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+        when(shopUserService.getShopUser()).thenReturn(user);
+
+        Long missingProductId = 999L;
+
+        CartItem existingItem = new CartItem();
+        Product existingProduct = new Product();
+        existingProduct.setId(2L);
+        existingItem.setProduct(existingProduct);
+
+        Cart cart = new Cart();
+        cart.setCartItems(new HashSet<>(Set.of(existingItem)));
+
+        when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
 
         CartItemNotFoundException exception = assertThrows(CartItemNotFoundException.class, () ->
                 cartServiceImpl.deleteCartItem(missingProductId));
+
         assertEquals("Cart item not found in cart", exception.getMessage());
+        verify(shopUserService).getShopUser();
+        verify(cartRepository).findByUserId(user.getId());
     }
 
     @Test

@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Data
 @Builder
+@ToString(exclude = {"user", "cartItems"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

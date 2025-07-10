@@ -8,14 +8,17 @@ import com.telran.store.entity.ShopUser;
 import com.telran.store.exception.CartItemNotFoundException;
 import com.telran.store.exception.CartNotFoundException;
 import com.telran.store.exception.ProductNotFoundException;
+import com.telran.store.repository.CartItemRepository;
 import com.telran.store.repository.CartRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+@Slf4j
 @Service
 public class CartServiceImpl implements CartService{
 
@@ -28,6 +31,9 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private ShopUserService shopUserService;
 
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
     @Override
     public Cart create(ShopUser user) {
         Cart cart = cartRepository
@@ -36,6 +42,7 @@ public class CartServiceImpl implements CartService{
         if (cart.getId() != null) {
             return cart;
         }
+        log.debug("Creating new cart for user {}", user.getId());
         return cartRepository.save(cart);
     }
 
@@ -66,8 +73,9 @@ public class CartServiceImpl implements CartService{
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
         }
-
+        cartItemRepository.save(cartItem);
         this.save(cart);
+        log.debug("Added a new cart item for user {}", cart.getUser().getId());
         return cartItem;
     }
 
@@ -82,6 +90,7 @@ public class CartServiceImpl implements CartService{
                 .orElseThrow(() -> new ProductNotFoundException("Product not found in cart"));
 
         cartItem.setQuantity(request.getQuantity());
+        log.debug("Cart item edited: {}", cartItem);
         return save(cart);
     }
 
@@ -96,6 +105,7 @@ public class CartServiceImpl implements CartService{
         Cart cart = getById();
         cart.getCartItems().clear();
         cartRepository.save(cart);
+        log.info("Deleted all cart items for user: {}", cart.getUser().getId());
     }
 
     @Override
@@ -103,6 +113,7 @@ public class CartServiceImpl implements CartService{
     public void deleteById() {
         Cart cart = getById();
         cartRepository.delete(cart);
+        log.debug("Deleted carts for user: {}", cart.getUser().getId());
     }
 
     @Transactional
@@ -122,10 +133,12 @@ public class CartServiceImpl implements CartService{
             throw new CartItemNotFoundException("Cart item not found in cart");
         }
         cartItems.remove(cartItem);
+        log.info("Deleted a cart item for user {}", cart.getUser().getId());
     }
 
     @Override
     public Cart save(Cart cart) {
+        log.debug("Saving cart for user {}", cart.getUser().getId());
         return cartRepository.save(cart);
     }
 }

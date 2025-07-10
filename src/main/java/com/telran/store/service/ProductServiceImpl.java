@@ -7,6 +7,7 @@ import com.telran.store.exception.NotFoundProductWithDiscountPrice;
 import com.telran.store.exception.ProductNotFoundException;
 import com.telran.store.mapper.ProductMapper;
 import com.telran.store.repository.ProductRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,10 +16,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -33,7 +36,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product create(Product product) {
-        return productRepository.save(product);
+        LocalDateTime now = LocalDateTime.now();
+        product.setCreatedAt(now);
+        product.setUpdatedAt(now);
+        Product savedProduct = productRepository.save(product);
+        log.debug("Product created: {}", savedProduct);
+        log.info("Product saved with id: {}", savedProduct.getId());
+        return savedProduct;
     }
 
     @Override
@@ -77,20 +86,24 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteById(long productId) {
         productRepository.deleteById(productId);
+        log.info("Product with ID: {} was deleted", productId);
     }
 
     @Override
     public Product edit(Long id, ProductCreateDto productCreateDto) {
         Product product = getById(id);
 
+        log.debug("Current product data before changes: {}", product);
         productMapper.updateProductFromDto(productCreateDto, product);
 
-        if (productCreateDto.getCategory() != null && productCreateDto.getCategory().getCategoryId() != null) {
+        if (productCreateDto.getCategory() != null) {
             Category category = categoryService.getById(productCreateDto.getCategory().getCategoryId());
             product.setCategory(category);
         }
-
-        return productRepository.save(product);
+        product.setUpdatedAt(LocalDateTime.now());
+        Product savedProduct = productRepository.save(product);
+        log.debug("Product edited: {}", savedProduct);
+        return savedProduct;
     }
 
     @Override
@@ -119,6 +132,8 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
 
         int index = new Random().nextInt(topDiscount.size());
-        return topDiscount.get(index);
+        Product product = topDiscount.get(index);
+        log.info("Daily product is product with id: {}", product.getId());
+        return product;
     }
 }

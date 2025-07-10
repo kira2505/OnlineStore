@@ -14,6 +14,7 @@ import java.util.Set;
 
 @Data
 @Builder
+@ToString(exclude = {"favorites", "orders", "cart", "payments"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

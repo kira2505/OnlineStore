@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
+@ToString(exclude = "cart")
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
