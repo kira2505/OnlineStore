@@ -1,6 +1,5 @@
 package com.telran.store.service;
 
-import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserDto;
 import com.telran.store.entity.ShopUser;
 import com.telran.store.enums.Role;
@@ -72,6 +71,7 @@ class ShopUserServiceImplTest {
         ShopUser user = ShopUser.builder().id(1L).name("Alex").build();
 
         doNothing().when(shopUserRepository).deleteById(user.getId());
+        when(shopUserRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         shopUserService.deleteById(user.getId());
 
@@ -173,5 +173,21 @@ class ShopUserServiceImplTest {
         ShopUser result = shopUserService.getShopUser();
 
         assertEquals(user, result);
+    }
+
+    @Test
+    void testAssignAdminStatus() {
+        Long userId = 1L;
+        ShopUser user = new ShopUser();
+        user.setId(userId);
+        user.setRole(Role.ROLE_USER);
+
+        when(shopUserRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(shopUserRepository.save(any(ShopUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ShopUser result = shopUserService.assignAdminStatus(userId);
+
+        assertEquals(Role.ROLE_ADMIN, result.getRole());
+        verify(shopUserRepository).save(user);
     }
 }

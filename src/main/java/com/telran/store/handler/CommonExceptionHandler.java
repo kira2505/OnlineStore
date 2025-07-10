@@ -31,7 +31,8 @@ public class CommonExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({OrderAlreadyCompletedException.class, FavoriteAlreadyExistsException.class})
+    @ExceptionHandler({OrderAlreadyCompletedException.class, OrderAlreadyCanceledException.class,
+                       FavoriteAlreadyExistsException.class})
     public ResponseEntity<Object> handleConflict(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }

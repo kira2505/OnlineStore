@@ -51,6 +51,7 @@ public class ShopUserServiceImpl implements ShopUserService {
     @Override
     public void deleteById(long id) {
         ShopUser user = getById(id);
+        log.info("User with ID {} has been deleted", user.getId());
         shopUserRepository.deleteById(user.getId());
     }
 
@@ -58,6 +59,7 @@ public class ShopUserServiceImpl implements ShopUserService {
     public ShopUser edit(ShopUserDto shopUser) {
         ShopUser user = getShopUser();
         shopUserMapper.toUpdateEntity(user, shopUser);
+        log.info("User with ID: {} updated", user.getId());
         return shopUserRepository.save(user);
     }
 

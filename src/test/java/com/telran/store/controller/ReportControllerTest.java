@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -38,30 +39,32 @@ class ReportControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-//    @Test
-//    void mostCancelled() throws Exception {
-//        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
-//        when(reportService.mostCancelled()).thenReturn(products);
-//
-//        mockMvc.perform(get("/reports/most-cancelled"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$[0].productName").value("Product"))
-//                .andExpect(jsonPath("$[0].totalQuantity").value(5));
-//    }
-//
-//    @Test
-//    void mostPurchased() throws Exception {
-//        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
-//        when(reportService.mostPurchased()).thenReturn(products);
-//
-//        mockMvc.perform(get("/reports/top-sellers"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$[0].productName").value("Product"))
-//                .andExpect(jsonPath("$[0].totalQuantity").value(5));
-//
-//    }
+    @Test
+    void mostCancelled() throws Exception {
+        List<ProductSalesDTO> products = List.of(new ProductSalesDTO(1L, "Product", 5));
+        when(reportService.mostCancelled()).thenReturn(products);
+
+        mockMvc.perform(get("/reports/most-cancelled"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].productId").value(1L))
+                .andExpect(jsonPath("$[0].productName").value("Product"))
+                .andExpect(jsonPath("$[0].totalQuantity").value(5));
+    }
+
+    @Test
+    void mostPurchased() throws Exception {
+        List<ProductSalesDTO> products = List.of(new ProductSalesDTO(1L, "Product", 5));
+        when(reportService.mostPurchased()).thenReturn(products);
+
+        mockMvc.perform(get("/reports/top-sellers"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].productId").value(1L))
+                .andExpect(jsonPath("$[0].productName").value("Product"))
+                .andExpect(jsonPath("$[0].totalQuantity").value(5));
+
+    }
 
     @Test
     void getProfit() throws Exception{
@@ -70,7 +73,7 @@ class ReportControllerTest {
 
         when(reportService.getProfit(any(ReportRequestDto.class))).thenReturn(profit);
 
-        mockMvc.perform(get("/reports/profit")
+        mockMvc.perform(post("/reports/profit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())

@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -33,37 +32,37 @@ class ReportServiceImpTest {
     @InjectMocks
     private ReportServiceImp reportService;
 
-//    @Test
-//    void testMostPurchased() {
-//        List<ProductSalesDTO> mockList = List.of(
-//                new ProductSalesDTO("Product 1", 10),
-//                new ProductSalesDTO("Product 2", 5)
-//        );
-//        Pageable pageable = PageRequest.of(0, 10);
-//        when(orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable)).thenReturn(mockList);
-//
-//        List<ProductSalesDTO> result = reportService.mostPurchased();
-//
-//        assertEquals(2, result.size());
-//        assertEquals("Product 1", result.get(0).getProductName());
-//        verify(orderRepository).findProductSalesByStatus(Status.COMPLETED, pageable);
-//    }
-//
-//    @Test
-//    void testMostCancelled() {
-//        List<ProductSalesDTO> mockList = List.of(
-//                new ProductSalesDTO("Product 1", 10),
-//                new ProductSalesDTO("Product 2", 5)
-//        );
-//        Pageable pageable = PageRequest.of(0, 10);
-//        when(orderRepository.findProductSalesByStatus(Status.CANCELED, pageable)).thenReturn(mockList);
-//
-//        List<ProductSalesDTO> result = reportService.mostCancelled();
-//
-//        assertEquals(2, result.size());
-//        assertEquals("Product 1", result.get(0).getProductName());
-//        verify(orderRepository).findProductSalesByStatus(Status.CANCELED, pageable);
-//    }
+    @Test
+    void testMostPurchased() {
+        List<ProductSalesDTO> mockList = List.of(
+                new ProductSalesDTO(1L,"Product 1", 10),
+                new ProductSalesDTO(2L, "Product 2", 5)
+        );
+        Pageable pageable = PageRequest.of(0, 10);
+        when(orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable)).thenReturn(mockList);
+
+        List<ProductSalesDTO> result = reportService.mostPurchased();
+
+        assertEquals(2, result.size());
+        assertEquals("Product 1", result.get(0).getProductName());
+        verify(orderRepository).findProductSalesByStatus(Status.COMPLETED, pageable);
+    }
+
+    @Test
+    void testMostCancelled() {
+        List<ProductSalesDTO> mockList = List.of(
+                new ProductSalesDTO(1L, "Product 1", 10),
+                new ProductSalesDTO(2L, "Product 2", 5)
+        );
+        Pageable pageable = PageRequest.of(0, 10);
+        when(orderRepository.findProductSalesByStatus(Status.CANCELED, pageable)).thenReturn(mockList);
+
+        List<ProductSalesDTO> result = reportService.mostCancelled();
+
+        assertEquals(2, result.size());
+        assertEquals("Product 1", result.get(0).getProductName());
+        verify(orderRepository).findProductSalesByStatus(Status.CANCELED, pageable);
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {"hours", "minutes", "days", "month", "years"})

@@ -9,7 +9,6 @@ import com.telran.store.exception.*;
 import com.telran.store.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
 
         Set<CartItem> cartItems = user.getCart().getCartItems();
         if (cartItems.isEmpty()) {
+            log.warn("User with ID {} tried to create an order with an empty cart", user.getId());
             throw new EmptyCartException("No cart items found");
         }
 
@@ -61,20 +61,28 @@ public class OrderServiceImpl implements OrderService {
             CartItem cartItem = cartItemMap.get(orderItemCreateDto.getProductId());
 
             if (cartItem == null) {
+                log.warn("User with ID {} tried to order product ID {} not in their cart",
+                        user.getId(), orderItemCreateDto.getProductId());
                 throw new CartItemNotFoundException("Product with ID " +
                         orderItemCreateDto.getProductId() + " is not in the cart");
             } else {
                 orderItem.setProduct(cartItem.getProduct());
 
                 if (cartItem.getQuantity() < orderItemCreateDto.getQuantity()) {
+                    log.warn("User with ID: {} tried to order more than available for product ID: {}",
+                            user.getId(), orderItemCreateDto.getProductId());
                     throw new InsufficientProductQuantityException("Not enough quantity for product ");
                 }
 
                 if (cartItem.getQuantity() - orderItemCreateDto.getQuantity() == 0) {
                     user.getCart().getCartItems().remove(cartItem);
+                    log.debug("Product with ID: {} has been deleted from cart with ID: {}",
+                            orderItemCreateDto.getProductId(), user.getCart().getId());
                 } else {
                     cartItem.setQuantity(cartItem.getQuantity() - orderItemCreateDto.getQuantity());
                     user.getCart().getCartItems().add(cartItem);
+                    log.debug("A new quantity has been set for the product with ID: {} in cart with ID: {}",
+                            orderItemCreateDto.getProductId(), user.getCart().getId());
                 }
             }
             orderItem.setPriceAtPurchase(cartItem.getPrice());
@@ -86,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(getTotalAmount(order));
         order.setPaymentStatus(PaymentStatus.PENDING_PAID);
         cartService.save(user.getCart());
+        log.debug("Cart with ID: {} has been update from order", user.getCart().getId());
 
         Order save = orderRepository.save(order);
         log.info("Order with ID: {} successfully saved", save.getId());
@@ -126,18 +135,29 @@ public class OrderServiceImpl implements OrderService {
     public Order cancelOrder(Long orderId) {
         ShopUser user = shopUserService.getShopUser();
         Order order = getById(orderId);
+        log.info("User with ID: {} attempts to cancel order ID: {}", user.getId(), orderId);
 
         if (!order.getShopUser().getId().equals(user.getId())) {
+            log.warn("User with ID: {} tried to cancel an order that does not belong to them: order ID: {}",
+                    user.getId(), orderId);
             throw new OrderNotFoundException("Order with id " + orderId + " not found");
         }
 
         if (Status.COMPLETED.equals(order.getStatus())) {
+            log.warn("User with ID: {} attempted to cancel a completed order ID: {}", user.getId(), orderId);
             throw new OrderAlreadyCompletedException("Order is already completed and cannot be canceled");
+        }
+
+        if (Status.CANCELED.equals(order.getStatus())) {
+            log.warn("User with ID: {} attempted to cancel an already canceled order ID: {}", user.getId(), orderId);
+            throw new OrderAlreadyCanceledException("Order is already canceled");
         }
 
         if (PaymentStatus.PENDING_PAID.equals(order.getPaymentStatus())) {
             order.setPaymentStatus(PaymentStatus.CANCELED);
+            log.debug("Payment status for order with ID: {} set to CANCELED", orderId);
         } else {
+            log.debug("Payment status for order with ID: {} set to REFUND", orderId);
             order.setPaymentStatus(PaymentStatus.REFUND);
         }
         order.setStatus(Status.CANCELED);

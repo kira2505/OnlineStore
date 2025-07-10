@@ -42,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteById(long id) {
         categoryRepository.deleteById(id);
+        log.info("Category with ID: {} has been deleted", id);
     }
 
     @Override
