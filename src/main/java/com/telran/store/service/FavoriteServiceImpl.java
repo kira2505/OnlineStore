@@ -43,6 +43,7 @@ public class FavoriteServiceImpl implements FavoriteService{
 
         boolean exists = favoriteRepository.existsByProductsIdAndShopUserId(productById.getId(), userById.getId());
         if (exists) {
+            log.error("Product with ID: {} already exists", dto.getProductId());
             throw new FavoriteAlreadyExistsException("This product is already in your favorites.");
         }
 

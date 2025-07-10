@@ -42,11 +42,14 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal totalPrice = orderService.getTotalAmount(order);
 
         if (PaymentStatus.PAID.equals(order.getPaymentStatus()) || PaymentStatus.COMPLETED.equals(order.getPaymentStatus())) {
+            log.error("Order with ID: {} already has payment status: {}",  paymentCreateDto.getOrderId(),  order.getPaymentStatus());
             throw new OrderAlreadyPaidException("Order has already been paid");
         }
 
         if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
             BigDecimal remainingAmount = totalPrice.subtract(order.getPaymentAmount());
+            log.error("Payment exceeds allowed amount. Order ID: {}, Trying to pay: {}, Remaining: {}",
+                    order.getId(), paymentCreateDto.getAmount(), remainingAmount);
             throw new AmountPaymentExceedsOrderTotalAmount("The amount of payment exceeds the total amount of the order\n" +
                     "Payment exceeds the remaining amount. You need to pay only: " + remainingAmount);
         }
@@ -59,14 +62,22 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmount(paymentCreateDto.getAmount());
         payment.setDateTime(LocalDateTime.now());
 
-        log.debug("Payment created: {}", payment);
+        log.debug("New payment created: amount = {}, userId = {}, orderId = {}, timestamp = {}",
+                payment.getAmount(),
+                payment.getUser().getId(),
+                payment.getOrder().getId(),
+                payment.getDateTime());
 
         order.getPayments().add(payment);
         order.setPaymentStatus(order.getPaymentAmount().compareTo(totalPrice) == 0 ? PaymentStatus.PAID
                 : PaymentStatus.PARTIALLY_PAID);
 
         Order orderEntity = orderService.saveOrder(order);
-        log.info("Payment was made for the order: {}", orderEntity);
+        log.info("Payment of {} applied to order ID: {}. New paid amount: {}, Payment status: {}",
+                payment.getAmount(),
+                orderEntity.getId(),
+                orderEntity.getPaymentAmount(),
+                orderEntity.getPaymentStatus());
         return orderEntity.getPayments().get(orderEntity.getPayments().size() - 1);
     }
 

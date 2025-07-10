@@ -111,6 +111,7 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
 
         if (dailyProducts.isEmpty()) {
+            log.error("Product not found");
             throw new NotFoundProductWithDiscountPrice("There are no products with correct prices");
         }
 
