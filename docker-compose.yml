@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: onlinegardenshop
+    environment:
+      POSTGRES_DB: onlinegardenshop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - online_garden_net
+    restart: always
+
+  online_garden_shop:
+    image: online_garden_shop
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/onlinegardenshop
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - online_garden_net
+    restart: always
+
+networks:
+  online_garden_net:
+    driver: bridge
