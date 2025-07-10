@@ -7,7 +7,6 @@ import org.mapstruct.Mapper;
 
 import java.util.Set;
 
-
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface FavoriteMapper {
 

@@ -37,7 +37,6 @@ public class PaymentController implements PaymentApi {
         return paymentMapper.toDtoList(paymentService.getAllById(orderId));
     }
 
-
     @Override
     public List<OrderPendingPaidDto> getOrdersWaitingMoreThan(@RequestParam int days) {
         return paymentService.getWaiting(days);
