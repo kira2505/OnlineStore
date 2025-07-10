@@ -335,9 +335,11 @@ class CartServiceImplTest {
         existingItem.setProduct(existingProduct);
 
         Cart cart = new Cart();
+        cart.setUser(user);
         cart.setCartItems(new HashSet<>(Set.of(existingItem)));
 
         when(cartRepository.findByUserId(user.getId())).thenReturn(Optional.of(cart));
+
 
         CartItemNotFoundException exception = assertThrows(CartItemNotFoundException.class, () ->
                 cartServiceImpl.deleteCartItem(missingProductId));

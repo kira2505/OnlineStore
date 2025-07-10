@@ -132,7 +132,7 @@ public class CartServiceImpl implements CartService{
             }
         }
         if (cartItem == null) {
-            log.error("Cart item not found for user {}", getById().getUser().getId());
+            log.error("Cart item not found for user {}", cart.getUser().getId());
             throw new CartItemNotFoundException("Cart item not found in cart");
         }
         cartItems.remove(cartItem);
