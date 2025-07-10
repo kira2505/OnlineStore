@@ -47,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
 
         Set<CartItem> cartItems = user.getCart().getCartItems();
         if (cartItems.isEmpty()) {
+            log.error("User with ID {} tried to create an order with an empty cart", user.getId());
             throw new EmptyCartException("No cart items found");
         }
 
@@ -60,12 +61,16 @@ public class OrderServiceImpl implements OrderService {
             CartItem cartItem = cartItemMap.get(orderItemCreateDto.getProductId());
 
             if (cartItem == null) {
+                log.error("User with ID {} tried to order product ID {} not in their cart",
+                        user.getId(), orderItemCreateDto.getProductId());
                 throw new CartItemNotFoundException("Product with ID " +
                         orderItemCreateDto.getProductId() + " is not in the cart");
             } else {
                 orderItem.setProduct(cartItem.getProduct());
 
                 if (cartItem.getQuantity() < orderItemCreateDto.getQuantity()) {
+                    log.error("User with ID: {} tried to order more than available for product ID: {}",
+                            user.getId(), orderItemCreateDto.getProductId());
                     throw new InsufficientProductQuantityException("Not enough quantity for product ");
                 }
 
@@ -133,14 +138,18 @@ public class OrderServiceImpl implements OrderService {
         log.info("User with ID: {} attempts to cancel order ID: {}", user.getId(), orderId);
 
         if (!order.getShopUser().getId().equals(user.getId())) {
+            log.error("User with ID: {} tried to cancel an order that does not belong to them: order ID: {}",
+                    user.getId(), orderId);
             throw new OrderNotFoundException("Order with id " + orderId + " not found");
         }
 
         if (Status.COMPLETED.equals(order.getStatus())) {
+            log.error("User with ID: {} attempted to cancel a completed order ID: {}", user.getId(), orderId);
             throw new OrderAlreadyCompletedException("Order is already completed and cannot be canceled");
         }
 
         if (Status.CANCELED.equals(order.getStatus())) {
+            log.error("User with ID: {} attempted to cancel an already canceled order ID: {}", user.getId(), orderId);
             throw new OrderAlreadyCanceledException("Order is already canceled");
         }
 

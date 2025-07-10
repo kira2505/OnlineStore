@@ -51,7 +51,7 @@ public class ShopUserServiceImpl implements ShopUserService {
     @Override
     public void deleteById(long id) {
         ShopUser user = getById(id);
-        log.info("User with ID {} has been deleted", user.getId());
+        log.info("User with ID: {} has been deleted", user.getId());
         shopUserRepository.deleteById(user.getId());
     }
 
