@@ -62,14 +62,22 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setAmount(paymentCreateDto.getAmount());
         payment.setDateTime(LocalDateTime.now());
 
-        log.debug("Payment created: {}", payment);
+        log.debug("New payment created: amount = {}, userId = {}, orderId = {}, timestamp = {}",
+                payment.getAmount(),
+                payment.getUser().getId(),
+                payment.getOrder().getId(),
+                payment.getDateTime());
 
         order.getPayments().add(payment);
         order.setPaymentStatus(order.getPaymentAmount().compareTo(totalPrice) == 0 ? PaymentStatus.PAID
                 : PaymentStatus.PARTIALLY_PAID);
 
         Order orderEntity = orderService.saveOrder(order);
-        log.info("Payment was made for the order: {}", orderEntity);
+        log.info("Payment of {} applied to order ID: {}. New paid amount: {}, Payment status: {}",
+                payment.getAmount(),
+                orderEntity.getId(),
+                orderEntity.getPaymentAmount(),
+                orderEntity.getPaymentStatus());
         return orderEntity.getPayments().get(orderEntity.getPayments().size() - 1);
     }
 
