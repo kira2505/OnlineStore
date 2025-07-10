@@ -60,6 +60,7 @@ public class CartServiceImpl implements CartService{
                 break;
             }
         }
+        log.debug("Product with ID: {} has been added", product.getId());
 
         if (cartItem == null) {
             cartItem = new CartItem(cart,product, cartRequest.getQuantity());
@@ -72,6 +73,7 @@ public class CartServiceImpl implements CartService{
             cart.getCartItems().add(cartItem);
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
+            log.debug("The new quantity was calculated: {}",  cartItem.getQuantity());
         }
         cartItemRepository.save(cartItem);
         this.save(cart);
@@ -130,6 +132,7 @@ public class CartServiceImpl implements CartService{
             }
         }
         if (cartItem == null) {
+            log.error("Cart item not found for user {}", getById().getUser().getId());
             throw new CartItemNotFoundException("Cart item not found in cart");
         }
         cartItems.remove(cartItem);
