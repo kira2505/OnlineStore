@@ -3,10 +3,8 @@ package com.telran.store.mapper;
 import com.telran.store.dto.ProductCreateDto;
 import com.telran.store.dto.ProductResponseDto;
 import com.telran.store.entity.Product;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
