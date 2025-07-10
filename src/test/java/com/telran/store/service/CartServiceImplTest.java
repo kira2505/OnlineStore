@@ -204,7 +204,7 @@ class CartServiceImplTest {
         dto.setQuantity(5);
 
         if (cartExists) {
-            when(cartItemRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(cartRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
             Cart result = cartServiceImpl.edit(dto);
 
             assertNotNull(result);
@@ -216,7 +216,7 @@ class CartServiceImplTest {
             assertEquals(5, updatedItem.getQuantity());
             assertEquals(product.getId(), updatedItem.getProduct().getId());
 
-            verify(cartItemRepository).save(any(CartItem.class));
+            verify(cartRepository).save(any(Cart.class));
         } else {
             ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () ->
                     cartServiceImpl.edit(dto)
@@ -350,6 +350,7 @@ class CartServiceImplTest {
     @Test
     void testSave() {
         Cart cart = new Cart();
+        cart.setUser(new ShopUser());
         when(cartRepository.save(any())).thenReturn(cart);
 
         Cart savedCart = cartServiceImpl.save(cart);

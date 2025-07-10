@@ -42,11 +42,14 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal totalPrice = orderService.getTotalAmount(order);
 
         if (PaymentStatus.PAID.equals(order.getPaymentStatus()) || PaymentStatus.COMPLETED.equals(order.getPaymentStatus())) {
+            log.error("Order with ID: {} already has payment status: {}",  paymentCreateDto.getOrderId(),  order.getPaymentStatus());
             throw new OrderAlreadyPaidException("Order has already been paid");
         }
 
         if (order.getPaymentAmount().add(paymentCreateDto.getAmount()).compareTo(totalPrice) > 0) {
             BigDecimal remainingAmount = totalPrice.subtract(order.getPaymentAmount());
+            log.error("Payment exceeds allowed amount. Order ID: {}, Trying to pay: {}, Remaining: {}",
+                    order.getId(), paymentCreateDto.getAmount(), remainingAmount);
             throw new AmountPaymentExceedsOrderTotalAmount("The amount of payment exceeds the total amount of the order\n" +
                     "Payment exceeds the remaining amount. You need to pay only: " + remainingAmount);
         }

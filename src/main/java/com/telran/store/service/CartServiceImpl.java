@@ -60,6 +60,7 @@ public class CartServiceImpl implements CartService{
                 break;
             }
         }
+        log.debug("Product with ID: {} has been added", product.getId());
 
         if (cartItem == null) {
             cartItem = new CartItem(cart,product, cartRequest.getQuantity());
@@ -72,6 +73,7 @@ public class CartServiceImpl implements CartService{
             cart.getCartItems().add(cartItem);
         } else {
             cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
+            log.debug("The new quantity was calculated: {}",  cartItem.getQuantity());
         }
         cartItemRepository.save(cartItem);
         this.save(cart);
@@ -87,7 +89,10 @@ public class CartServiceImpl implements CartService{
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(cartItems -> cartItems.getProduct().getId().equals(request.getProductId()))
                 .findFirst()
-                .orElseThrow(() -> new ProductNotFoundException("Product not found in cart"));
+                .orElseGet(() -> {
+                    log.error("Product with ID {} not found in cart for user {}", request.getProductId(), cart.getUser().getId());
+                    throw new ProductNotFoundException("Product not found in cart");
+                });
 
         cartItem.setQuantity(request.getQuantity());
         log.debug("Cart item edited: {}", cartItem);
@@ -96,8 +101,12 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Cart getById() {
-        return cartRepository.findByUserId(shopUserService.getShopUser().getId())
-                .orElseThrow(() -> new CartNotFoundException("Cart by user id " + shopUserService.getShopUser().getId() + " not found"));
+        Long userId = shopUserService.getShopUser().getId();
+        return cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    log.error("Cart not found for user with ID {}", userId);
+                    throw new CartNotFoundException("Cart by user id " + userId + " not found");
+                });
     }
 
     @Override
@@ -130,6 +139,7 @@ public class CartServiceImpl implements CartService{
             }
         }
         if (cartItem == null) {
+            log.error("Cart item not found for user {}", getById().getUser().getId());
             throw new CartItemNotFoundException("Cart item not found in cart");
         }
         cartItems.remove(cartItem);
