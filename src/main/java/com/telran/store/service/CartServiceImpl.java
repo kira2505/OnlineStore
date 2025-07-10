@@ -89,10 +89,7 @@ public class CartServiceImpl implements CartService{
         CartItem cartItem = cart.getCartItems().stream()
                 .filter(cartItems -> cartItems.getProduct().getId().equals(request.getProductId()))
                 .findFirst()
-                .orElseGet(() -> {
-                    log.error("Product with ID {} not found in cart for user {}", request.getProductId(), cart.getUser().getId());
-                    throw new ProductNotFoundException("Product not found in cart");
-                });
+                .orElseThrow(() -> new ProductNotFoundException("Product not found in cart"));
 
         cartItem.setQuantity(request.getQuantity());
         log.debug("Cart item edited: {}", cartItem);
@@ -101,12 +98,8 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public Cart getById() {
-        Long userId = shopUserService.getShopUser().getId();
-        return cartRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    log.error("Cart not found for user with ID {}", userId);
-                    throw new CartNotFoundException("Cart by user id " + userId + " not found");
-                });
+        return cartRepository.findByUserId(shopUserService.getShopUser().getId())
+                .orElseThrow(() -> new CartNotFoundException("Cart by user id " + shopUserService.getShopUser().getId() + " not found"));
     }
 
     @Override
