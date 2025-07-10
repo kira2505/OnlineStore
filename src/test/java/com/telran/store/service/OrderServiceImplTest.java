@@ -25,14 +25,14 @@ class OrderServiceImplTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @Mock
-    private ShopUserRepository userRepository;
-
     @InjectMocks
     private OrderServiceImpl orderService;
 
     @Mock
     private ShopUserService shopUserService;
+
+    @Mock
+    private CartService cartService;
 
     @Test
     void testSuccessCreateOrder() {
@@ -72,17 +72,15 @@ class OrderServiceImplTest {
         OrderCreateDto createDto = new OrderCreateDto();
         createDto.setDeliveryAddress("address");
         createDto.setDeliveryMethod("courier");
-        createDto.setOrderItems(List.of(orderItemDto, orderItemDtoTwo));
+        createDto.setOrderItems(List.of(orderItemDto,  orderItemDtoTwo));
 
         when(shopUserService.getShopUser()).thenReturn(shopUser);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
         when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         Order order = orderService.createOrder(createDto);
 
         assertNotNull(order);
-        assertEquals(userId, order.getShopUser().getId());
         assertEquals(2, order.getOrderItems().size());
         assertEquals(Status.NEW, order.getStatus());
         assertEquals(PaymentStatus.PENDING_PAID, order.getPaymentStatus());
@@ -98,7 +96,6 @@ class OrderServiceImplTest {
         shopUser.setCart(cart);
 
         when(shopUserService.getShopUser()).thenReturn(shopUser);
-        when(userRepository.findById(shopUser.getId())).thenReturn(Optional.of(shopUser));
 
         OrderCreateDto createDto = new OrderCreateDto();
         createDto.setDeliveryAddress("address");
@@ -108,7 +105,6 @@ class OrderServiceImplTest {
         assertThrows(EmptyCartException.class,
                 () -> orderService.createOrder(createDto));
 
-        verify(userRepository).findById(shopUser.getId());
         verifyNoInteractions(orderRepository);
     }
 
@@ -140,7 +136,6 @@ class OrderServiceImplTest {
         createDto.setOrderItems(List.of(orderItemDto));
 
         when(shopUserService.getShopUser()).thenReturn(shopUser);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
 
         assertThrows(CartItemNotFoundException.class, () -> {
             orderService.createOrder(createDto);
@@ -180,7 +175,6 @@ class OrderServiceImplTest {
         orderCreateDto.setOrderItems(List.of(orderItemDto));
 
         when(shopUserService.getShopUser()).thenReturn(shopUser);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(shopUser));
 
         assertThrows(InsufficientProductQuantityException.class,
                 () -> orderService.createOrder(orderCreateDto));
@@ -190,19 +184,10 @@ class OrderServiceImplTest {
 
     @Test
     void testCreateOrderUserNotFound() {
-        long userId = 1L;
-
         OrderCreateDto createDto = new OrderCreateDto();
         createDto.setDeliveryAddress("address");
         createDto.setDeliveryMethod("courier");
         createDto.setOrderItems(new ArrayList<>());
-
-        ShopUser mockUser = ShopUser.builder().id(userId).build();
-        when(shopUserService.getShopUser()).thenReturn(mockUser);
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class,
-                () -> orderService.createOrder(createDto));
 
         verify(orderRepository, never()).save(any());
     }
@@ -325,51 +310,105 @@ class OrderServiceImplTest {
     }
 
     @Test
-    void testCancelOrderWithPendingPayment() {
+    void testCancelOrderWithPendingPaidPayment() {
+        ShopUser user = new ShopUser();
+        user.setId(1L);
+
         long orderId = 1L;
-        Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.PENDING_PAID).status(Status.NEW).build();
+        Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.PENDING_PAID).status(Status.NEW)
+                .shopUser(user).build();
 
+        when(shopUserService.getShopUser()).thenReturn(user);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Order canceledOrder = orderService.cancelOrder(orderId);
+        Order result = orderService.cancelOrder(orderId);
 
-        assertEquals(PaymentStatus.CANCELED, canceledOrder.getPaymentStatus());
-        assertEquals(Status.CANCELED, canceledOrder.getStatus());
-        verify(orderRepository).save(order);
+        assertEquals(Status.CANCELED, result.getStatus());
+        assertEquals(PaymentStatus.CANCELED, result.getPaymentStatus());
     }
 
     @Test
-    void testCancelOrderWithNonPendingPayment() {
-        Long orderId = 1L;
-        Order order = Order.builder().id(orderId).paymentStatus(PaymentStatus.PAID).status(Status.NEW).build();
+    void testCancelOrderWithPaidPayment() {
+        ShopUser user = new ShopUser();
+        user.setId(2L);
 
+        long orderId = 200L;
+        Order order = Order.builder()
+                .id(orderId)
+                .paymentStatus(PaymentStatus.PAID)
+                .status(Status.PROCESSING)
+                .shopUser(user)
+                .build();
+
+        when(shopUserService.getShopUser()).thenReturn(user);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Order canceledOrder = orderService.cancelOrder(orderId);
+        Order result = orderService.cancelOrder(orderId);
 
-        assertEquals(PaymentStatus.REFUND, canceledOrder.getPaymentStatus());
-        assertEquals(Status.CANCELED, canceledOrder.getStatus());
-        verify(orderRepository).save(order);
+        assertEquals(Status.CANCELED, result.getStatus());
+        assertEquals(PaymentStatus.REFUND, result.getPaymentStatus());
+    }
+
+    @Test
+    void testCancelOrderByNotOwnerShouldThrow() {
+        ShopUser user = new ShopUser();
+        user.setId(3L);
+
+        ShopUser orderOwner = new ShopUser();
+        orderOwner.setId(99L);
+
+        long orderId = 300L;
+        Order order = Order.builder()
+                .id(orderId)
+                .paymentStatus(PaymentStatus.PAID)
+                .status(Status.NEW)
+                .shopUser(orderOwner)
+                .build();
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThrows(OrderNotFoundException.class, () -> orderService.cancelOrder(orderId));
     }
 
     @Test
     void testCancelOrderAlreadyCompleted() {
-        Long orderId = 1L;
-        Order completedOrder = Order.builder()
+        ShopUser user = new ShopUser();
+        user.setId(4L);
+
+        long orderId = 400L;
+        Order order = Order.builder()
                 .id(orderId)
-                .status(Status.COMPLETED)
                 .paymentStatus(PaymentStatus.PAID)
+                .status(Status.COMPLETED)
+                .shopUser(user)
                 .build();
 
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(completedOrder));
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-        assertThrows(OrderAlreadyCompletedException.class, () -> {
-            orderService.cancelOrder(orderId);
-        });
+        assertThrows(OrderAlreadyCompletedException.class, () -> orderService.cancelOrder(orderId));
+    }
 
-        verify(orderRepository, never()).save(any());
+    @Test
+    void testCancelOrderAlreadyCanceled() {
+        ShopUser user = new ShopUser();
+        user.setId(5L);
+
+        long orderId = 500L;
+        Order order = Order.builder()
+                .id(orderId)
+                .paymentStatus(PaymentStatus.PAID)
+                .status(Status.CANCELED)
+                .shopUser(user)
+                .build();
+
+        when(shopUserService.getShopUser()).thenReturn(user);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThrows(OrderAlreadyCanceledException.class, () -> orderService.cancelOrder(orderId));
     }
 
     @Test

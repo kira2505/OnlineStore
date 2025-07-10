@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -36,8 +35,8 @@ class ReportServiceImpTest {
     @Test
     void testMostPurchased() {
         List<ProductSalesDTO> mockList = List.of(
-                new ProductSalesDTO("Product 1", 10),
-                new ProductSalesDTO("Product 2", 5)
+                new ProductSalesDTO(1L,"Product 1", 10),
+                new ProductSalesDTO(2L, "Product 2", 5)
         );
         Pageable pageable = PageRequest.of(0, 10);
         when(orderRepository.findProductSalesByStatus(Status.COMPLETED, pageable)).thenReturn(mockList);
@@ -52,8 +51,8 @@ class ReportServiceImpTest {
     @Test
     void testMostCancelled() {
         List<ProductSalesDTO> mockList = List.of(
-                new ProductSalesDTO("Product 1", 10),
-                new ProductSalesDTO("Product 2", 5)
+                new ProductSalesDTO(1L, "Product 1", 10),
+                new ProductSalesDTO(2L, "Product 2", 5)
         );
         Pageable pageable = PageRequest.of(0, 10);
         when(orderRepository.findProductSalesByStatus(Status.CANCELED, pageable)).thenReturn(mockList);

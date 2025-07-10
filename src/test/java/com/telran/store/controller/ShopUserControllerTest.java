@@ -1,8 +1,10 @@
 package com.telran.store.controller;
 
+import com.telran.store.dto.LoginRequestDto;
 import com.telran.store.dto.ShopUserCreateDto;
 import com.telran.store.dto.ShopUserResponseDto;
 import com.telran.store.entity.ShopUser;
+import com.telran.store.enums.Role;
 import com.telran.store.mapper.ShopUserMapper;
 import com.telran.store.service.ShopUserService;
 import com.telran.store.service.security.AuthenticationService;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
@@ -48,6 +51,37 @@ class ShopUserControllerTest {
     private AuthenticationService authenticationService;
 
     @Test
+    void testLogin() {
+        LoginRequestDto loginRequestDto = new LoginRequestDto("user@example.com", "password123");
+
+        String expectedToken = "jwtToken";
+
+        when(authenticationService.login(loginRequestDto)).thenReturn(expectedToken);
+
+        String actualToken = authenticationService.login(loginRequestDto);
+
+        assertEquals(expectedToken, actualToken);
+        verify(authenticationService, times(1)).login(loginRequestDto);
+    }
+
+    @Test
+    void testAssignAdminStatus() throws Exception {
+        long userId = 1L;
+        ShopUser shopUser = ShopUser.builder().id(userId).name("Alex").email("alex@gmail.com").phoneNumber("111222")
+                .role(Role.ROLE_ADMIN).build();
+
+        ShopUserResponseDto dto = new ShopUserResponseDto(userId, "Alex", "alex@gmail.com", "111222", Role.ROLE_ADMIN);
+
+        when(shopUserService.assignAdminStatus(userId)).thenReturn(shopUser);
+        when(shopUserMapper.toDto(shopUser)).thenReturn(dto);
+
+        mockMvc.perform(patch("/users/{id}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.role").value("ROLE_ADMIN"));
+    }
+
+    @Test
     void testGetAllUsers() throws Exception {
         List<ShopUser> shopUsers = List.of(
                 ShopUser.builder().id(1L).name("Alex").email("alex@gmail.com").phoneNumber("111222").build(),
@@ -70,12 +104,7 @@ class ShopUserControllerTest {
     @Test
     void testGetUserById() throws Exception {
         long userId = 1L;
-        ShopUser shopUser = ShopUser.builder()
-                .id(userId)
-                .name("Alex")
-                .email("alex@gmail.com")
-                .phoneNumber("111222")
-                .build();
+        ShopUser shopUser = ShopUser.builder().id(userId).name("Alex").email("alex@gmail.com").phoneNumber("111222").build();
 
         ShopUserResponseDto dto = new ShopUserResponseDto(userId, "Alex", "alex@gmail.com", "111222");
 

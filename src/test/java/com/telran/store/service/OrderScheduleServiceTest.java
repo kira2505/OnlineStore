@@ -27,13 +27,13 @@ class OrderScheduleServiceTest {
     @Test
     void testCancelExpiredNewOrders() {
         Order expiredPendingOrder = Order.builder().id(1L).status(Status.NEW).paymentStatus(PaymentStatus.PENDING_PAID)
-                .createdAt(LocalDateTime.now().minusMinutes(21)).build();
+                .createdAt(LocalDateTime.now().minusMinutes(2)).build();
 
         Order recentPendingOrder = Order.builder().id(2L).status(Status.NEW).paymentStatus(PaymentStatus.PENDING_PAID)
-                .createdAt(LocalDateTime.now().minusMinutes(10)).build();
+                .createdAt(LocalDateTime.now().minusMinutes(1)).build();
 
         Order expiredPaidOrder = Order.builder().id(3L).status(Status.NEW).paymentStatus(PaymentStatus.PAID)
-                .createdAt(LocalDateTime.now().minusMinutes(25)).build();
+                .createdAt(LocalDateTime.now().minusMinutes(3)).build();
 
         when(orderService.getAllByState(Status.NEW))
                 .thenReturn(List.of(expiredPendingOrder, recentPendingOrder, expiredPaidOrder));
