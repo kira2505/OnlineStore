@@ -1,0 +1,357 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="insert-shop-users" author="Kyra Subotovska">
+        <insert tableName="shop_users"> <column name="name" value="Alice Johnson"/><column name="email" value="alice@example.com"/><column name="phone_number" value="+123456789012"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Bob Smith"/><column name="email" value="bob.smith@example.com"/><column name="phone_number" value="+198765432109"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Charlie Lee"/><column name="email" value="charlie.lee@example.com"/><column name="phone_number" value="+4915123456789"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Dana White"/><column name="email" value="dana.white@example.com"/><column name="phone_number" value="+441234567890"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Evan Brooks"/><column name="email" value="evan.brooks@example.com"/><column name="phone_number" value="+33612345678"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Fiona Davis"/><column name="email" value="fiona.davis@example.com"/><column name="phone_number" value="+390612345678"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="George Hall"/><column name="email" value="george.hall@example.com"/><column name="phone_number" value="+5511998765432"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Hannah King"/><column name="email" value="hannah.king@example.com"/><column name="phone_number" value="+61891234567"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Ian Moore"/><column name="email" value="ian.moore@example.com"/><column name="phone_number" value="+27111234567"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_USER"/></insert>
+        <insert tableName="shop_users"> <column name="name" value="Admin User"/><column name="email" value="admin@example.com"/><column name="phone_number" value="+100000000000"/><column name="password_hash" value="$2a$10$PU.bV4WgBOBJMlX4J.vvvOClTEKLFlK1fMCb4FfR.KgwloAAQfXry"/><column name="role" value="ROLE_ADMIN"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-categories" author="Kyra Subotovska">
+        <insert tableName="categories"><column name="name" value="Garden Tools"/></insert>
+        <insert tableName="categories"><column name="name" value="Greenhouses and Tunnels"/></insert>
+        <insert tableName="categories"><column name="name" value="Seeds and Seedlings"/></insert>
+        <insert tableName="categories"><column name="name" value="Pots and Planters"/></insert>
+        <insert tableName="categories"><column name="name" value="Irrigation and Watering"/></insert>
+        <insert tableName="categories"><column name="name" value="Garden Furniture"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-products" author="Kyra Subotovska">
+        <insert tableName="products"><column name="name" value="Garden Shovel"/><column name="description" value="Durable steel shovel for heavy-duty digging"/><column name="price" valueNumeric="19.99"/><column name="category_id" valueNumeric="1"/><column name="discount_price" valueNumeric="15.99"/></insert>
+        <insert tableName="products"><column name="name" value="Pruning Shears"/><column name="description" value="High-quality pruning shears with ergonomic grip"/><column name="price" valueNumeric="15.49"/><column name="category_id" valueNumeric="1"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Greenhouse Kit"/><column name="description" value="Complete mini greenhouse for backyard gardening"/><column name="price" valueNumeric="279.99"/><column name="category_id" valueNumeric="2"/><column name="discount_price" valueNumeric="249.99"/></insert>
+        <insert tableName="products"><column name="name" value="Tomato Seeds"/><column name="description" value="Pack of 50 organic tomato seeds"/><column name="price" valueNumeric="3.99"/><column name="category_id" valueNumeric="3"/><column name="discount_price" valueNumeric="2.99"/></insert>
+        <insert tableName="products"><column name="name" value="Seedling Tray"/><column name="description" value="Reusable tray for starting seedlings indoors"/><column name="price" valueNumeric="2.99"/><column name="category_id" valueNumeric="3"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Ceramic Pot"/><column name="description" value="Elegant ceramic planter for home and garden"/><column name="price" valueNumeric="5.99"/><column name="category_id" valueNumeric="4"/><column name="discount_price" valueNumeric="4.99"/></insert>
+        <insert tableName="products"><column name="name" value="Plastic Planter Box"/><column name="description" value="Weather-resistant plastic box for flowers or herbs"/><column name="price" valueNumeric="9.99"/><column name="category_id" valueNumeric="4"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Watering Can"/><column name="description" value="Metal watering can with long spout"/><column name="price" valueNumeric="12.50"/><column name="category_id" valueNumeric="1"/><column name="discount_price" valueNumeric="10.00"/></insert>
+        <insert tableName="products"><column name="name" value="Compost Bin"/><column name="description" value="Outdoor compost bin for organic waste"/><column name="price" valueNumeric="34.90"/><column name="category_id" valueNumeric="2"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Lawn Fertilizer"/><column name="description" value="All-purpose lawn fertilizer"/><column name="price" valueNumeric="24.95"/><column name="category_id" valueNumeric="2"/><column name="discount_price" valueNumeric="19.99"/></insert>
+        <insert tableName="products"><column name="name" value="Rose Seeds"/><column name="description" value="Premium rose flower seeds"/><column name="price" valueNumeric="4.50"/><column name="category_id" valueNumeric="3"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Basil Seeds"/><column name="description" value="Fresh organic basil seeds"/><column name="price" valueNumeric="3.25"/><column name="category_id" valueNumeric="3"/><column name="discount_price" valueNumeric="2.25"/></insert>
+        <insert tableName="products"><column name="name" value="Hanging Basket"/><column name="description" value="Woven hanging basket for small plants"/><column name="price" valueNumeric="7.75"/><column name="category_id" valueNumeric="4"/><column name="discount_price" valueNumeric="6.50"/></insert>
+        <insert tableName="products"><column name="name" value="Rake"/><column name="description" value="Steel leaf rake with wooden handle"/><column name="price" valueNumeric="11.90"/><column name="category_id" valueNumeric="1"/><column name="discount_price"/></insert>
+        <insert tableName="products"><column name="name" value="Soil pH Meter"/><column name="description" value="Digital pH meter for soil testing"/><column name="price" valueNumeric="22.00"/><column name="category_id" valueNumeric="2"/><column name="discount_price" valueNumeric="17.99"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-carts" author="Kyra Subotovska">
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="1"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="2"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="3"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="4"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="5"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="6"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="7"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="8"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="9"/></insert>
+        <insert tableName="cart"><column name="shop_user_id" valueNumeric="10"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-cart-items" author="Kyra Subotovska">
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="1"/><column name="product_id" valueNumeric="2"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="15.49"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="1"/><column name="product_id" valueNumeric="5"/><column name="quantity" valueNumeric="3"/><column name="price" valueNumeric="2.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="2"/><column name="product_id" valueNumeric="3"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="279.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="2"/><column name="product_id" valueNumeric="7"/><column name="quantity" valueNumeric="2"/><column name="price" valueNumeric="9.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="3"/><column name="product_id" valueNumeric="6"/><column name="quantity" valueNumeric="4"/><column name="price" valueNumeric="5.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="3"/><column name="product_id" valueNumeric="1"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="19.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="4"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="5"/><column name="price" valueNumeric="3.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="4"/><column name="product_id" valueNumeric="10"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="24.95"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="5"/><column name="product_id" valueNumeric="8"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="12.50"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="5"/><column name="product_id" valueNumeric="11"/><column name="quantity" valueNumeric="3"/><column name="price" valueNumeric="4.50"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="6"/><column name="product_id" valueNumeric="9"/><column name="quantity" valueNumeric="2"/><column name="price" valueNumeric="34.90"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="6"/><column name="product_id" valueNumeric="13"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="7.75"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="7"/><column name="product_id" valueNumeric="14"/><column name="quantity" valueNumeric="4"/><column name="price" valueNumeric="11.90"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="7"/><column name="product_id" valueNumeric="12"/><column name="quantity" valueNumeric="2"/><column name="price" valueNumeric="3.25"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="8"/><column name="product_id" valueNumeric="15"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="22.00"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="9"/><column name="product_id" valueNumeric="1"/><column name="quantity" valueNumeric="3"/><column name="price" valueNumeric="19.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="9"/><column name="product_id" valueNumeric="5"/><column name="quantity" valueNumeric="2"/><column name="price" valueNumeric="2.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="10"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="2"/><column name="price" valueNumeric="3.99"/></insert>
+        <insert tableName="cart_items"><column name="cart_id" valueNumeric="10"/><column name="product_id" valueNumeric="7"/><column name="quantity" valueNumeric="1"/><column name="price" valueNumeric="9.99"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-orders" author="Kyra Subotovska">
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="1"/>
+            <column name="created_at" valueDate="2025-07-01T10:00:00"/>
+            <column name="updated_at" valueDate="2025-07-01T11:00:00"/>
+            <column name="delivery_address" value="123 Green St."/>
+            <column name="contact_phone" value="+123456789012"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="39.97"/>
+            <column name="total_amount" valueNumeric="39.97"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="2"/>
+            <column name="created_at" valueDate="2025-07-02T14:00:00"/>
+            <column name="updated_at" valueDate="2025-07-02T15:00:00"/>
+            <column name="delivery_address" value="456 Flower Rd."/>
+            <column name="contact_phone" value="+198765432109"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="59.99"/>
+            <column name="total_amount" valueNumeric="59.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="3"/>
+            <column name="created_at" valueDate="2025-07-03T09:30:00"/>
+            <column name="updated_at" valueDate="2025-07-03T10:15:00"/>
+            <column name="delivery_address" value="789 Oak Ave."/>
+            <column name="contact_phone" value="+123450987654"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="85.50"/>
+            <column name="total_amount" valueNumeric="85.50"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="4"/>
+            <column name="created_at" valueDate="2025-07-04T16:00:00"/>
+            <column name="updated_at" valueDate="2025-07-04T16:45:00"/>
+            <column name="delivery_address" value="321 Pine St."/>
+            <column name="contact_phone" value="+109876543210"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="23.75"/>
+            <column name="total_amount" valueNumeric="23.75"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="5"/>
+            <column name="created_at" valueDate="2025-07-05T11:20:00"/>
+            <column name="updated_at" valueDate="2025-07-05T12:00:00"/>
+            <column name="delivery_address" value="654 Maple Rd."/>
+            <column name="contact_phone" value="+198700112233"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="120.00"/>
+            <column name="total_amount" valueNumeric="120.00"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="6"/>
+            <column name="created_at" valueDate="2025-07-06T13:15:00"/>
+            <column name="updated_at" valueDate="2025-07-06T14:00:00"/>
+            <column name="delivery_address" value="987 Cedar Blvd."/>
+            <column name="contact_phone" value="+134567890123"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="49.99"/>
+            <column name="total_amount" valueNumeric="49.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="7"/>
+            <column name="created_at" valueDate="2025-07-07T08:45:00"/>
+            <column name="updated_at" valueDate="2025-07-07T09:30:00"/>
+            <column name="delivery_address" value="246 Birch Lane"/>
+            <column name="contact_phone" value="+109823456789"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="74.25"/>
+            <column name="total_amount" valueNumeric="74.25"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="8"/>
+            <column name="created_at" valueDate="2025-07-08T15:00:00"/>
+            <column name="updated_at" valueDate="2025-07-08T16:00:00"/>
+            <column name="delivery_address" value="159 Elm St."/>
+            <column name="contact_phone" value="+198756789012"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="33.33"/>
+            <column name="total_amount" valueNumeric="33.33"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="9"/>
+            <column name="created_at" valueDate="2025-07-09T10:30:00"/>
+            <column name="updated_at" valueDate="2025-07-09T11:15:00"/>
+            <column name="delivery_address" value="753 Willow Dr."/>
+            <column name="contact_phone" value="+123498765432"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="99.99"/>
+            <column name="total_amount" valueNumeric="99.99"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="10"/>
+            <column name="created_at" valueDate="2025-07-10T14:45:00"/>
+            <column name="updated_at" valueDate="2025-07-10T15:30:00"/>
+            <column name="delivery_address" value="357 Spruce Ct."/>
+            <column name="contact_phone" value="+109876543219"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="COMPLETED"/>
+            <column name="payment_status" value="PAID"/>
+            <column name="payment_amount" valueNumeric="58.88"/>
+            <column name="total_amount" valueNumeric="58.88"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert-order-items" author="Kyra Subotovska">
+        <insert tableName="order_items"><column name="order_id" valueNumeric="1"/><column name="product_id" valueNumeric="2"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="15.49"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="1"/><column name="product_id" valueNumeric="5"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="24.48"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="2"/><column name="product_id" valueNumeric="3"/><column name="quantity" valueNumeric="2"/><column name="price_at_purchase" valueNumeric="29.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="3"/><column name="product_id" valueNumeric="6"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="85.50"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="4"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="5"/><column name="price_at_purchase" valueNumeric="4.75"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="5"/><column name="product_id" valueNumeric="8"/><column name="quantity" valueNumeric="4"/><column name="price_at_purchase" valueNumeric="30.00"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="6"/><column name="product_id" valueNumeric="9"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="49.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="7"/><column name="product_id" valueNumeric="14"/><column name="quantity" valueNumeric="3"/><column name="price_at_purchase" valueNumeric="74.25"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="8"/><column name="product_id" valueNumeric="15"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="33.33"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="9"/><column name="product_id" valueNumeric="1"/><column name="quantity" valueNumeric="5"/><column name="price_at_purchase" valueNumeric="19.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="10"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="2"/><column name="price_at_purchase" valueNumeric="29.44"/></insert>
+    </changeSet>
+
+    <changeSet id="insert-orders-canceled" author="Kyra Subotovska">
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="1"/>
+            <column name="created_at" valueDate="2025-07-01T10:00:00"/>
+            <column name="updated_at" valueDate="2025-07-01T11:00:00"/>
+            <column name="delivery_address" value="123 Green St."/>
+            <column name="contact_phone" value="+123456789012"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="2"/>
+            <column name="created_at" valueDate="2025-07-02T14:00:00"/>
+            <column name="updated_at" valueDate="2025-07-02T15:00:00"/>
+            <column name="delivery_address" value="456 Flower Rd."/>
+            <column name="contact_phone" value="+198765432109"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="3"/>
+            <column name="created_at" valueDate="2025-07-03T09:30:00"/>
+            <column name="updated_at" valueDate="2025-07-03T10:15:00"/>
+            <column name="delivery_address" value="789 Oak Ave."/>
+            <column name="contact_phone" value="+123450987654"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="4"/>
+            <column name="created_at" valueDate="2025-07-04T16:00:00"/>
+            <column name="updated_at" valueDate="2025-07-04T16:45:00"/>
+            <column name="delivery_address" value="321 Pine St."/>
+            <column name="contact_phone" value="+109876543210"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="5"/>
+            <column name="created_at" valueDate="2025-07-05T11:20:00"/>
+            <column name="updated_at" valueDate="2025-07-05T12:00:00"/>
+            <column name="delivery_address" value="654 Maple Rd."/>
+            <column name="contact_phone" value="+198700112233"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="6"/>
+            <column name="created_at" valueDate="2025-07-06T13:15:00"/>
+            <column name="updated_at" valueDate="2025-07-06T14:00:00"/>
+            <column name="delivery_address" value="987 Cedar Blvd."/>
+            <column name="contact_phone" value="+134567890123"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="7"/>
+            <column name="created_at" valueDate="2025-07-07T08:45:00"/>
+            <column name="updated_at" valueDate="2025-07-07T09:30:00"/>
+            <column name="delivery_address" value="246 Birch Lane"/>
+            <column name="contact_phone" value="+109823456789"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="8"/>
+            <column name="created_at" valueDate="2025-07-08T15:00:00"/>
+            <column name="updated_at" valueDate="2025-07-08T16:00:00"/>
+            <column name="delivery_address" value="159 Elm St."/>
+            <column name="contact_phone" value="+198756789012"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="9"/>
+            <column name="created_at" valueDate="2025-07-09T10:30:00"/>
+            <column name="updated_at" valueDate="2025-07-09T11:15:00"/>
+            <column name="delivery_address" value="753 Willow Dr."/>
+            <column name="contact_phone" value="+123498765432"/>
+            <column name="delivery_method" value="Courier"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+        <insert tableName="orders">
+            <column name="shop_user_id" valueNumeric="10"/>
+            <column name="created_at" valueDate="2025-07-10T14:45:00"/>
+            <column name="updated_at" valueDate="2025-07-10T15:30:00"/>
+            <column name="delivery_address" value="357 Spruce Ct."/>
+            <column name="contact_phone" value="+109876543219"/>
+            <column name="delivery_method" value="Pickup"/>
+            <column name="status" value="CANCELED"/>
+            <column name="payment_status" value="CANCELED"/>
+            <column name="payment_amount" valueNumeric="0"/>
+            <column name="total_amount" valueNumeric="0"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert-order-items-cancelled" author="Kyra Subotovska">
+        <insert tableName="order_items"><column name="order_id" valueNumeric="11"/><column name="product_id" valueNumeric="2"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="15.49"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="11"/><column name="product_id" valueNumeric="5"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="24.48"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="12"/><column name="product_id" valueNumeric="3"/><column name="quantity" valueNumeric="2"/><column name="price_at_purchase" valueNumeric="29.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="13"/><column name="product_id" valueNumeric="6"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="85.50"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="14"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="5"/><column name="price_at_purchase" valueNumeric="4.75"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="15"/><column name="product_id" valueNumeric="8"/><column name="quantity" valueNumeric="4"/><column name="price_at_purchase" valueNumeric="30.00"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="16"/><column name="product_id" valueNumeric="9"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="49.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="17"/><column name="product_id" valueNumeric="14"/><column name="quantity" valueNumeric="3"/><column name="price_at_purchase" valueNumeric="74.25"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="18"/><column name="product_id" valueNumeric="15"/><column name="quantity" valueNumeric="1"/><column name="price_at_purchase" valueNumeric="33.33"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="19"/><column name="product_id" valueNumeric="1"/><column name="quantity" valueNumeric="5"/><column name="price_at_purchase" valueNumeric="19.99"/></insert>
+        <insert tableName="order_items"><column name="order_id" valueNumeric="20"/><column name="product_id" valueNumeric="4"/><column name="quantity" valueNumeric="2"/><column name="price_at_purchase" valueNumeric="29.44"/></insert>
+    </changeSet>
+
+</databaseChangeLog>
