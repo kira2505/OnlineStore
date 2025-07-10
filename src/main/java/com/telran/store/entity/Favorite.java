@@ -7,10 +7,11 @@ import lombok.*;
 
 @Data
 @Builder
+@ToString(exclude = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "favorites")
+@Table(name = "favorites", uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "shop_user_id"}))
 @EqualsAndHashCode
 public class Favorite {
 
@@ -25,6 +26,7 @@ public class Favorite {
     private Product products;
 
     @ManyToOne
+    @JoinColumn(name = "shop_user_id")
     @JsonBackReference
     private ShopUser shopUser;
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-@Tag(name = "Favorites", description = "Operations related to user's favorite products")
+@Tag(name = "Favorites Management", description = "Operations related to user's favorite products")
 public interface FavoriteApi {
 
     @GetMapping("/all")
@@ -52,16 +52,18 @@ public interface FavoriteApi {
             @ApiResponse(responseCode = "400", description = "Invalid product ID",
                     content = @Content(examples = @ExampleObject(value = "Product ID must be a positive integer"))),
             @ApiResponse(responseCode = "404", description = "Product with the given ID not found",
-                    content = @Content(examples = @ExampleObject(value = "Product with ID 5 not found")))
+                    content = @Content(examples = @ExampleObject(value = "Product with ID 5 not found"))),
+            @ApiResponse(responseCode = "409", description = "Product is already in favorites",
+                    content = @Content(examples = @ExampleObject(value = "This product is already in your favorites")))
     })
     public FavoriteResponseDto addToFavorite(@Valid @RequestBody FavoriteCreateDto dto);
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Remove a favorite item", description = "Removes a specific favorite item based on its unique identifier.")
     @Parameter(name = "id", description = "ID of the favorite item to remove", required = true,
-            schema = @Schema(type = "integer", format = "int64", example = "123"))
+            schema = @Schema(type = "integer", format = "int64", example = "1"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully removed the favorite item"),
+            @ApiResponse(responseCode = "200", description = "Successfully removed the favorite item"),
             @ApiResponse(responseCode = "400", description = "Invalid product ID"),
             @ApiResponse(responseCode = "404", description = "Favorite item with the given ID not found")
     })

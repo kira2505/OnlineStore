@@ -31,7 +31,7 @@ public class CommonExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(OrderAlreadyCompletedException.class)
+    @ExceptionHandler({OrderAlreadyCompletedException.class, FavoriteAlreadyExistsException.class})
     public ResponseEntity<Object> handleConflict(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
@@ -45,12 +45,4 @@ public class CommonExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleValidationErrors(ConstraintViolationException e) {
-//        List<String> errors = e.getBindingResult().getFieldErrors().stream()
-//                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-//                .collect(Collectors.toUnmodifiableList());
-
-        return new ResponseEntity<>("errors", HttpStatus.BAD_REQUEST);
-    }
 }

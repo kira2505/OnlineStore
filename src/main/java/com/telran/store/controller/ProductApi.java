@@ -103,7 +103,7 @@ public interface ProductApi {
     @Parameter(name = "id", description = "ID of the product to retrieve", required = true,
             schema = @Schema(type = "integer", format = "int64", example = "1"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Successfully removed the product"),
+            @ApiResponse(responseCode = "200", description = "Successfully removed the product"),
             @ApiResponse(responseCode = "400", description = "Invalid product ID"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })

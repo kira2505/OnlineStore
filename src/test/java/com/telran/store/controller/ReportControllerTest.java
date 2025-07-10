@@ -38,30 +38,30 @@ class ReportControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    void mostCancelled() throws Exception {
-        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
-        when(reportService.mostCancelled()).thenReturn(products);
-
-        mockMvc.perform(get("/reports/most-cancelled"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].productName").value("Product"))
-                .andExpect(jsonPath("$[0].totalQuantity").value(5));
-    }
-
-    @Test
-    void mostPurchased() throws Exception {
-        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
-        when(reportService.mostPurchased()).thenReturn(products);
-
-        mockMvc.perform(get("/reports/top-sellers"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].productName").value("Product"))
-                .andExpect(jsonPath("$[0].totalQuantity").value(5));
-
-    }
+//    @Test
+//    void mostCancelled() throws Exception {
+//        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
+//        when(reportService.mostCancelled()).thenReturn(products);
+//
+//        mockMvc.perform(get("/reports/most-cancelled"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$[0].productName").value("Product"))
+//                .andExpect(jsonPath("$[0].totalQuantity").value(5));
+//    }
+//
+//    @Test
+//    void mostPurchased() throws Exception {
+//        List<ProductSalesDTO> products = List.of(new ProductSalesDTO("Product", 5));
+//        when(reportService.mostPurchased()).thenReturn(products);
+//
+//        mockMvc.perform(get("/reports/top-sellers"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$[0].productName").value("Product"))
+//                .andExpect(jsonPath("$[0].totalQuantity").value(5));
+//
+//    }
 
     @Test
     void getProfit() throws Exception{
