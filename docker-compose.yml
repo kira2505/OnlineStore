@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:17
-    container_name: onlinegardenshop
+    container_name: db_online_garden_shop
     environment:
       POSTGRES_DB: onlinegardenshop
       POSTGRES_USER: postgres

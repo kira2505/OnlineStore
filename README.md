@@ -3,7 +3,7 @@
 ---
 ## links :
 
-- [technical task](https://drive.google.com/file/d/1EeizwvyhIcv_X-ib8Tbmlx2SOyma-aw5/view)
+- [technical task](https://docs.google.com/document/d/1Xn41eFhdYAJVYzRucsNwpbLJ5lNxdvpfx__SZf5DwXA/edit?tab=t.0)
 
 - [layout](https://www.figma.com/design/SDNWLzCWkh9ZXdCpWEaByv/project-frontend?node-id=5251-7386&p=f)
 
@@ -55,6 +55,13 @@
 - [x] Viewing the order status
 - [x] User purchase history
 - [x] Getting a list of the user's favorite products
+- [x] Payment for goods
+- [x] Payment for an order
+- [x] Viewing payments
+- [x] Adding to cart
+- [x] Removing from cart
+- [x] Viewing products in the cart
+- [x] Orders reporting
 
 ---
 
@@ -68,20 +75,16 @@
 - Database connectivity: Used Spring Data to integrate with the
   database to provide simplified data handling and support for a database migration mechanism via Flyway or Liquibase
   for database schema versioning.
-
-[//]: # (- Docker:  Creates containers for each)
-
-[//]: # (  component of the system, including the application, the database, and any other)
-
-[//]: # (  dependencies.)
-
+- Docker:  Creates containers for each
+  component of the system, including the application, the database, and any other
+  dependencies.
 
 ---
 
 ## Team Predators
 
 ### Team Members:
-- [Kyra Subotovska]  ()
+- [Kyra Subotovska]  (https://www.linkedin.com/in/kyra-subotovska/)
 - [Yehor Karpov] (www.linkedin.com/in/yehor-karpov-961987373)
 
 ---
@@ -91,12 +94,13 @@
 --- 
 ### Kyra Subotovska
 - Entity: ShopUser, Category, Order, OrderItem
-- Test: ShopUser, Category, Order, OrderItem
+- Test: ShopUser, Category, Order, OrderItem, Report
 - SecurityConfiguration
 - GlobalExceptionHandler
 - Application-properties
 - SwaggerConfiguration
 - RestApi Description
+- PostgreSQL
 - Mapstruct
 - Liquibase
 - Scheduler
@@ -109,5 +113,6 @@
 - Application-properties
 - GlobalExceptionHandler
 - PostgreSQL
+- Docker
 - Mapstruct
 - Jacoco
