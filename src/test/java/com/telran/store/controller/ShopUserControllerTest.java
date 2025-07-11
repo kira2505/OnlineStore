@@ -19,14 +19,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(ShopUserController.class)
@@ -51,17 +51,25 @@ class ShopUserControllerTest {
     private AuthenticationService authenticationService;
 
     @Test
-    void testLogin() {
+    void testLoginEndpoint() throws Exception {
         LoginRequestDto loginRequestDto = new LoginRequestDto("user@example.com", "password123");
 
         String expectedToken = "jwtToken";
 
-        when(authenticationService.login(loginRequestDto)).thenReturn(expectedToken);
+        when(authenticationService.login(any(LoginRequestDto.class))).thenReturn(expectedToken);
 
-        String actualToken = authenticationService.login(loginRequestDto);
+        mockMvc.perform(post("/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                {
+                    "email": "user@example.com",
+                    "password": "password123"
+                }
+            """))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedToken)); // проверяем, что вернулся токен как строка
 
-        assertEquals(expectedToken, actualToken);
-        verify(authenticationService, times(1)).login(loginRequestDto);
+        verify(authenticationService, times(1)).login(any(LoginRequestDto.class));
     }
 
     @Test
